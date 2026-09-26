@@ -1,0 +1,65 @@
+// ====== لوگوی دانش‌آموزینو ======
+// بازطراحی مفهوم لوگوی اصلی (کتاب باز + آدمک فارغ‌التحصیل با کلاه + فلش رشد + لامپ ایده)
+// در قالب SVG برداری و هماهنگ با پالت تم (نیلی/نارنجی) — سبک تخت (flat) و خوانا در ابعاد کوچک.
+//   size  → اندازه‌ی مربع لوگو (پیش‌فرض 40)
+//   title → متن دسترس‌پذیری (خالی = تزئینی و aria-hidden)
+export default function Logo({ size = 40, title = '' }) {
+  const a11y = title
+    ? { role: 'img', 'aria-label': title }
+    : { 'aria-hidden': true };
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...a11y}
+    >
+      <title>{title}</title>
+      {/* پس‌زمینه‌ی گرد */}
+      <rect width="64" height="64" rx="16" fill="#4A3FBE" />
+
+      {/* کتاب باز */}
+      <path
+        d="M32 44 C26 38.5 19 36.5 10 36.5 L10 22 C19 22 26 24 32 29.5 C38 24 45 22 54 22 L54 36.5 C45 36.5 38 38.5 32 44 Z"
+        fill="#fff"
+      />
+      <path
+        d="M32 41.5 C26.8 37 20.8 35.2 13 35 L13 25 C20.8 26.2 26.8 28 32 32.5 C37.2 28 43.2 26.2 51 25 L51 35 C43.2 35.2 37.2 37 32 41.5 Z"
+        fill="#CFC9F5"
+      />
+
+      {/* فلش رشد */}
+      <path
+        d="M20 40 L30 30 L36 35 L46 22"
+        stroke="#FF8A3D"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M38 21.5 L47.5 21.5 L47.5 31 Z" fill="#FF8A3D" />
+
+      {/* سر آدمک + کلاه فارغ‌التحصیلی */}
+      <circle cx="24.5" cy="18.5" r="5.2" fill="#FFB25C" />
+      <path
+        d="M24.5 10.2 L34.5 14.2 L24.5 18.2 L14.5 14.2 Z"
+        fill="#2D2680"
+      />
+      <path
+        d="M31.5 15 L31.5 20.5"
+        stroke="#2D2680"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <circle cx="31.5" cy="21.5" r="1.4" fill="#2D2680" />
+
+      {/* لامپ ایده */}
+      <path
+        d="M45.5 9.5 C48.3 9.5 50.5 11.6 50.5 14.3 C50.5 16.1 49.5 17.3 48.6 18.4 C48.1 19 47.7 19.6 47.5 20.4 L43.5 20.4 C43.3 19.6 42.9 19 42.4 18.4 C41.5 17.3 40.5 16.1 40.5 14.3 C40.5 11.6 42.7 9.5 45.5 9.5 Z"
+        fill="#FFD67B"
+      />
+      <rect x="43.9" y="20.9" width="3.2" height="2" rx="1" fill="#fff" />
+    </svg>
+  );
+}
