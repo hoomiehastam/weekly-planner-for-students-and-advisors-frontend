@@ -26,17 +26,44 @@ import {
   setSystemCard,
   setUserMonthlyPrice,
   setInstituteMonthlyPrice,
+  fetchKonkurDate,
+  setKonkurDate as saveKonkurDate,
+  fetchAuditLogs,
 } from '../api/client';
 import { formatJalaliDate, toFaDigits } from '../utils/jalali';
+import { konkurCountdownText } from '../utils/konkurDate';
 import { useToast } from '../context/ToastContext';
 import ConfirmModal from './ConfirmModal';
 import FaNumberInput from './FaNumberInput';
+import JalaliDatePicker from './JalaliDatePicker';
 
 const ALL_FIELDS = [
   { value: 'HUMANITIES', label: 'علوم انسانی', emoji: '📚' },
   { value: 'MATH_PHYSICS', label: 'ریاضی و فیزیک', emoji: '📐' },
   { value: 'EXPERIMENTAL', label: 'علوم تجربی', emoji: '🧪' },
 ];
+
+// برچسب خوانای اکشن‌های لاگ ممیزی
+const AUDIT_ACTION_LABELS = {
+  ADVISOR_APPROVE: 'تأیید مشاور',
+  ADVISOR_DEACTIVATE: 'غیرفعال‌سازی مشاور',
+  ADVISOR_DELETE: 'حذف مشاور',
+  ADVISOR_INSTITUTE_ASSIGN: 'تخصیص مؤسسه',
+  STUDENT_DEACTIVATE: 'غیرفعال‌سازی دانش‌آموز',
+  STUDENT_DELETE: 'حذف دانش‌آموز',
+  USER_SUBSCRIPTION_SET: 'تنظیم اشتراک کاربر',
+  USER_MONTHLY_PRICE_SET: 'مبلغ ماهانه‌ی کاربر',
+  INSTITUTE_SUBSCRIPTION_SET: 'اشتراک مؤسسه',
+  INSTITUTE_LIMITS_SET: 'سقف اعضای مؤسسه',
+  INSTITUTE_MONTHLY_PRICE_SET: 'مبلغ ماهانه‌ی مؤسسه',
+  INSTITUTE_LEADER_SET: 'تعیین نماینده‌ی مؤسسه',
+  OTP_CREATE: 'ساخت رمز یک‌بارمصرف',
+  KONKUR_DATE_SET: 'تاریخ کنکور',
+};
+
+function auditActionLabel(action) {
+  return AUDIT_ACTION_LABELS[action] || action;
+}
 
 export default function AdminPanel() {
   const toast = useToast();
@@ -66,6 +93,11 @@ export default function AdminPanel() {
   const [systemCardInfo, setSystemCardInfo] = useState(null); // کارت پلتفرم فعلی
   // مبلغ ماهانه — { kind: 'USER'|'INSTITUTE', id, name, price }
   const [editingPrice, setEditingPrice] = useState(null);
+  // تاریخ کنکور (تنظیمات سراسری) — فقط سوپرادمین همین‌جا تغییرش می‌دهد
+  const [konkurDate, setKonkurDateDraft] = useState('');
+  const [initialKonkurDate, setInitialKonkurDate] = useState('');
+  // ردپای تغییرات (لاگ ممیزی)
+  const [auditLogs, setAuditLogs] = useState([]);
 
   async function loadAll() {
     setLoading(true);
@@ -91,7 +123,28 @@ export default function AdminPanel() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadAll();
+    // تاریخ کنکور را هم برای بخش تنظیمات سراسری می‌گیریم
+    fetchKonkurDate()
+      .then((data) => {
+        setKonkurDateDraft(data.konkurDate || '');
+        setInitialKonkurDate(data.konkurDate || '');
+      })
+      .catch(() => {});
+    fetchAuditLogs()
+      .then((data) => setAuditLogs(data.logs || []))
+      .catch(() => {});
   }, []);
+
+  // ذخیره‌ی تاریخ کنکور — روزشمار لندینگ بلافاصله به‌روز می‌شود
+  async function handleSaveKonkurDate() {
+    try {
+      const res = await saveKonkurDate(konkurDate);
+      toast.success(res.message || 'تاریخ کنکور ذخیره شد');
+      setInitialKonkurDate(konkurDate);
+    } catch (err) {
+      toast.error(err.message);
+    }
+  }
 
   async function handleApprove(id) {
     try {
@@ -463,6 +516,69 @@ export default function AdminPanel() {
             >
               {systemCardInfo ? '💳 ویرایش کارت پلتفرم' : '💳 تنظیم کارت پلتفرم'}
             </button>
+          </section>
+
+          {/* تنظیمات سراسری — تاریخ کنکور (روزشمار لندینگ). فقط همین‌جا قابل تغییر است. */}
+          <section className="card admin-section">
+            <h3 className="card-title">
+              <span aria-hidden>📅</span> تنظیمات سراسری
+            </h3>
+            <label className="field-label">
+              تاریخ کنکور (روزشمار صفحه‌ی لندینگ)
+              <JalaliDatePicker
+                value={konkurDate}
+                onChange={(v) => setKonkurDateDraft(v)}
+                placeholder="تاریخ کنکور را انتخاب کنید"
+              />
+            </label>
+            <div className="profile-form-actions" style={{ marginTop: 8 }}>
+              <button
+                className="btn-primary btn-sm"
+                onClick={handleSaveKonkurDate}
+                disabled={!konkurDate || konkurDate === initialKonkurDate}
+              >
+                ✓ ذخیره‌ی تاریخ کنکور
+              </button>
+              {konkurDate && (
+                <span className="field-hint">
+                  {konkurCountdownText(konkurDate) || 'این تاریخ گذشته است'} — در لندینگ همین‌طور نمایش داده می‌شود
+                </span>
+              )}
+            </div>
+          </section>
+
+          {/* ردپای تغییرات — لاگ ممیزی آخرین اکشن‌های مدیریتی */}
+          <section className="card admin-section">
+            <h3 className="card-title">
+              <span aria-hidden>🧾</span> ردپای تغییرات
+            </h3>
+            <p className="muted-text" style={{ margin: '0 0 12px', fontSize: 13 }}>
+              آخرین اکشن‌های مدیریتی با تاریخ و جزئیات — برای شفافیت و پیگیری.
+            </p>
+            {auditLogs.length === 0 ? (
+              <p className="muted-text">هنوز اکشنی ثبت نشده.</p>
+            ) : (
+              <div className="audit-log-list">
+                {auditLogs.map((log) => (
+                  <div key={log.id} className="audit-log-row">
+                    <span className={`audit-action audit-${log.targetType.toLowerCase()}`}>
+                      {auditActionLabel(log.action)}
+                    </span>
+                    <span className="audit-detail">
+                      {log.details?.label || log.targetId}
+                      {log.details?.after != null && log.details?.before != null && (
+                        <small>
+                          {' '}({toFaDigits(log.details.before)} ← {toFaDigits(log.details.after)})
+                        </small>
+                      )}
+                    </span>
+                    <span className="audit-meta">
+                      {log.actorName} · {formatJalaliDate(log.createdAt, { withYear: false })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* بخش مؤسسه‌ها */}
@@ -1400,7 +1516,8 @@ export default function AdminPanel() {
                 <FaNumberInput
                   value={editingPrice.price}
                   onChange={(v) => setEditingPrice({ ...editingPrice, price: v })}
-                  placeholder="مثلاً ۵۰۰۰۰۰"
+                  placeholder="مثلاً ۵۰۰٬۰۰۰"
+                  grouping
                   autoFocus
                 />
                 {editingPrice.price && (
@@ -1495,7 +1612,8 @@ export default function AdminPanel() {
                 <FaNumberInput
                   value={editingCard.monthlyPrice || ''}
                   onChange={(v) => setEditingCard({ ...editingCard, monthlyPrice: v })}
-                  placeholder="مثلاً ۵۰۰۰۰۰"
+                  placeholder="مثلاً ۵۰۰٬۰۰۰"
+                  grouping
                 />
                 <span className="field-hint">
                   اگر تعیین شود، واریزکنندگان به این کارت آن را می‌بینند و روزهای تمدید خودکار از آن محاسبه می‌شود

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
 import Logo from '../components/Logo';
+import KonkurCountdownBanner from '../components/landing/KonkurCountdownBanner';
 import { toFaDigits } from '../utils/jalali';
 import { useAuth } from '../context/AuthContext';
 import { MASTER_BRAND, BRANDS } from '../utils/brand';
@@ -23,7 +24,12 @@ export default function LandingPage() {
   }, []);
 
   // کاربر لاگین‌شده مستقیماً به پنل خودش هدایت می‌شود
-  const dashboardPath = auth?.user?.role === 'STUDENT' ? '/student' : '/advisor';
+  const dashboardPath =
+    auth?.user?.role === 'STUDENT'
+      ? '/student'
+      : auth?.user?.role === 'PARENT'
+        ? '/parent'
+        : '/advisor';
 
   return (
     <div className="landing-page">
@@ -55,42 +61,58 @@ export default function LandingPage() {
       </header>
 
       <main>
-        {/* ---------- Hero: جمله‌ی صادقانه + دو دروازه ---------- */}
+        {/* ---------- Hero: وسط‌چین مثل کانسپت ---------- */}
         <section className="landing-hero">
           <div className="landing-container">
-            <div className="hero-grid">
-              <div className="hero-copy">
-                <span className="landing-kicker">
-                  <span className="landing-kicker-dot" aria-hidden />
-                  مشاور داری؟ برنامه‌ات اینجا می‌رسد. مشاور نیستی؟ اینجا مشاور پیدا کن.
-                </span>
-                <h1 className="landing-title">
-                  برنامه‌ات را <em>هفته‌ای یک‌بار</em> می‌گیری؛
-                  بقیه‌ی هفته فقط اجرا و ثبت است.
-                </h1>
-                <p className="landing-subtitle">
-                  دانش‌آموزینو برنامه‌ی هفتگی مشاورت را جلوی چشم تو نگه می‌دارد،
-                  هر دقیقه مطالعه و هر تست را با یک تیک ثبت می‌کند و آخر هفته
-                  به‌جای حدس و گمان، عدد واقعی به تو و مشاورت نشان می‌دهد.
-                </p>
-                <div className="hero-proof">
-                  <div className="proof-item">
-                    <strong>۰ پیام</strong>
-                    <small>دیگر «امروز چند ساعت خوندی؟» در واتساپ نمی‌آید؛ آمار خودش اینجا ست.</small>
-                  </div>
-                  <div className="proof-item">
-                    <strong>۱ نگاه</strong>
-                    <small>برنامه‌ی امروز با ساعت شروع و پایان، قبل از هر چیز دیگر دیده می‌شود.</small>
-                  </div>
-                  <div className="proof-item">
-                    <strong>۲ تیک</strong>
-                    <small>همین قدر طول می‌کشد پایان هر بازه را ثبت کنی و آمارت به‌روز شود.</small>
-                  </div>
+            <div className="hero-center">
+              <KonkurCountdownBanner />
+              <span className="landing-kicker hero-pill-orange">
+                ویژه‌ی داوطلبان کنکور و مشاوران‌شان
+              </span>
+              <h1 className="landing-title">
+                برنامه‌ی مطالعاتی‌ات را بگیر،
+                <br />
+                هر روز پیشرفتت را ببین
+              </h1>
+              <p className="landing-subtitle">
+                مشاورت برنامه‌ی هفتگی‌ات را می‌سازد، تو در یک پنل ساده انجامش می‌دهی
+                و آمار پیشرفتت را دنبال می‌کنی.
+              </p>
+              <div className="landing-hero-actions landing-hero-actions-center">
+                <Link to="/register?role=STUDENT" className="cta-button">
+                  شروع رایگان
+                  <span className="cta-arrow" aria-hidden>←</span>
+                </Link>
+                <Link to="/register?role=ADVISOR" className="btn-secondary landing-btn-lg">
+                  مشاور هستم
+                </Link>
+              </div>
+            </div>
+
+            {/* کارت پیش‌نمایش برنامه‌ی امروز — مثل کانسپت */}
+            <div className="hero-preview-card">
+              <div className="hero-preview-head">
+                <span className="hero-preview-title">برنامه‌ی امروز — شنبه</span>
+                <span className="hero-preview-badge">۳ از ۵ انجام‌شده</span>
+              </div>
+              <div className="hero-preview-rows">
+                <div className="hero-preview-row">
+                  <span className="hp-check" aria-hidden>✓</span>
+                  <span className="hp-done">ریاضی — فصل مشتق (۱ ساعت)</span>
+                </div>
+                <div className="hero-preview-row">
+                  <span className="hp-check" aria-hidden>✓</span>
+                  <span className="hp-done">زیست — گفتار دوم (۴۵ دقیقه)</span>
+                </div>
+                <div className="hero-preview-row">
+                  <span className="hp-circle" aria-hidden />
+                  <span>فیزیک — تست‌های دینامیک</span>
                 </div>
               </div>
+            </div>
 
-              {/* دو دروازه‌ی ورود — قلب Hero */}
-              <div className="hero-gates">
+            {/* دو دروازه‌ی ورود — بعد از کارت پیش‌نمایش */}
+            <div className="hero-gates hero-gates-below">
                 <Link
                   to={auth ? dashboardPath : '/register?role=STUDENT'}
                   className="gate gate-student"
@@ -134,7 +156,6 @@ export default function LandingPage() {
                     <span className="cta-arrow" aria-hidden>←</span>
                   </span>
                 </Link>
-              </div>
             </div>
           </div>
         </section>

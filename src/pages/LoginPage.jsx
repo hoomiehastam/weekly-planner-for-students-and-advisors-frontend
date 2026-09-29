@@ -54,6 +54,7 @@ export default function LoginPage() {
 
         if (data.user.role === 'STUDENT') navigate('/student');
         else if (data.user.role === 'INSTITUTE_MANAGER') navigate('/institute');
+        else if (data.user.role === 'PARENT') navigate('/parent');
         else navigate('/advisor');
       } else {
         const data = await loginRequest(email, password);
@@ -68,6 +69,7 @@ export default function LoginPage() {
 
         if (data.user.role === 'STUDENT') navigate('/student');
         else if (data.user.role === 'INSTITUTE_MANAGER') navigate('/institute');
+        else if (data.user.role === 'PARENT') navigate('/parent');
         else navigate('/advisor');
       }
     } catch (err) {
@@ -95,26 +97,50 @@ export default function LoginPage() {
         </Link>
       </div>
 
-      <div className="auth-card-min">
-        <div className="auth-brand-min">
-          <Logo size={46} title="دانش‌آموزینو" />
-          <h1>
-            {mode === 'forgot'
-              ? 'بازیابی رمز عبور'
-              : mode === 'otp'
-                ? 'ورود با کد یک‌بارمصرف'
-                : 'خوش برگشتی'}
-          </h1>
-          <p>
-            {mode === 'forgot'
-              ? 'ایمیلت را وارد کن تا لینک بازنشانی رمز عبور برایت ارسال شود.'
-              : mode === 'otp'
-                ? otpSent
-                  ? 'کد ۶ رقمی ارسال‌شده به ایمیلت را وارد کن.'
-                  : 'ایمیلت را وارد کن تا کد ورود یک‌بارمصرف برایت ارسال شود.'
-                : 'برنامه‌ی همین هفته‌ات داخل پنل منتظرت است.'}
-          </p>
-        </div>
+      {/* چیدمان دورسته‌ای: پنل معرفی سرمه‌ای + کارت فرم — مطابق کانسپت login_register */}
+      <div className="auth-split">
+        <aside className="auth-split-aside">
+          <div className="asa-brand">
+            <span className="asa-mark" aria-hidden>د</span>
+            <span>دانش‌آموزینو</span>
+          </div>
+          <div className="asa-lead">
+            <p className="asa-title">
+              هر روز، یک قدم
+              <br />
+              نزدیک‌تر به هدف
+            </p>
+            <p className="asa-sub">
+              بیش از هزار داوطلب کنکور همین حالا برنامه‌شان را اینجا دنبال می‌کنند.
+            </p>
+          </div>
+          <div className="asa-dots" aria-hidden>
+            <span className="on" />
+            <span />
+            <span />
+          </div>
+        </aside>
+
+        <div className="auth-split-form">
+          <div className="auth-brand-min">
+            <Logo size={40} title="دانش‌آموزینو" />
+            <h1>
+              {mode === 'forgot'
+                ? 'بازیابی رمز عبور'
+                : mode === 'otp'
+                  ? 'ورود با کد یک‌بارمصرف'
+                  : 'خوش برگشتی'}
+            </h1>
+            <p>
+              {mode === 'forgot'
+                ? 'ایمیلت را وارد کن تا لینک بازنشانی رمز عبور برایت ارسال شود.'
+                : mode === 'otp'
+                  ? otpSent
+                    ? 'کد ۶ رقمی ارسال‌شده به ایمیلت را وارد کن.'
+                    : 'ایمیلت را وارد کن تا کد ورود یک‌بارمصرف برایت ارسال شود.'
+                  : 'برنامه‌ی همین هفته‌ات داخل پنل منتظرت است.'}
+            </p>
+          </div>
 
         <form onSubmit={handleSubmit}>
 
@@ -257,6 +283,7 @@ export default function LoginPage() {
           حساب نداری؟
           <Link to="/register?role=STUDENT">ثبت‌نام دانش‌آموز</Link>
           <Link to="/register?role=ADVISOR">ثبت‌نام مشاور</Link>
+        </div>
         </div>
       </div>
     </div>

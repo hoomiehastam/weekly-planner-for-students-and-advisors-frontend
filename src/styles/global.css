@@ -8,36 +8,36 @@
 }
 
 :root {
-  /* پالت رنگی اصلی — نسخه‌ی جوان‌پسند */
-  --paper: #FBF7EF;
+  /* پالت رنگی — بازطراحی بر اساس کانسپت‌ها (کرم/سرمه‌ای/نارنجی) */
+  --paper: #FFF8F0;
   --sheet: #FFFFFF;
-  --ink: #1F2533;
-  --ink-soft: #5B6178;
-  --ink-muted: #8990A8;
+  --ink: #1B1F3B;
+  --ink-soft: #6B7280;
+  --ink-muted: #9A9788;
 
-  /* رنگ‌های اصلی */
-  --indigo: #4A3FBE;
-  --indigo-deep: #2D2680;
-  --indigo-soft: #ECE9FF;
-  --amber: #FF8A3D;
-  --amber-soft: #FFE3CC;
-  --sage: #2BB673;
-  --sage-soft: #D8F2E5;
-  --brick: #E5484D;
-  --brick-soft: #FCDCDD;
-  --pink: #FF6B9D;
-  --pink-soft: #FFD6E5;
-  --teal: #14B8A6;
-  --teal-soft: #CFF1ED;
+  /* رنگ‌های اصلی — سرمه‌ای دکمه‌ها، نارنجی تأکید، سبز/زرد/قرمز وضعیت */
+  --indigo: #1B1F3B;
+  --indigo-deep: #14172B;
+  --indigo-soft: #F1EFE8;
+  --amber: #E8643C;
+  --amber-soft: #FBE7D6;
+  --sage: #1B8A6B;
+  --sage-soft: #DCF0E7;
+  --brick: #E24B4A;
+  --brick-soft: #FCE3E3;
+  --pink: #F2A93B;
+  --pink-soft: #FBEFD9;
+  --teal: #0F6E56;
+  --teal-soft: #DCF0E7;
   --sky: #3B82F6;
-  --sky-soft: #DBEAFE;
+  --sky-soft: #E8EDFB;
 
-  --hairline: #E8E4D9;
-  --hairline-soft: #F0EDE2;
+  --hairline: #EDE3D3;
+  --hairline-soft: #F4EDE0;
 
-  --shadow-sm: 0 1px 2px rgba(35, 43, 62, 0.06);
-  --shadow-md: 0 8px 28px rgba(74, 63, 190, 0.10);
-  --shadow-lg: 0 16px 48px rgba(74, 63, 190, 0.14);
+  --shadow-sm: 0 1px 2px rgba(27, 31, 59, 0.05);
+  --shadow-md: 0 6px 20px rgba(27, 31, 59, 0.07);
+  --shadow-lg: 0 12px 36px rgba(27, 31, 59, 0.10);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -80,7 +80,7 @@ button {
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.1s ease, box-shadow 0.2s ease, background 0.2s ease;
-  box-shadow: 0 2px 8px rgba(74, 63, 190, 0.18);
+  box-shadow: 0 2px 8px rgba(27, 31, 59, 0.15);
 }
 
 /* قانون hover فقط برای دکمه‌های اصلی و ثانویه — دکمه‌های شفاف و اختصاصی hover خودشان را دارند */
@@ -88,7 +88,7 @@ button.btn-primary:hover:not(:disabled),
 button:hover:not(:disabled).btn-primary {
   background: var(--indigo-deep);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(74, 63, 190, 0.28);
+  box-shadow: 0 4px 14px rgba(27, 31, 59, 0.25);
 }
 
 button:active:not(:disabled) {
@@ -230,9 +230,9 @@ textarea::placeholder {
   justify-content: center;
   padding: 24px;
   background:
-    radial-gradient(circle at 0% 0%, rgba(255, 138, 61, 0.12), transparent 45%),
-    radial-gradient(circle at 100% 100%, rgba(74, 63, 190, 0.12), transparent 45%),
-    radial-gradient(circle at 50% 100%, rgba(43, 182, 115, 0.06), transparent 50%),
+    radial-gradient(circle at 0% 0%, rgba(232, 100, 60, 0.08), transparent 45%),
+    radial-gradient(circle at 100% 100%, rgba(27, 31, 59, 0.08), transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(27, 138, 107, 0.05), transparent 50%),
     var(--paper);
 }
 
@@ -249,7 +249,7 @@ textarea::placeholder {
 }
 
 .auth-aside {
-  background: linear-gradient(160deg, var(--indigo) 0%, var(--indigo-deep) 100%);
+  background: var(--indigo);
   color: #fff;
   padding: 40px 32px;
   display: flex;
@@ -296,12 +296,12 @@ textarea::placeholder {
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: var(--amber);
   color: #fff;
   font-weight: 800;
   font-size: 24px;
   flex-shrink: 0;
-  box-shadow: 0 6px 16px rgba(255, 138, 61, 0.4);
+  box-shadow: 0 4px 12px rgba(232, 100, 60, 0.35);
 }
 
 .brand h2 {
@@ -370,19 +370,19 @@ textarea::placeholder {
   justify-content: center;
   gap: 10px;
   padding: 14px 22px;
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: var(--amber);
   color: #fff;
   border-radius: var(--radius-sm);
   text-decoration: none;
   font-size: 15px;
   font-weight: 700;
   transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+  box-shadow: 0 4px 14px rgba(232, 100, 60, 0.35);
 }
 
 .cta-button:hover {
   transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 10px 28px rgba(255, 107, 157, 0.5);
+  box-shadow: 0 8px 22px rgba(232, 100, 60, 0.45);
 }
 
 .cta-arrow {
@@ -789,13 +789,13 @@ a.auth-btn-link {
 a.auth-btn-link.btn-primary {
   background: var(--indigo);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(74, 63, 190, 0.18);
+  box-shadow: 0 2px 8px rgba(27, 31, 59, 0.15);
 }
 
 a.auth-btn-link.btn-primary:hover {
   background: var(--indigo-deep);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(74, 63, 190, 0.28);
+  box-shadow: 0 4px 14px rgba(27, 31, 59, 0.25);
 }
 
 /* در موبایل دکمه‌های فرم احراز هویت تمام‌عرض شوند */
@@ -852,7 +852,7 @@ a.auth-btn-link.btn-primary:hover {
 }
 
 .aside-brand-mark.advisor {
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: var(--amber);
 }
 
 .aside-brand-check {
@@ -921,6 +921,39 @@ a.auth-btn-link.btn-primary:hover {
   margin: 0;
 }
 
+/* ----- بنر جمله‌ی روز استاد (پنل دانش‌آموز — مطابق کانسپت) ----- */
+.daily-quote-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--amber-soft);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: var(--gap-md);
+}
+
+.daily-quote-banner .dqb-icon {
+  font-size: 18px;
+  color: #B8501E;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.daily-quote-banner p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #7A3B15;
+  line-height: 1.8;
+}
+
+[data-theme="dark"] .daily-quote-banner p {
+  color: #F5D9AE;
+}
+
+[data-theme="dark"] .daily-quote-banner .dqb-icon {
+  color: var(--amber);
+}
+
 /* ============================================================
    هدر اپلیکیشن
    ============================================================ */
@@ -958,17 +991,18 @@ a.auth-btn-link.btn-primary:hover {
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--indigo), var(--pink));
-  color: #fff;
+  background: var(--amber-soft);
+  color: #B8501E;
   font-weight: 700;
   font-size: 20px;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(74, 63, 190, 0.25);
+  box-shadow: none;
 }
 
 .advisor-avatar {
-  background: linear-gradient(135deg, var(--sage), var(--teal));
-  box-shadow: 0 4px 12px rgba(43, 182, 115, 0.25);
+  background: var(--sage-soft);
+  color: #0F6E56;
+  box-shadow: none;
 }
 
 .greeting {
@@ -1002,21 +1036,53 @@ a.auth-btn-link.btn-primary:hover {
   gap: 14px;
 }
 
+/* کارت‌های آمار: سبک کانسپت — کاشی تخت؛ در دارک‌مود مثل مک‌آپ: کارت #1E2240 روی زمینه #14172B */
 .stat-card {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px 20px;
-  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  border-radius: 14px;
   background: var(--sheet);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s, box-shadow 0.2s;
+  border: 0.5px solid var(--hairline);
+  box-shadow: none;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+[data-theme="dark"] .stat-card {
+  border-color: #262A47;
+  background: var(--sheet);
+}
+
+/* سبک کانسپت: برچسب بالا، عدد درشت پایین */
+.stat-card .stat-body {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0;
+  min-width: 0;
+}
+
+.stat-card .stat-label {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.stat-card .stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: none;
+  box-shadow: none;
+  border-color: #D8D2C2;
+}
+
+[data-theme="dark"] .stat-card:hover {
+  border-color: #3E4266;
 }
 
 .stat-icon {
@@ -1026,8 +1092,10 @@ a.auth-btn-link.btn-primary:hover {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  font-size: 22px;
+  font-size: 20px;
   flex-shrink: 0;
+  background: var(--indigo-soft);
+  color: var(--ink);
 }
 
 .stat-indigo .stat-icon {
@@ -1148,6 +1216,67 @@ a.auth-btn-link.btn-primary:hover {
   gap: 16px;
   padding: 40px 20px;
   color: var(--ink-muted);
+}
+
+/* لودینگ تمام‌صفحه (بررسی جلسه) — محتوا وسط صفحه می‌نشیند، نه بالای آن */
+.fullscreen-loading {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 40px 20px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.fullscreen-loading .loading-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: var(--indigo-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: loading-bob 2.4s ease-in-out infinite;
+}
+
+.fullscreen-loading .loading-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--indigo-deep);
+  margin: 0;
+}
+
+.fullscreen-loading .loading-sub {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin: -12px 0 0;
+}
+
+.fullscreen-loading .loading-dot {
+  display: inline-block;
+  animation: loading-dot 1.4s infinite;
+}
+
+.fullscreen-loading .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.fullscreen-loading .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes loading-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes loading-dot {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
 }
 
 .spinner {
@@ -1287,6 +1416,11 @@ a.auth-btn-link.btn-primary:hover {
 
 .plan-card.is-open {
   box-shadow: var(--shadow-md);
+  border-color: #D8D2C2;
+}
+
+[data-theme="dark"] .plan-card.is-open {
+  border-color: #3A3F63;
 }
 
 .plan-card-header {
@@ -1297,7 +1431,7 @@ a.auth-btn-link.btn-primary:hover {
   border: none;
   border-bottom: 1px solid var(--hairline-soft);
   padding: 0;
-  cursor: pointer;
+  cursor: default;
   font-family: inherit;
   color: var(--ink);
   box-shadow: none;
@@ -1305,8 +1439,28 @@ a.auth-btn-link.btn-primary:hover {
   text-align: right;
 }
 
-button.plan-card-header:hover {
-  background: transparent;
+/* دکمه‌ی دانلود PDF برنامه — در ردیف هدر کارت */
+.plan-pdf-btn {
+  align-self: center;
+  margin-inline-end: 14px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--indigo);
+  background: var(--indigo-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.plan-pdf-btn:hover {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+  color: #B8501E;
   transform: none;
   box-shadow: none;
 }
@@ -1316,6 +1470,8 @@ button.plan-card-header:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 14px;
+  min-width: 0;
   padding: 18px 20px;
   background: transparent;
   border: none;
@@ -1344,11 +1500,15 @@ button.plan-card-toggle:hover {
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  flex: 1;
 }
 
 .plan-title {
   font-size: 16px;
   color: var(--indigo-deep);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .plan-note {
@@ -1370,7 +1530,7 @@ button.plan-card-toggle:hover {
   padding: 2px 10px;
   border-radius: 999px;
   background: var(--indigo-soft);
-  color: var(--indigo);
+  color: var(--indigo-deep);
   font-size: 11.5px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
@@ -1392,7 +1552,7 @@ button.plan-card-toggle:hover {
   border-radius: 50%;
   background:
     conic-gradient(
-      var(--amber) calc(var(--p)),
+      var(--sage) calc(var(--p)),
       var(--hairline-soft) 0
     );
   display: flex;
@@ -1445,7 +1605,7 @@ button.plan-card-toggle:hover {
 }
 
 .progress-fill {
-  background: linear-gradient(90deg, var(--amber), var(--pink));
+  background: var(--sage);
   height: 100%;
   border-radius: 999px;
   transition: width 0.5s ease;
@@ -1587,8 +1747,8 @@ button.plan-card-toggle:hover {
   gap: 4px;
   padding: 3px 10px;
   border-radius: 999px;
-  background: var(--indigo);
-  color: #fff;
+  background: var(--indigo-soft);
+  color: var(--indigo-deep);
   font-size: 11.5px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -1604,7 +1764,7 @@ button.plan-card-toggle:hover {
   padding: 2px 11px;
   border-radius: 999px;
   background: var(--sage-soft);
-  color: #1D6D4C;
+  color: #0F6E56;
   font-size: 11.5px;
   font-weight: 500;
 }
@@ -1648,7 +1808,102 @@ button.plan-card-toggle:hover {
   align-items: start;
 }
 
-.student-list {
+/* سایدبار پنل مشاور — هم‌راستا با کانسپت: ستون برند تیره بالای فهرست */
+.advisor-sidebar-shell {
+  background: #1B1F3B;
+  border-radius: var(--radius-lg);
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+[data-theme="dark"] .advisor-sidebar-shell {
+  background: #0D0F1E;
+  border: 0.5px solid #262A47;
+}
+
+.advisor-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 18px;
+  padding: 0 4px;
+}
+
+[data-theme="dark"] .advisor-sidebar-brand {
+  color: #F2F1EA;
+}
+
+.asb-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #E8643C;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .asb-mark {
+  background: #F0997B;
+  color: #0D0F1E;
+}
+
+/* تیتر و آیتم‌های فهرست داخل ستون تیره */
+.advisor-sidebar-shell .list-title {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+}
+
+[data-theme="dark"] .advisor-sidebar-shell .list-title {
+  color: #F2F1EA;
+  border-bottom-color: #262A47;
+}
+
+.advisor-sidebar-shell .student-item {
+  color: #A9ADC7;
+}
+
+.advisor-sidebar-shell .student-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.advisor-sidebar-shell .student-item.active {
+  background: #2A2F52;
+  border-color: #2A2F52;
+  color: #fff;
+}
+
+[data-theme="dark"] .advisor-sidebar-shell .student-item.active {
+  background: #1E2240;
+  border-color: #3E4266;
+  color: #F2F1EA;
+}
+
+.advisor-sidebar-shell .student-item.active .student-email {
+  color: #A9ADC7 !important;
+}
+
+.advisor-sidebar-shell .student-avatar {
+  background: rgba(255, 255, 255, 0.12);
+  color: #F2A93B;
+}
+
+.advisor-sidebar-shell .student-info strong {
+  color: inherit;
+}
+
+.student-list,
+.advisor-sidebar-shell {
   position: sticky;
   top: 90px;
   padding: 18px 14px;
@@ -1684,9 +1939,19 @@ button.plan-card-toggle:hover {
 }
 
 .student-item.active {
-  background: var(--indigo-soft);
-  border-color: var(--indigo);
-  color: var(--indigo-deep);
+  background: #1B1F3B;
+  border-color: #1B1F3B;
+  color: #fff;
+}
+
+[data-theme="dark"] .student-item.active {
+  background: #2A2F52;
+  border-color: #2A2F52;
+  color: #F2F1EA;
+}
+
+.student-item.active .student-email {
+  color: #A9ADC7 !important;
 }
 
 .student-item .student-avatar {
@@ -2020,7 +2285,8 @@ h3 .tag-pill {
   .two-column {
     grid-template-columns: 1fr;
   }
-  .student-list {
+  .student-list,
+  .advisor-sidebar-shell {
     position: static;
   }
   .builder-row {
@@ -2866,7 +3132,7 @@ h3 .tag-pill {
 .tab-btn-sm.active {
   background: var(--indigo);
   color: #fff;
-  box-shadow: 0 2px 6px rgba(74, 63, 190, 0.25);
+  box-shadow: 0 2px 6px rgba(27, 31, 59, 0.22);
 }
 
 /* --- نوار پیشرفت بزرگ --- */
@@ -4595,7 +4861,7 @@ h3 .tag-pill {
 }
 
 .other-entry-row.student-entry .other-entry-subject {
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: var(--amber);
   color: #fff;
   font-size: 12.5px;
 }
@@ -4607,7 +4873,7 @@ h3 .tag-pill {
 }
 
 .other-entries-total.student-total {
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: var(--amber);
   color: #fff;
   font-size: 14px;
   padding: 10px 16px;
@@ -4635,15 +4901,23 @@ h3 .tag-pill {
   line-height: 1.5;
 }
 
-/* --- کارت اطلاعات تماس مشاور در پنل دانش‌آموز --- */
+/* --- کارت اطلاعات تماس مشاور در پنل دانش‌آموز ---
+   نکته‌ی دارک‌مود: متغیرهای --indigo در تم تیره به رنگ‌های روشن تغییر می‌کنند؛
+   اگر کارت از آن‌ها استفاده کند، متن سفید روی زمینه‌ی روشن گم می‌شود. برای همین
+   رنگ‌های کارت ثابت و سرمه‌ای‌اند (مثل کانسپت) و در هر دو تم یکسان می‌مانند. */
 .advisor-contact-card {
-  background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-deep) 100%);
+  background: linear-gradient(135deg, #1B1F3B 0%, #14172B 100%);
   color: #fff;
   border-radius: var(--radius-md);
   padding: 18px 22px;
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
+}
+
+[data-theme="dark"] .advisor-contact-card {
+  background: linear-gradient(135deg, #262A47 0%, #1A1D36 100%);
+  border: 0.5px solid #3E4266;
 }
 
 .advisor-contact-card::before {
@@ -4669,14 +4943,14 @@ h3 .tag-pill {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: #FBE7D6;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 20px;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(255, 138, 61, 0.4);
+  color: #B8501E;
+  box-shadow: 0 4px 12px rgba(232, 100, 60, 0.35);
   flex-shrink: 0;
 }
 
@@ -4688,7 +4962,11 @@ h3 .tag-pill {
 
 .advisor-contact-sub {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+[data-theme="dark"] .advisor-contact-sub {
+  color: #A9ADC7 !important;
 }
 
 .advisor-contact-rows {
@@ -4740,16 +5018,42 @@ h3 .tag-pill {
 
 .advisor-contact-bio .bio-label {
   font-size: 11.5px;
-  color: var(--amber);
+  color: #F2A93B;
   font-weight: 600;
   margin-bottom: 4px;
 }
 
 .advisor-contact-bio .bio-text {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
   line-height: 1.7;
   margin: 0;
+}
+
+/* دارک‌مود: روی زمینه‌ی سرمه‌ای کارت، متنی کمی گرم‌تر و روشن‌تر */
+[data-theme="dark"] .advisor-contact-bio .bio-label {
+  color: #F5C97B;
+}
+
+[data-theme="dark"] .advisor-contact-row {
+  background: rgba(255, 255, 255, 0.12);
+  color: #F2F1EA;
+}
+
+[data-theme="dark"] .advisor-contact-row:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .advisor-contact-row.phone-row {
+  background: rgba(242, 169, 59, 0.18);
+}
+
+[data-theme="dark"] .advisor-contact-row.phone-row:hover {
+  background: rgba(242, 169, 59, 0.3);
+}
+
+[data-theme="dark"] .advisor-contact-bio .bio-text {
+  color: #E8E9F5;
 }
 
 /* --- کارت اطلاعات دانش‌آموز در پنل مشاور --- */
@@ -4866,7 +5170,7 @@ a.contact-item-value:hover {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: var(--amber);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5223,7 +5527,7 @@ a.contact-value:hover {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: var(--amber);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6033,8 +6337,8 @@ a.contact-value:hover {
   margin-inline-start: var(--gap-sm);
   white-space: nowrap;
 }
-.header-brand-chip.student { background: var(--indigo-soft); color: var(--indigo); }
-.header-brand-chip.advisor { background: var(--amber-soft); color: var(--amber); }
+.header-brand-chip.student { background: var(--amber-soft); color: #B8501E; }
+.header-brand-chip.advisor { background: var(--sage-soft); color: #0F6E56; }
 @media (max-width: 700px) {
   .header-brand-chip { display: none; }
 }
@@ -6915,28 +7219,28 @@ a.contact-value:hover {
    ============================================================ */
 
 [data-theme="dark"] {
-  --paper: #141626;
-  --sheet: #1d2038;
-  --ink: #f0f2ff;
-  --ink-soft: #c8cce8;
-  --ink-muted: #9098b8;
-  --indigo: #8b7fee;
-  --indigo-deep: #6c5fd6;
-  --indigo-soft: #2a2858;
-  --amber: #ffb060;
-  --amber-soft: #322a18;
-  --sage: #50e0a0;
-  --sage-soft: #1a3028;
-  --brick: #ff7080;
-  --brick-soft: #321a1e;
-  --pink: #ff80b0;
-  --pink-soft: #321a28;
-  --teal: #30d8c8;
-  --teal-soft: #1a3030;
-  --sky: #60a8ff;
-  --sky-soft: #1a2838;
-  --hairline: #3a3f5e;
-  --hairline-soft: #2e3148;
+  --paper: #14172B;
+  --sheet: #1E2240;
+  --ink: #F2F1EA;
+  --ink-soft: #A9ADC7;
+  --ink-muted: #7C81A3;
+  --indigo: #8A94D9;
+  --indigo-deep: #C7CDF5;
+  --indigo-soft: #262A47;
+  --amber: #F2A93B;
+  --amber-soft: #3D2A1E;
+  --sage: #5DCAA5;
+  --sage-soft: #1C342C;
+  --brick: #F08A7E;
+  --brick-soft: #3A2321;
+  --pink: #E58FB8;
+  --pink-soft: #3A2430;
+  --teal: #5DCAA5;
+  --teal-soft: #1C342C;
+  --sky: #7FA6E8;
+  --sky-soft: #1F2940;
+  --hairline: #262A47;
+  --hairline-soft: #22263F;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
@@ -6950,8 +7254,8 @@ a.contact-value:hover {
 /* پس‌زمینه‌ی صفحات احراز هویت */
 [data-theme="dark"] .auth-page {
   background:
-    radial-gradient(circle at 0% 0%, rgba(123, 111, 224, 0.12), transparent 45%),
-    radial-gradient(circle at 100% 100%, rgba(240, 112, 160, 0.08), transparent 45%),
+    radial-gradient(circle at 0% 0%, rgba(138, 148, 217, 0.10), transparent 45%),
+    radial-gradient(circle at 100% 100%, rgba(242, 169, 59, 0.07), transparent 45%),
     var(--paper);
 }
 
@@ -6972,7 +7276,7 @@ a.contact-value:hover {
 [data-theme="dark"] select:focus,
 [data-theme="dark"] textarea:focus {
   border-color: var(--indigo);
-  box-shadow: 0 0 0 3px rgba(123, 111, 224, 0.15);
+  box-shadow: 0 0 0 3px rgba(138, 148, 217, 0.18);
 }
 
 /* h1-h4 در دارک مود روشن‌تر */
@@ -7731,6 +8035,13 @@ a.contact-value:hover {
     margin-bottom: 12px;
   }
 
+  .advisor-sidebar-shell {
+    position: static !important;
+    margin-bottom: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
   /* builder-row در موبایل */
   .builder-row {
     grid-template-columns: 1fr !important;
@@ -8090,7 +8401,8 @@ a.contact-value:hover {
   }
 
   /* ---------- مشاور: لیست دانش‌آموز ---------- */
-  .student-list {
+  .student-list,
+  .advisor-sidebar-shell {
     position: static;
     max-height: 260px;
     overflow-y: auto;
@@ -8409,7 +8721,207 @@ html {
 
 /* ---------- Hero ---------- */
 .landing-hero {
-  padding: 72px 0 56px;
+  padding: 64px 0 32px;
+}
+
+/* ----- هیرو وسط‌چین (مطابق کانسپت لندینگ) ----- */
+.hero-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-center .landing-title,
+.hero-center .landing-subtitle {
+  max-width: 640px;
+}
+
+/* کارت کد دعوت والد در پنل دانش‌آموز */
+.parent-invite-code-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.parent-invite-code {
+  font-size: 20px;
+  letter-spacing: 3px;
+  background: var(--indigo-soft);
+  color: var(--indigo-deep);
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  border: 0.5px dashed var(--indigo);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="dark"] .parent-invite-code {
+  background: var(--indigo-soft);
+  color: var(--ink);
+}
+
+/* ردپای تغییرات (لاگ ممیزی) در پنل مدیریت */
+.audit-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.audit-log-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--hairline);
+  font-size: 12.5px;
+  flex-wrap: wrap;
+}
+
+.audit-action {
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  white-space: nowrap;
+}
+
+.audit-action.audit-user { background: var(--amber-soft); color: #B8501E; }
+.audit-action.audit-institute { background: var(--sage-soft); color: var(--teal); }
+.audit-action.audit-setting { background: var(--sky-soft); color: var(--sky); }
+.audit-action.audit-deposit { background: var(--pink-soft); color: var(--pink); }
+
+.audit-detail {
+  flex: 1;
+  min-width: 140px;
+  color: var(--ink);
+}
+
+.audit-detail small {
+  color: var(--ink-muted);
+  font-size: 11px;
+}
+
+.audit-meta {
+  color: var(--ink-muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+/* بنر روزشمار تا کنکور (لندینگ) — تاریخ از تنظیمات سوپرادمین می‌آید */
+.konkur-countdown-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: var(--sage-soft);
+  border: 0.5px solid var(--hairline);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sage);
+  margin-bottom: 14px;
+}
+
+[data-theme="dark"] .konkur-countdown-banner {
+  background: #1C342C;
+  border-color: #2E5244;
+  color: #5DCAA5;
+}
+
+.kcb-icon { font-size: 15px; }
+
+.hero-pill-orange {
+  background: var(--amber-soft);
+  color: #B8501E;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .hero-pill-orange {
+  color: var(--amber);
+}
+
+.hero-center .landing-title em {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: var(--amber);
+}
+
+.hero-preview-card {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 16px 18px;
+  max-width: 460px;
+  margin: 28px auto 0;
+  box-shadow: var(--shadow-md);
+}
+
+.hero-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.hero-preview-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.hero-preview-badge {
+  font-size: 11px;
+  color: #1B8A6B;
+  background: var(--sage-soft);
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+[data-theme="dark"] .hero-preview-badge {
+  color: var(--sage);
+}
+
+.hero-preview-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hero-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.hp-check {
+  color: #1B8A6B;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .hp-check { color: var(--sage); }
+
+.hp-circle {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.5px solid #D8D2C2;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .hp-circle { border-color: #3E4266; }
+
+.hp-done {
+  text-decoration: line-through;
+  color: var(--ink-muted);
 }
 
 .landing-kicker {
@@ -8503,7 +9015,7 @@ html {
 }
 
 .landing-preview-card-accent {
-  background: linear-gradient(160deg, var(--indigo) 0%, var(--indigo-deep) 100%);
+  background: var(--indigo);
   border: none;
   color: #fff;
 }
@@ -8564,7 +9076,7 @@ html {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: var(--amber);
 }
 
 .landing-preview-goal small {
@@ -8860,7 +9372,7 @@ html {
   background:
     radial-gradient(circle at 15% 20%, rgba(255, 138, 61, 0.18), transparent 50%),
     radial-gradient(circle at 85% 80%, rgba(255, 107, 157, 0.16), transparent 50%),
-    linear-gradient(160deg, var(--indigo) 0%, var(--indigo-deep) 100%);
+    var(--indigo);
   border-radius: var(--radius-xl);
   color: #fff;
 }
@@ -9670,7 +10182,7 @@ html {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--amber), var(--pink));
+  background: var(--amber);
   color: #fff;
   display: inline-flex;
   align-items: center;
@@ -10166,6 +10678,21 @@ html {
   gap: 14px;
 }
 
+/* دروازه‌ها بعد از کارت پیش‌نمایش — دو ستونه وسط‌چین */
+.hero-gates-below {
+  flex-direction: row;
+  justify-content: center;
+  max-width: 760px;
+  margin: 36px auto 0;
+  gap: 16px;
+}
+
+@media (max-width: 760px) {
+  .hero-gates-below {
+    flex-direction: column;
+  }
+}
+
 .gate {
   display: flex;
   flex-direction: column;
@@ -10190,7 +10717,7 @@ html {
   width: 5px;
 }
 
-.gate-student::before { background: linear-gradient(180deg, var(--indigo), var(--pink)); }
+.gate-student::before { background: var(--amber); }
 .gate-advisor::before { background: linear-gradient(180deg, var(--amber), #f7b32b); }
 
 .gate:hover {
@@ -10287,7 +10814,7 @@ html {
   bottom: 8px;
   width: 3px;
   border-radius: 999px;
-  background: linear-gradient(180deg, var(--indigo), var(--amber), var(--pink));
+  background: var(--indigo);
   opacity: 0.35;
 }
 
@@ -10345,7 +10872,7 @@ html {
 }
 
 .timeline-card-accent {
-  background: linear-gradient(160deg, var(--indigo) 0%, var(--indigo-deep) 100%);
+  background: var(--indigo);
   border: none;
   color: #fff;
 }
@@ -10530,7 +11057,7 @@ html {
 }
 
 .report-bar-col:nth-child(odd) .report-bar {
-  background: linear-gradient(180deg, var(--indigo), var(--pink));
+  background: var(--amber);
 }
 
 .report-bar-col small {
@@ -10649,7 +11176,7 @@ html {
   background:
     radial-gradient(110% 90% at 100% 0%, rgba(255, 176, 96, 0.16) 0%, transparent 55%),
     radial-gradient(90% 80% at 0% 100%, rgba(255, 107, 157, 0.14) 0%, transparent 55%),
-    linear-gradient(160deg, var(--indigo) 0%, var(--indigo-deep) 100%);
+    var(--indigo);
 }
 
 /* لوگو و تیتر برند کمی پررنگ‌تر */
@@ -10696,7 +11223,7 @@ html {
 .stat-card {
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: 14px;
 }
 
 .stat-card::before {
@@ -10779,6 +11306,113 @@ html {
   justify-content: space-between;
   align-items: center;
   z-index: 10;
+}
+
+/* ============================================================
+   auth دورسته‌ای — پنل معرفی سرمه‌ای کنار فرم (کانسپت login/register)
+   ============================================================ */
+.auth-split {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  width: 100%;
+  max-width: 920px;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-split-aside {
+  background: #1B1F3B;
+  color: #fff;
+  padding: 36px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+[data-theme="dark"] .auth-split-aside {
+  background: #14172B;
+  border-inline-end: 1px solid #262A47;
+}
+
+.asa-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 13.5px;
+}
+
+.asa-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--amber);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.asa-title {
+  color: #fff;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.7;
+  margin: 0 0 10px;
+}
+
+.asa-sub {
+  color: #A9ADC7;
+  font-size: 12.5px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.asa-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.asa-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3A3F63;
+}
+
+.asa-dots span.on {
+  background: var(--amber);
+}
+
+.auth-split-form {
+  padding: 36px 32px;
+  min-width: 0;
+}
+
+.auth-split-form-wide {
+  padding: 30px 32px;
+}
+
+@media (max-width: 820px) {
+  .auth-split {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+
+  .auth-split-aside {
+    display: none;
+  }
+
+  .auth-split-form {
+    padding: 28px 22px;
+  }
 }
 
 .auth-floats .auth-back-home {

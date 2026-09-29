@@ -10,6 +10,7 @@ import {
   fetchMyWeeklyGoal,
   fetchMyAdvisor,
   fetchMyExams,
+  fetchRandomQuote,
 } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -17,6 +18,7 @@ import { toFaDigits } from '../utils/jalali';
 import AppHeader from '../components/AppHeader';
 import StudentStatsSection from '../components/student/StudentStatsSection';
 import RemindersSection from '../components/student/RemindersSection';
+import ParentInviteCard from '../components/student/ParentInviteCard';
 import PlanStudentCard from '../components/student/PlanStudentCard';
 import ExamStudentCard from '../components/student/ExamStudentCard';
 import WeeklyCalendarView from '../components/WeeklyCalendarView';
@@ -50,6 +52,7 @@ export default function StudentDashboard() {
   const [activeExam, setActiveExam] = useState(null);
   const [reviewExam, setReviewExam] = useState(null); // آزمون در حال مرور پاسخ‌ها
   const [confirmState, setConfirmState] = useState(null);
+  const [quote, setQuote] = useState('');
   const toast = useToast();
 
   // آیتم‌های نوار پایین موبایل — فقط اسکرول به بخش‌های صفحه
@@ -87,6 +90,11 @@ export default function StudentDashboard() {
         setAdvisor(advisorData.advisor ? { ...advisorData.advisor, linkStatus } : null);
         setExams(examsData.exams || []);
         if (plansData.plans.length > 0) setOpenPlanId(plansData.plans[0].id);
+
+        // جمله‌ی انگیزشی روز — اگر شکست خورد، بی‌صدا رد می‌شود (اختیاری است)
+        fetchRandomQuote()
+          .then((q) => setQuote(q.quote || ''))
+          .catch(() => {});
 
         // پس از نمایش، اعلان‌ها «خوانده‌شده» علامت می‌خورند و بدج به‌صورت موضعی هم صفر می‌شود
         Promise.allSettled([markNotificationSeen('reminders'), markNotificationSeen('plans')]).then(
@@ -274,6 +282,14 @@ export default function StudentDashboard() {
             )}
 
             <div id="section-home" className="page-section">
+              {/* بنر جمله‌ی روز استاد — مطابق کانسپت پنل دانش‌آموز */}
+              {quote && (
+                <div className="daily-quote-banner">
+                  <span className="dqb-icon" aria-hidden>❝</span>
+                  <p>{quote}</p>
+                </div>
+              )}
+
               <StudentStatsSection stats={stats} weeklyGoal={weeklyGoal} goalProgress={goalProgress} advisor={advisor} />
 
               <RemindersSection
@@ -281,6 +297,8 @@ export default function StudentDashboard() {
                 unreadReminders={notifications.unreadReminders}
                 onDelete={handleDeleteReminder}
               />
+
+              <ParentInviteCard />
             </div>
 
             {/* برنامه‌های مطالعاتی با تب‌بندی list/calendar/reports */}
@@ -326,6 +344,7 @@ export default function StudentDashboard() {
                         isOpen={isOpen}
                         onToggleOpen={() => setOpenPlanId(isOpen ? null : plan.id)}
                         onToggleItem={toggleItem}
+                        studentName={auth?.user?.fullName}
                       />
                     );
                   })}

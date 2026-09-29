@@ -539,7 +539,8 @@ export default function DepositPage() {
                       <FaNumberInput
                         value={amount}
                         onChange={setAmount}
-                        placeholder="مثلاً ۵۰۰۰۰۰"
+                        placeholder="مثلاً ۵۰۰٬۰۰۰"
+                        grouping
                         required={monthlyPrice != null}
                       />
                       {monthlyPrice != null && (
@@ -720,7 +721,8 @@ export default function DepositPage() {
                     <FaNumberInput
                       value={approveAmount}
                       onChange={setApproveAmount}
-                      placeholder="مثلاً ۵۰۰۰۰۰"
+                      placeholder="مثلاً ۵۰۰٬۰۰۰"
+                      grouping
                       autoFocus
                     />
                     <span className="field-hint">

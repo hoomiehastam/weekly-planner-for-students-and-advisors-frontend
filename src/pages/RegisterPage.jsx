@@ -32,7 +32,8 @@ const STEPS = [
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
-  const initialRole = searchParams.get('role') === 'ADVISOR' ? 'ADVISOR' : 'STUDENT';
+  const roleParam = searchParams.get('role');
+  const initialRole = ['STUDENT', 'ADVISOR', 'PARENT'].includes(roleParam) ? roleParam : 'STUDENT';
 
   // با ?role=ADVISOR مستقیم وارد مرحله ۱ می‌شویم — تب «نقش» نداریم
   const [step, setStep] = useState(1);
@@ -49,6 +50,8 @@ export default function RegisterPage() {
   const [bio, setBio] = useState('');
   const [advisorId, setAdvisorId] = useState('');
   const [instituteId, setInstituteId] = useState(''); // '' یعنی مستقل
+  // کد دعوت والد — از لینک ?invite=CODE یا تایپ دستی؛ اختیاری (بعداً هم قابل اتصال است)
+  const [inviteCode, setInviteCode] = useState((searchParams.get('invite') || '').toUpperCase());
 
   // داده‌های fetch شده
   const [institutes, setInstitutes] = useState([]);
@@ -135,7 +138,7 @@ export default function RegisterPage() {
           setError('انتخاب رشته‌ی تحصیلی الزامی است');
           return;
         }
-      } else {
+      } else if (role === 'ADVISOR') {
         // ADVISOR — باید حداقل یک رشته‌ی تخصص انتخاب کند
         if (advisorFields.length === 0) {
           setError('انتخاب حداقل یک رشته‌ی تخصص الزامی است');
@@ -164,10 +167,13 @@ export default function RegisterPage() {
       if (role === 'STUDENT') {
         payload.advisorId = advisorId;
         payload.field = field; // رشته‌ی تکی دانش‌آموز
-      } else {
+      } else if (role === 'ADVISOR') {
         payload.fields = advisorFields; // آرایه‌ی رشته‌های تخصص مشاور
       }
-      if (instituteId) payload.instituteId = instituteId;
+      if (role === 'PARENT' && inviteCode.trim()) {
+        payload.parentInviteCode = inviteCode.trim().toUpperCase();
+      }
+      if (instituteId && role !== 'PARENT') payload.instituteId = instituteId;
 
       const data = await registerRequest(payload);
 
@@ -177,6 +183,8 @@ export default function RegisterPage() {
         if (role === 'STUDENT') {
           // دانش‌آموز را به داشبوردش می‌فرستیم؛ آنجا پیام «در انتظار تأیید مشاور» را می‌بیند
           navigate('/student', { replace: true });
+        } else if (role === 'PARENT') {
+          navigate('/parent', { replace: true });
         } else {
           navigate('/advisor', { replace: true });
         }
@@ -202,14 +210,38 @@ export default function RegisterPage() {
         </Link>
       </div>
 
-      <div className="auth-card-min auth-card-min-wide">
+      {/* چیدمان دورسته‌ای: پنل معرفی سرمه‌ای + فرم — مطابق کانسپت register_page */}
+      <div className="auth-split">
+        <aside className="auth-split-aside">
+          <div className="asa-brand">
+            <span className="asa-mark" aria-hidden>د</span>
+            <span>دانش‌آموزینو</span>
+          </div>
+          <div className="asa-lead">
+            <p className="asa-title">
+              همین حالا شروع کن،
+              <br />
+              رایگان و بدون نیاز به نصب
+            </p>
+            <p className="asa-sub">ثبت‌نام کمتر از یک دقیقه طول می‌کشد.</p>
+          </div>
+          <div className="asa-dots" aria-hidden>
+            <span />
+            <span className="on" />
+            <span />
+          </div>
+        </aside>
+
+        <div className="auth-split-form auth-split-form-wide">
         <div className="auth-brand-min">
-          <Logo size={46} title="دانش‌آموزینو" />
+          <Logo size={40} title="دانش‌آموزینو" />
           <h1>ساخت حساب کاربری</h1>
           <p>
             {role === 'STUDENT'
               ? 'در سه قدم حساب می‌سازی و برنامه‌ی هفته‌ات را از مشاورت می‌گیری.'
-              : 'در سه قدم پنل مشاوری‌ات آماده می‌شود.'}
+              : role === 'PARENT'
+                ? 'در یک قدم پنل والدین آماده می‌شود — آمار هفتگی فرزندت را می‌بینی.'
+                : 'در سه قدم پنل مشاوری‌ات آماده می‌شود.'}
           </p>
           {/* سوییچ نقش — جایگزین تب «نقش» */}
           <div className="role-switch">
@@ -227,11 +259,19 @@ export default function RegisterPage() {
             >
               🎓 مشاور
             </button>
+            <button
+              type="button"
+              className={role === 'PARENT' ? 'active' : ''}
+              onClick={() => setRole('PARENT')}
+            >
+              👨‍👩‍👦 والد
+            </button>
           </div>
         </div>
 
         <form className="auth-card" onSubmit={handleSubmit}>
-          {/* نوار پیشرفت مراحل */}
+          {/* نوار پیشرفت مراحل — والد تک‌مرحله‌ای است */}
+          {role !== 'PARENT' && (
           <ol className="step-progress">
             {STEPS.map((s, idx) => (
               <li
@@ -247,6 +287,7 @@ export default function RegisterPage() {
               </li>
             ))}
           </ol>
+          )}
 
           {/* مرحله ۱: اطلاعات حساب + انتخاب رشته */}
           {step === 1 && (
@@ -296,7 +337,8 @@ export default function RegisterPage() {
                 </div>
               </label>
 
-              {/* انتخاب رشته‌ی تحصیلی */}
+              {/* انتخاب رشته‌ی تحصیلی — والد رشته ندارد */}
+              {role !== 'PARENT' && (
               <div className="field-label">
                 {role === 'STUDENT' ? 'رشته‌ی تحصیلی شما' : 'رشته‌های تخصص شما (می‌توانید چندتا انتخاب کنید)'}
                 {role === 'STUDENT' ? (
@@ -349,14 +391,57 @@ export default function RegisterPage() {
                       : `✓ ${toFaDigits(advisorFields.length)} رشته انتخاب شده: ${advisorFields.map((f) => fieldLabel(f)).join('، ')}`}
                 </span>
               </div>
+              )}
+
+              {/* والد: ثبت‌نام تک‌مرحله‌ای — تماس الزامی + کد دعوت اختیاری */}
+              {role === 'PARENT' && (
+                <>
+                  <label className="field-label">
+                    شماره تماس
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="مثلاً ۰۹۱۲۳۴۵۶۷۸۹"
+                      dir="ltr"
+                      required
+                    />
+                    <span className="field-hint">
+                      الزامی — در صورت نیاز پشتیبانی با این شماره با تو در ارتباط است.
+                    </span>
+                  </label>
+                  <label className="field-label">
+                    کد دعوت فرزند (اختیاری)
+                    <input
+                      value={inviteCode}
+                      onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                      placeholder="مثلاً AB2CD3EF"
+                      dir="ltr"
+                      maxLength={8}
+                    />
+                    <span className="field-hint">
+                      فرزندت در «پنل دانش‌آموز» این کد را می‌سازد. با واردکردنش همین حالا به او وصل می‌شوی؛
+                      بدون کد هم می‌توانی ثبت‌نام کنی و بعداً از پنل والدین اتصال بدهی.
+                    </span>
+                  </label>
+                </>
+              )}
 
               <div className="step-actions">
-                <button type="button" className="btn-secondary" onClick={prevStep}>
-                  بازگشت
-                </button>
-                <button type="button" className="btn-primary" onClick={nextStep}>
-                  مرحله‌ی بعد ←
-                </button>
+                {step > 1 && (
+                  <button type="button" className="btn-secondary" onClick={prevStep}>
+                    بازگشت
+                  </button>
+                )}
+                {role === 'PARENT' ? (
+                  <button type="submit" className="btn-primary" disabled={loading}>
+                    {loading ? 'در حال ثبت‌نام…' : '✓ ثبت‌نام نهایی'}
+                  </button>
+                ) : (
+                  <button type="button" className="btn-primary" onClick={nextStep}>
+                    مرحله‌ی بعد ←
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -558,6 +643,7 @@ export default function RegisterPage() {
 
         <div className="auth-min-footer">
           از قبل حساب داری؟ <Link to="/login">وارد شو</Link>
+        </div>
         </div>
       </div>
     </div>

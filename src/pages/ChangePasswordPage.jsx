@@ -56,6 +56,7 @@ export default function ChangePasswordPage() {
       const role = auth?.user?.role;
       if (role === 'STUDENT') navigate('/student', { replace: true });
       else if (role === 'INSTITUTE_MANAGER') navigate('/institute', { replace: true });
+      else if (role === 'PARENT') navigate('/parent', { replace: true });
       else navigate('/advisor', { replace: true });
     } catch (err) {
       setError(err.message);

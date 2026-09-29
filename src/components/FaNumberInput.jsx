@@ -2,13 +2,14 @@ import { toLatinDigits } from '../utils/jalali';
 
 // ورودی عددی که ارقام فارسی (۰-۹) و عربی (٠-٩) را هم می‌پذیرد؛
 // بدون اینکه کاربر مجبور باشد زبان کیبورد را عوض کند.
-// مقدار ذخیره‌شده همیشه با ارقام لاتین است تا منطق برنامه بدون تغییر بماند.
+// مقدار ذخیره‌شده همیشه با ارقام لاتینِ بدون جداکننده است تا منطق برنامه بدون تغییر بماند.
 //
 // props:
 //   value: رشته یا عدد
 //   onChange: (latinDigitString) => void
 //   decimals: تعداد اعشار مجاز (پیش‌فرض ۰ = فقط عدد صحیح)
-export default function FaNumberInput({ value, onChange, decimals = 0, maxLength, ...rest }) {
+//   grouping: با true، ارقام هر سه رقم با «،» جدا می‌شوند (مثل مبلغ‌ها: ۵۰۰٬۰۰۰)
+export default function FaNumberInput({ value, onChange, decimals = 0, maxLength, grouping = false, ...rest }) {
   function handleChange(e) {
     let raw = toLatinDigits(e.target.value);
 
@@ -28,6 +29,11 @@ export default function FaNumberInput({ value, onChange, decimals = 0, maxLength
     onChange(raw);
   }
 
+  // نمایش گروه‌بندی‌شده: ۱۲۳۴۵۶۷ → 1,234,567 (ارقام لاتین داخل input تا مکان‌نما جابه‌جا نشود)
+  const displayValue = grouping && value != null && value !== ''
+    ? Number(value).toLocaleString('en-US')
+    : (value ?? '');
+
   return (
     <input
       type="text"
@@ -35,7 +41,7 @@ export default function FaNumberInput({ value, onChange, decimals = 0, maxLength
       autoComplete="off"
       autoCorrect="off"
       spellCheck="false"
-      value={value ?? ''}
+      value={displayValue}
       onChange={handleChange}
       {...rest}
     />

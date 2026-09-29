@@ -18,11 +18,11 @@ const TOTAL_HOURS = END_HOUR - START_HOUR;
 
 // رنگ‌ها برای هر درس؛ بر اساس هش نام درس انتخاب می‌شود
 const COLORS = [
-  { bg: '#ECE9FF', border: '#4A3FBE', text: '#2D2680' },   // indigo
-  { bg: '#FFE3CC', border: '#FF8A3D', text: '#8A4A18' },   // amber
-  { bg: '#D8F2E5', border: '#2BB673', text: '#1D6D4C' },   // sage
-  { bg: '#FFD6E5', border: '#FF6B9D', text: '#8A2854' },   // pink
-  { bg: '#CFF1ED', border: '#14B8A6', text: '#0E6B62' },   // teal
+  { bg: '#F1EFE8', border: '#1B1F3B', text: '#1B1F3B' },   // indigo
+  { bg: '#FBE7D6', border: '#E8643C', text: '#B8501E' },   // amber
+  { bg: '#DCF0E7', border: '#1B8A6B', text: '#0F6E56' },   // sage
+  { bg: '#FBEFD9', border: '#F2A93B', text: '#B8791E' },   // pink
+  { bg: '#EAF3DE', border: '#3B6D11', text: '#3B6D11' },   // teal
   { bg: '#DBEAFE', border: '#3B82F6', text: '#1E3A8A' },   // sky
   { bg: '#F3E8FF', border: '#9333EA', text: '#5B21B6' },   // purple
   { bg: '#FCE7F3', border: '#EC4899', text: '#831843' },   // magenta

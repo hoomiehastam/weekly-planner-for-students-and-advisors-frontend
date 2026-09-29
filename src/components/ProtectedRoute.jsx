@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SessionLoadingScreen from './SessionLoadingScreen';
 
 // اگر کاربر وارد نشده یا نقشش مجاز نیست، به‌جای نمایش صفحه، به مسیر مناسب هدایت می‌شود.
 // تا وقتی جلسه از سرور چک می‌شود (authLoading)، یک placeholder نشان می‌دهیم تا پرش‌های ناخواسته نشود.
@@ -11,12 +12,7 @@ export default function ProtectedRoute({ allowedRoles, children }) {
   const location = useLocation();
 
   if (loading) {
-    return (
-      <div className="loading-state">
-        <div className="spinner" />
-        <p>در حال بررسی جلسه…</p>
-      </div>
-    );
+    return <SessionLoadingScreen />;
   }
 
   if (!auth) {

@@ -550,6 +550,50 @@ export function assignStudentAdvisor(studentId, advisorId) {
   return request(`/api/institute/students/${studentId}/advisor`, { method: 'PUT', body: { advisorId } });
 }
 
+// ====== تنظیمات سراسری پلتفرم ======
+
+// ====== لاگ ممیزی (ردپای تغییرات) ======
+export function fetchAuditLogs(take = 50) {
+  return request(`/api/admin/audit-logs?take=${take}`);
+}
+
+// ====== پنل اولیا ======
+
+// دانش‌آموز: ساخت کد دعوت برای والد
+export function createParentInvite() {
+  return request('/api/parents/invites', { method: 'POST' });
+}
+
+// دانش‌آموز: کد دعوت فعال من
+export function fetchMyParentInvite() {
+  return request('/api/parents/invites/mine');
+}
+
+// والد: اتصال با کد دعوت — code: 'XXXXXXXX'
+export function joinAsParent(code) {
+  return request('/api/parents/join', { method: 'POST', body: { code } });
+}
+
+// والد: فرزندان من
+export function fetchMyChildren() {
+  return request('/api/parents/children');
+}
+
+// والد: خلاصه‌ی فقط-خواندنی فرزند
+export function fetchChildSummary(studentId) {
+  return request(`/api/parents/children/${studentId}/summary`);
+}
+
+// تاریخ کنکور (روزشمار لندینگ) — عمومی؛ بدون نیاز به ورود
+export function fetchKonkurDate() {
+  return request('/api/settings/konkur-date');
+}
+
+// تعیین تاریخ کنکور — فقط سوپرادمین؛ date: 'YYYY-MM-DD'
+export function setKonkurDate(date) {
+  return request('/api/settings/konkur-date', { method: 'PUT', body: { date } });
+}
+
 export function setSystemCard(payload) {
   return request('/api/admin/card/system', { method: 'PUT', body: payload });
 }

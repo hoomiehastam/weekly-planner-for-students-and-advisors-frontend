@@ -3,6 +3,7 @@ import { toFaDigits, formatJalaliShort } from '../../utils/jalali';
 import { DAY_NAMES } from '../../utils/dayNames';
 import PerTagInputs from '../PerTagInputs';
 import { computeProgress, TimeBadge } from '../PlanBits';
+import { downloadPlanPdf } from '../../utils/planPdf';
 
 // کارت یک برنامه‌ی مطالعاتی در نمای لیست دانش‌آموز (شامل روزها، آیتم‌ها و ورودی per-tag).
 // روزها هم مثل خودِ برنامه قابل باز/بسته شدن هستند (نسخه‌ی ۸).
@@ -11,7 +12,8 @@ import { computeProgress, TimeBadge } from '../PlanBits';
 //   isOpen       آیا برنامه باز است؟
 //   onToggleOpen  باز/بسته‌کردن برنامه
 //   onToggleItem(planId, dayId, itemId, currentStatus)  تیک زدن یک آیتم
-export default function PlanStudentCard({ plan, isOpen, onToggleOpen, onToggleItem }) {
+//   studentName  نام دانش‌آموز برای سرصفحه‌ی PDF (اختیاری)
+export default function PlanStudentCard({ plan, isOpen, onToggleOpen, onToggleItem, studentName }) {
   const progress = computeProgress(plan);
   // روزهای باز — پیش‌فرض: همه بسته تا صفحه جمع‌وجور بماند
   const [openDayIds, setOpenDayIds] = useState(() => new Set());
@@ -27,24 +29,35 @@ export default function PlanStudentCard({ plan, isOpen, onToggleOpen, onToggleIt
 
   return (
     <div className={`plan-card ${isOpen ? 'is-open' : ''}`}>
-      <button className="plan-card-header" onClick={onToggleOpen}>
-        <div className="plan-card-title-wrap">
-          <h4 className="plan-title">{plan.title}</h4>
-          {plan.note && <p className="plan-note">{plan.note}</p>}
-          <p className="plan-dates">
-            <span className="date-chip">از {formatJalaliShort(plan.startsAt)}</span>
-            {plan.expiresAt && (
-              <span className="date-chip">تا {formatJalaliShort(plan.expiresAt)}</span>
-            )}
-          </p>
-        </div>
-        <div className="plan-progress-mini">
-          <div className="ring-progress" style={{ '--p': `${progress}%` }}>
-            <span>{toFaDigits(progress)}٪</span>
+      <div className="plan-card-header">
+        <button className="plan-card-toggle" onClick={onToggleOpen}>
+          <div className="plan-card-title-wrap">
+            <h4 className="plan-title">{plan.title}</h4>
+            {plan.note && <p className="plan-note">{plan.note}</p>}
+            <p className="plan-dates">
+              <span className="date-chip">از {formatJalaliShort(plan.startsAt)}</span>
+              {plan.expiresAt && (
+                <span className="date-chip">تا {formatJalaliShort(plan.expiresAt)}</span>
+              )}
+            </p>
           </div>
-          <span className="chevron">{isOpen ? '▾' : '▸'}</span>
-        </div>
-      </button>
+          <div className="plan-progress-mini">
+            <div className="ring-progress" style={{ '--p': `${progress}%` }}>
+              <span>{toFaDigits(progress)}٪</span>
+            </div>
+            <span className="chevron">{isOpen ? '▾' : '▸'}</span>
+          </div>
+        </button>
+        <button
+          type="button"
+          className="plan-pdf-btn"
+          title="دانلود برنامه به‌صورت PDF"
+          aria-label="دانلود PDF برنامه"
+          onClick={() => downloadPlanPdf(plan, { studentName })}
+        >
+          ⤓ PDF
+        </button>
+      </div>
 
       {isOpen && (
         <div className="plan-body">

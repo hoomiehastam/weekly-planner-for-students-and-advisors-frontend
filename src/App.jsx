@@ -7,26 +7,24 @@ import ChangePasswordPage from './pages/ChangePasswordPage.jsx';
 import StudentDashboard from './pages/StudentDashboard.jsx';
 import AdvisorDashboard from './pages/AdvisorDashboard.jsx';
 import InstituteDashboard from './pages/InstituteDashboard.jsx';
+import ParentDashboard from './pages/ParentDashboard.jsx';
 import DepositPage from './pages/DepositPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import SessionLoadingScreen from './components/SessionLoadingScreen.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 
 function HomeRedirect() {
   const { auth, loading } = useAuth();
   if (loading) {
-    return (
-      <div className="loading-state">
-        <div className="spinner" />
-        <p>در حال بررسی جلسه…</p>
-      </div>
-    );
+    return <SessionLoadingScreen />;
   }
   // بازدیدکننده‌ی مهمان اول صفحه‌ی معرفی را می‌بیند، نه مستقیماً فرم ورود
   if (!auth) return <LandingPage />;
   if (auth.user.role === 'STUDENT') return <Navigate to="/student" replace />;
   if (auth.user.role === 'INSTITUTE_MANAGER') return <Navigate to="/institute" replace />;
+  if (auth.user.role === 'PARENT') return <Navigate to="/parent" replace />;
   return <Navigate to="/advisor" replace />;
 }
 
@@ -74,6 +72,16 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={['INSTITUTE_MANAGER']}>
               <InstituteDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* پنل والد — فقط-خواندنی؛ اتصال با کد دعوت فرزند */}
+        <Route
+          path="/parent"
+          element={
+            <ProtectedRoute allowedRoles={['PARENT']}>
+              <ParentDashboard />
             </ProtectedRoute>
           }
         />

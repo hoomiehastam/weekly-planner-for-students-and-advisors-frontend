@@ -42,9 +42,9 @@ function sameDay(a, b) {
 }
 
 const TAG_COLORS = [
-  '#4A3FBE', '#FF8A3D', '#2BB673', '#FF6B9D',
-  '#14B8A6', '#3B82F6', '#9333EA', '#EC4899',
-  '#F59E0B', '#06B6D4', '#84CC16', '#A855F7',
+  '#1B1F3B', '#E8643C', '#1B8A6B', '#F2A93B',
+  '#0F6E56', '#3B82F6', '#9333EA', '#B8501E',
+  '#5F5E5A', '#06B6D4', '#84CC16', '#A32D2D',
 ];
 
 // محاسبه‌ی تعداد دقیقه‌ی برنامه‌ریزی‌شده از یک بازه‌ی زمانی
@@ -276,7 +276,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       {
         name: 'پیشرفت',
         value: stats.goalProgress,
-        fill: stats.goalProgress >= 100 ? '#2BB673' : '#FF8A3D',
+        fill: stats.goalProgress >= 100 ? '#1B8A6B' : '#E8643C',
       },
     ];
   }, [stats.goalProgress]);
@@ -456,16 +456,16 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
         <div {...dayBarProps}>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={daily} margin={{ top: 12, right: 8, left: 8, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E8E4D9" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#EDE3D3" />
               <XAxis
                 dataKey="label"
                 interval={0}
-                tick={{ fill: '#5B6178', fontSize: 11, fontFamily: 'Vazirmatn' }}
-                axisLine={{ stroke: '#E8E4D9' }}
+                tick={{ fill: '#6B7280', fontSize: 11, fontFamily: 'Vazirmatn' }}
+                axisLine={{ stroke: '#EDE3D3' }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: '#5B6178', fontSize: 12 }}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(v) => toFaDigits(Math.round(v / 60 * 10) / 10)}
@@ -473,7 +473,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
               <Tooltip
                 contentStyle={{
                   background: '#FFFDF8',
-                  border: '1px solid #E8E4D9',
+                  border: '1px solid #EDE3D3',
                   borderRadius: 8,
                   fontFamily: 'Vazirmatn',
                   fontSize: 13,
@@ -491,11 +491,11 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                 content={() => (
                   <div className="chart-legend">
                     <span className="legend-item">
-                      <span className="legend-dot" style={{ background: '#C4B8E0' }} />
+                      <span className="legend-dot" style={{ background: '#3A3F63' }} />
                       برنامه‌ریزی‌شده
                     </span>
                     <span className="legend-item">
-                      <span className="legend-dot" style={{ background: '#2BB673' }} />
+                      <span className="legend-dot" style={{ background: '#1B8A6B' }} />
                       ثبت‌شده
                     </span>
                   </div>
@@ -505,8 +505,8 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                 {daily.map((e) => (
                   <Cell
                     key={`p${e.d.toISOString()}`}
-                    fill={e.isCenter ? '#B19CE4' : '#C4B8E0'}
-                    stroke={e.isCenter ? '#6D28D9' : 'none'}
+                    fill={e.isCenter ? '#1B1F3B' : '#3A3F63'}
+                    stroke={e.isCenter ? '#E8643C' : 'none'}
                     strokeWidth={e.isCenter ? 2 : 0}
                   />
                 ))}
@@ -515,8 +515,8 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                 {daily.map((e) => (
                   <Cell
                     key={`l${e.d.toISOString()}`}
-                    fill={e.isCenter ? '#E5521F' : e.isToday ? '#2BB673' : '#FF8A3D'}
-                    stroke={e.isCenter ? '#8A2E0C' : 'none'}
+                    fill={e.isCenter ? '#E8643C' : e.isToday ? '#1B8A6B' : '#F2A93B'}
+                    stroke={e.isCenter ? '#B8501E' : 'none'}
                     strokeWidth={e.isCenter ? 2 : 0}
                   />
                 ))}
@@ -554,16 +554,16 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
         <div {...dayBarProps}>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={daily} margin={{ top: 12, right: 8, left: 8, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E8E4D9" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#EDE3D3" />
               <XAxis
                 dataKey="label"
                 interval={0}
-                tick={{ fill: '#5B6178', fontSize: 11, fontFamily: 'Vazirmatn' }}
-                axisLine={{ stroke: '#E8E4D9' }}
+                tick={{ fill: '#6B7280', fontSize: 11, fontFamily: 'Vazirmatn' }}
+                axisLine={{ stroke: '#EDE3D3' }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: '#5B6178', fontSize: 12 }}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(v) => toFaDigits(v)}
@@ -571,7 +571,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
               <Tooltip
                 contentStyle={{
                   background: '#FFFDF8',
-                  border: '1px solid #E8E4D9',
+                  border: '1px solid #EDE3D3',
                   borderRadius: 8,
                   fontFamily: 'Vazirmatn',
                   fontSize: 13,
@@ -586,8 +586,8 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                 {daily.map((e) => (
                   <Cell
                     key={`t${e.d.toISOString()}`}
-                    fill={e.isCenter ? '#D63384' : e.isToday ? '#2BB673' : '#FF6B9D'}
-                    stroke={e.isCenter ? '#8A1E55' : 'none'}
+                    fill={e.isCenter ? '#E8643C' : e.isToday ? '#1B8A6B' : '#F2A93B'}
+                    stroke={e.isCenter ? '#B8501E' : 'none'}
                     strokeWidth={e.isCenter ? 2 : 0}
                   />
                 ))}
@@ -604,37 +604,34 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
           <p className="report-card-sub">
             توزیع زمان ثبت‌شده‌ی دانش‌آموز بین تگ‌های درسی
           </p>
-          <Zoomable>
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={stats.tags.map((t) => ({ name: t.name, total: t.minutes }))}
-                  dataKey="total"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  innerRadius={40}
-                  paddingAngle={2}
-                >
-                  {stats.tags.map((_, idx) => (
-                    <Cell key={idx} fill={tagColors[idx]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: '#FFFDF8',
-                    border: '1px solid #E8E4D9',
-                    borderRadius: 8,
-                    fontFamily: 'Vazirmatn',
-                    fontSize: 13,
-                  }}
-                  formatter={(value) => [formatMinutes(value), 'مطالعه']}
-                />
-                <Legend wrapperStyle={{ fontFamily: 'Vazirmatn', fontSize: 12 }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </Zoomable>
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie
+                data={stats.tags.map((t) => ({ name: t.name, total: t.minutes }))}
+                dataKey="total"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={90}
+                innerRadius={40}
+                paddingAngle={2}
+              >
+                {stats.tags.map((_, idx) => (
+                  <Cell key={idx} fill={tagColors[idx]} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  background: '#FFFDF8',                     border: '1px solid #EDE3D3',
+                  borderRadius: 8,
+                  fontFamily: 'Vazirmatn',
+                  fontSize: 13,
+                }}
+                formatter={(value) => [formatMinutes(value), 'مطالعه']}
+              />
+              <Legend wrapperStyle={{ fontFamily: 'Vazirmatn', fontSize: 12 }} />
+            </PieChart>
+          </ResponsiveContainer>
 
           {/* جدول ساده‌شده‌ی تگ‌ها — فقط زمان و تست */}
           <div className="tag-table">
@@ -716,7 +713,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                     {hasOther && (
                       <div className={`subject-detail-tag sd-other ${variant === 'student' ? 'student-tag' : ''}`}>
                         <span className="sd-tag-name">
-                          <span className="sd-tag-dot" style={{ background: '#FF8A3D' }} />
+                          <span className="sd-tag-dot" style={{ background: '#E8643C' }} />
                           📌 سایر کارها
                         </span>
                         {s.otherMinutes > 0 && (

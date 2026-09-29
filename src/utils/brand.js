@@ -15,9 +15,15 @@ export const BRANDS = {
     mark: 'م',
     tagline: 'کل کلاست را از یک پنل مدیریت کن.',
   },
+  PARENT: {
+    name: 'پنل والدین',
+    mark: 'و',
+    tagline: 'پیشرفت فرزندت را از نزدیک دنبال کن.',
+  },
 };
 
 export function brandForRole(role) {
   if (role === 'ADVISOR' || role === 'SUPERADMIN') return BRANDS.ADVISOR;
+  if (role === 'PARENT') return BRANDS.PARENT;
   return BRANDS.STUDENT;
 }

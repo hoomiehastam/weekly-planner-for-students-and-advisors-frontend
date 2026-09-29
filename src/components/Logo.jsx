@@ -18,7 +18,7 @@ export default function Logo({ size = 40, title = '' }) {
     >
       <title>{title}</title>
       {/* پس‌زمینه‌ی گرد */}
-      <rect width="64" height="64" rx="16" fill="#4A3FBE" />
+      <rect width="64" height="64" rx="16" fill="#1B1F3B" />
 
       {/* کتاب باز */}
       <path
@@ -27,32 +27,32 @@ export default function Logo({ size = 40, title = '' }) {
       />
       <path
         d="M32 41.5 C26.8 37 20.8 35.2 13 35 L13 25 C20.8 26.2 26.8 28 32 32.5 C37.2 28 43.2 26.2 51 25 L51 35 C43.2 35.2 37.2 37 32 41.5 Z"
-        fill="#CFC9F5"
+        fill="#3A3F63"
       />
 
       {/* فلش رشد */}
       <path
         d="M20 40 L30 30 L36 35 L46 22"
-        stroke="#FF8A3D"
+        stroke="#E8643C"
         strokeWidth="4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M38 21.5 L47.5 21.5 L47.5 31 Z" fill="#FF8A3D" />
+      <path d="M38 21.5 L47.5 21.5 L47.5 31 Z" fill="#E8643C" />
 
       {/* سر آدمک + کلاه فارغ‌التحصیلی */}
-      <circle cx="24.5" cy="18.5" r="5.2" fill="#FFB25C" />
+      <circle cx="24.5" cy="18.5" r="5.2" fill="#F2A93B" />
       <path
         d="M24.5 10.2 L34.5 14.2 L24.5 18.2 L14.5 14.2 Z"
-        fill="#2D2680"
+        fill="#14172B"
       />
       <path
         d="M31.5 15 L31.5 20.5"
-        stroke="#2D2680"
+        stroke="#14172B"
         strokeWidth="1.6"
         strokeLinecap="round"
       />
-      <circle cx="31.5" cy="21.5" r="1.4" fill="#2D2680" />
+      <circle cx="31.5" cy="21.5" r="1.4" fill="#14172B" />
 
       {/* لامپ ایده */}
       <path
