@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchExamReview } from '../../api/client';
 import { toFaDigits, formatJalaliDateTime } from '../../utils/jalali';
+import Ico from '../Ico';
 
 // مرور آزمون توسط دانش‌آموز — پس از ارسال.
 // برای سؤال تستی: پاسخ خودش، گزینه‌ی صحیح، صحیح/غلط/بی‌پاسخ و نمره.
@@ -9,9 +10,9 @@ import { toFaDigits, formatJalaliDateTime } from '../../utils/jalali';
 //   examId   شناسه‌ی آزمون
 //   onClose  بستن مودال
 const VERDICT_LABEL = {
-  correct: { text: '✓ صحیح', cls: 'correct' },
-  wrong: { text: '✗ نادرست', cls: 'wrong' },
-  unanswered: { text: '— بی‌پاسخ', cls: 'blank' },
+  correct: { text: 'صحیح', cls: 'correct', icon: '✓' },
+  wrong: { text: 'نادرست', cls: 'wrong', icon: '✗' },
+  unanswered: { text: 'بی‌پاسخ', cls: 'blank', icon: null },
 };
 const OPTION_LETTERS = ['۱', '۲', '۳', '۴', '۵', '۶'];
 
@@ -68,7 +69,7 @@ export default function ExamReview({ examId, onClose }) {
         {!loading && error && (
           <>
             <div className="alert alert-error">
-              <span>⚠</span> {error}
+              <span><Ico e="⚠" /></span> {error}
             </div>
             <button className="btn-primary" onClick={onClose}>بستن</button>
           </>
@@ -77,8 +78,8 @@ export default function ExamReview({ examId, onClose }) {
         {!loading && !error && data && (
           <>
             <div className="grading-modal-head">
-              <h3>🔍 مرور پاسخ‌ها</h3>
-              <button className="btn-icon-only" onClick={onClose} aria-label="بستن">✕</button>
+              <h3><Ico e="🔍" /> مرور پاسخ‌ها</h3>
+              <button className="btn-icon-only" onClick={onClose} aria-label="بستن"><Ico e="✕" /></button>
             </div>
 
             <div className="grading-scoreboard">
@@ -104,7 +105,7 @@ export default function ExamReview({ examId, onClose }) {
 
             {sub.feedback && (
               <div className="alert alert-info">
-                <span>💬</span> {sub.feedback}
+                <span><Ico e="💬" /></span> {sub.feedback}
               </div>
             )}
 
@@ -126,7 +127,9 @@ export default function ExamReview({ examId, onClose }) {
                       </span>
                       <span className="muted-text">{toFaDigits(q.points)} نمره</span>
                       {verdict && (
-                        <span className={`exam-review-verdict ${verdict.cls}`}>{verdict.text}</span>
+                        <span className={`exam-review-verdict ${verdict.cls}`}>
+                          {verdict.icon && <Ico e={verdict.icon} />} {verdict.text}
+                        </span>
                       )}
                       {isMC && fmtScore(q.score) !== null && (
                         <span className="exam-review-score">

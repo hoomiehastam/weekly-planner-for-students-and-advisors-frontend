@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import RegisterInstitutePage from './pages/RegisterInstitutePage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import ChangePasswordPage from './pages/ChangePasswordPage.jsx';
 import StudentDashboard from './pages/StudentDashboard.jsx';
@@ -13,12 +14,17 @@ import NotFoundPage from './pages/NotFoundPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import SessionLoadingScreen from './components/SessionLoadingScreen.jsx';
+import OfflineScreen from './components/OfflineScreen.jsx';
+import PwaUpdateBanner from './components/PwaUpdateBanner.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 
 function HomeRedirect() {
-  const { auth, loading } = useAuth();
+  const { auth, loading, connectionError, retrying, retrySession } = useAuth();
   if (loading) {
     return <SessionLoadingScreen />;
+  }
+  if (!auth && connectionError) {
+    return <OfflineScreen onRetry={retrySession} retrying={retrying} />;
   }
   // بازدیدکننده‌ی مهمان اول صفحه‌ی معرفی را می‌بیند، نه مستقیماً فرم ورود
   if (!auth) return <LandingPage />;
@@ -31,10 +37,12 @@ function HomeRedirect() {
 export default function App() {
   return (
     <ErrorBoundary>
+      <PwaUpdateBanner />
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/register/institute" element={<RegisterInstitutePage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* تغییر رمز اجباری بعد از ورود با OTP — محافظت‌شده ولی allowedRoles ندارد

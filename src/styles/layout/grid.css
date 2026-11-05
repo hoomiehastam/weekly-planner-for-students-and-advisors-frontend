@@ -1,0 +1,1106 @@
+/* ===== Layout Grids & Containers ===== */
+
+/* ============================================================
+   چیدمان کلی صفحه‌های داشبورد
+   ============================================================ */
+
+.page-body {
+  padding: 28px 24px 60px;
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+
+/* ----- عنوان بخش‌ها ----- */
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--indigo-deep);
+}
+
+.section-emoji {
+  font-size: 18px;
+}
+
+.badge-new,
+.badge-updated {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.badge-new {
+  background: var(--brick);
+  color: #fff;
+}
+
+.badge-updated {
+  background: var(--amber);
+  color: #fff;
+}
+
+
+/* ============================================================
+   چیدمان دو ستونه مشاور
+   ============================================================ */
+
+.two-column {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* سایدبار پنل مشاور — هم‌راستا با کانسپت: ستون برند تیره بالای فهرست */
+.advisor-sidebar-shell {
+  background: #1b1f3b;
+  border-radius: var(--radius-lg);
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+[data-theme='dark'] .advisor-sidebar-shell {
+  background: #0d0f1e;
+  border: 0.5px solid #262a47;
+}
+
+.advisor-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 18px;
+  padding: 0 4px;
+}
+
+[data-theme='dark'] .advisor-sidebar-brand {
+  color: #f2f1ea;
+}
+
+.asb-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #e8643c;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+[data-theme='dark'] .asb-mark {
+  background: #f0997b;
+  color: #0d0f1e;
+}
+
+/* تیتر و آیتم‌های فهرست داخل ستون تیره */
+.advisor-sidebar-shell .list-title {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+}
+
+[data-theme='dark'] .advisor-sidebar-shell .list-title {
+  color: #f2f1ea;
+  border-bottom-color: #262a47;
+}
+
+.advisor-sidebar-shell .student-item {
+  color: #a9adc7;
+}
+
+.advisor-sidebar-shell .student-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.advisor-sidebar-shell .student-item.active {
+  background: #2a2f52;
+  border-color: #2a2f52;
+  color: #fff;
+}
+
+[data-theme='dark'] .advisor-sidebar-shell .student-item.active {
+  background: #1e2240;
+  border-color: #3e4266;
+  color: #f2f1ea;
+}
+
+.advisor-sidebar-shell .student-item.active .student-email {
+  color: #a9adc7 !important;
+}
+
+.advisor-sidebar-shell .student-avatar {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f2a93b;
+}
+
+.advisor-sidebar-shell .student-info strong {
+  color: inherit;
+}
+
+.student-list,
+.advisor-sidebar-shell {
+  position: sticky;
+  top: 90px;
+  padding: 18px 14px;
+}
+
+.list-title {
+  padding: 0 4px 10px;
+  border-bottom: 1px solid var(--hairline-soft);
+  margin-bottom: 10px;
+}
+
+.student-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink-soft);
+  box-shadow: none;
+  text-align: right;
+  transition: all 0.15s;
+}
+
+.student-item:hover {
+  background: var(--paper);
+  transform: none;
+  box-shadow: none;
+}
+
+.student-item.active {
+  background: #1b1f3b;
+  border-color: #1b1f3b;
+  color: #fff;
+}
+
+[data-theme='dark'] .student-item.active {
+  background: #2a2f52;
+  border-color: #2a2f52;
+  color: #f2f1ea;
+}
+
+.student-item.active .student-email {
+  color: #a9adc7 !important;
+}
+
+.student-item .student-avatar {
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.student-info strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.student-email {
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tab-row {
+  display: flex;
+  gap: 8px;
+  background: var(--sheet);
+  padding: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  width: fit-content;
+}
+
+.tab-btn {
+  background: transparent;
+  color: var(--ink-soft);
+  border: none;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-btn:hover {
+  background: var(--paper);
+  transform: none;
+  box-shadow: none;
+}
+
+.tab-btn.active {
+  background: var(--indigo);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(74, 63, 190, 0.2);
+}
+
+
+/* ============================================================
+   ریسپانسیو
+   ============================================================ */
+
+@media (max-width: 920px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .two-column {
+    grid-template-columns: 1fr;
+  }
+  .student-list,
+  .advisor-sidebar-shell {
+    position: static;
+  }
+  .builder-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+  }
+  .auth-aside {
+    display: none;
+  }
+  .mobile-cta {
+    display: block;
+  }
+}
+
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .plan-card-header {
+    flex-direction: column;
+  }
+  .plan-actions {
+    justify-content: flex-end;
+    border-right: none;
+    border-top: 1px solid var(--hairline-soft);
+    padding: 10px 14px;
+  }
+  .plan-card-toggle {
+    padding: 14px 16px;
+  }
+  .plan-progress-mini {
+    width: auto;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .header-content {
+    padding: 12px 16px;
+  }
+  .page-body {
+    padding: 18px 14px 50px;
+  }
+  .auth-card {
+    padding: 32px 24px;
+  }
+  .time-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .time-arrow {
+    display: none;
+  }
+  .role-picker {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .greeting {
+    font-size: 15px;
+  }
+}
+
+
+/* ============================================================
+   ریسپانسیو نسخه‌ی ۴
+   ============================================================ */
+
+@media (max-width: 920px) {
+  .reports-summary {
+    grid-template-columns: 1fr;
+  }
+  .subject-row {
+    grid-template-columns: 100px 1fr 90px;
+  }
+  .view-tabs {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .section-head.with-tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .view-tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .tab-btn-sm {
+    flex: 1;
+  }
+  .goal-display,
+  .goal-edit {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .goal-edit-actions {
+    justify-content: flex-end;
+  }
+  .goal-banner-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .jdp-calendar {
+    width: calc(100vw - 32px) !important;
+    left: 16px !important;
+  }
+}
+
+
+/* ============================================================
+   نسخهی ۵ — بازطراحی موبایل (mobile-first)
+   ============================================================ */
+
+/* --- حالت پایه: هدر شیشه‌ای و تایپوگرافی تمیزتر --- */
+.app-header {
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  background: color-mix(in srgb, var(--sheet) 82%, transparent);
+}
+
+.header-action {
+  min-height: 42px;
+}
+
+/* نوار ناوبری پایین در دسکتاپ مخفی است */
+.mobile-nav {
+  display: none;
+}
+
+/* -- موبایل اصلی (زیر 600px) -- */
+@media (max-width: 600px) {
+  /* ---------- لمس و تایپوگرافی ---------- */
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+    min-height: 46px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost,
+  .btn-icon,
+  .tab-btn,
+  .tab-btn-sm,
+  .student-item,
+  select {
+    min-height: 44px;
+  }
+
+  .btn-icon-only {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .add-item-btn {
+    min-height: 36px;
+  }
+
+  /* ---------- بدنه و هدر فشرده ---------- */
+  .page-body {
+    padding: 14px 12px 108px;
+    gap: 18px;
+  }
+
+  .page-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  [id^='section-'] {
+    scroll-margin-top: 150px;
+  }
+
+  .header-content {
+    padding: 8px 12px;
+  }
+
+  .user-avatar,
+  .student-avatar,
+  .advisor-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .greeting {
+    font-size: 14.5px;
+  }
+
+  .header-date {
+    font-size: 11px;
+  }
+
+  /* دکمه‌های هدر فقط آیکونی شوند */
+  .header-actions .btn-label {
+    display: none;
+  }
+
+  .header-actions .header-action {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  /* ---------- کارت‌ها و عناوین ---------- */
+  .card {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+
+  .card-title {
+    font-size: 14px;
+  }
+
+  .section-title {
+    font-size: 15px;
+  }
+
+  .section-emoji {
+    font-size: 17px;
+  }
+
+  /* ---------- آمار ---------- */
+  .stats-grid {
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 12px 14px;
+    border-radius: 14px;
+    gap: 10px;
+  }
+
+  .stat-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 19px;
+    border-radius: 10px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+
+  /* ---------- تب‌ها ---------- */
+  .view-tabs {
+    width: 100%;
+    margin-right: 0 !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-btn-sm {
+    flex: 1;
+    white-space: nowrap;
+    min-height: 40px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    white-space: nowrap;
+    justify-content: center;
+  }
+
+  .tab-row {
+    width: 100%;
+  }
+
+  /* ---------- برنامه‌ها ---------- */
+  .plan-card-toggle {
+    padding: 12px 14px;
+  }
+
+  .plan-title {
+    font-size: 15px;
+  }
+
+  .plan-progress-mini {
+    gap: 6px;
+  }
+
+  .plan-actions {
+    flex-wrap: wrap;
+  }
+
+  .plan-actions .btn-icon {
+    min-height: 38px;
+  }
+
+  .progress-block {
+    padding: 10px 14px;
+  }
+
+  .day-block {
+    padding: 12px;
+  }
+
+  .day-header h4 {
+    font-size: 14px;
+  }
+
+  .task-row {
+    padding: 10px 8px;
+    gap: 8px;
+    border-radius: 12px;
+  }
+
+  .task-meta {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .task-desc,
+  .task-meta .tag-pill,
+  .time-pill {
+    font-size: 12px;
+  }
+
+  .checkmark {
+    width: 22px;
+    height: 22px;
+  }
+
+  .task-row input[type='checkbox'] {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ---------- یادآورها ---------- */
+  .reminder-card,
+  .reminder-card-mini {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .reminder-actions {
+    flex-wrap: wrap;
+  }
+
+  .reminder-actions .btn-primary,
+  .reminder-actions .btn-secondary {
+    flex: 1;
+    min-height: 44px;
+  }
+
+  /* ---------- آزمون‌ها ---------- */
+  .exam-card,
+  .exam-student-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .exam-card-head,
+  .exam-student-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .exam-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .exam-actions .btn-secondary {
+    flex: 1 1 100%;
+  }
+
+  .exam-meta {
+    gap: 8px;
+    font-size: 11.5px;
+  }
+
+  /* ---------- مشاور: لیست دانش‌آموز ---------- */
+  .student-list,
+  .advisor-sidebar-shell {
+    position: static;
+    max-height: 260px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .student-item {
+    padding: 12px;
+  }
+
+  .student-item .student-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* ---------- گزارش‌ها ---------- */
+  .reports-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .report-stat-card {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .report-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .tag-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* ---------- فرم‌ها و مودال‌ها (bottom-sheet) ---------- */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .profile-modal,
+  .grading-modal,
+  .exam-taker-modal,
+  .confirm-modal {
+    max-width: 100%;
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    margin: 0;
+  }
+
+  .exam-taker-modal {
+    padding: 16px;
+  }
+
+  .profile-modal-head {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .confirm-modal {
+    width: 100%;
+    padding: 24px 16px 20px;
+    animation: sheet-slide 0.28s ease;
+  }
+
+  @keyframes sheet-slide {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* ---------- Toast بالای نوار ---------- */
+  .toast-container {
+    bottom: 88px !important;
+  }
+
+  /* ---------- نوار ناوبری پایین ---------- */
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 950;
+    background: color-mix(in srgb, var(--sheet) 88%, transparent);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-top: 1px solid var(--hairline);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    justify-content: space-around;
+    gap: 4px;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  }
+
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    border-radius: 12px;
+    color: var(--ink-muted);
+    box-shadow: none;
+    min-height: 46px;
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+
+  .mobile-nav-item.active {
+    color: var(--indigo);
+  }
+
+  .mobile-nav-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 20px;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--indigo);
+  }
+
+  .mobile-nav-item {
+    position: relative;
+  }
+
+  .mobile-nav-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .mobile-nav-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  /* ---------- فرم‌های داخلی (مثلاً goal و reminder) ---------- */
+  .goal-card .goal-current {
+    font-size: 14px;
+  }
+
+  .field-label {
+    font-size: 13px;
+  }
+
+  .btn-block-mobile {
+    width: 100%;
+  }
+}
+
+/* ---------- فلش راهنمای «انتخاب از فهرست» در داشبورد مشاور ---------- */
+.empty-guide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.empty-guide p {
+  max-width: 220px;
+}
+
+.empty-arrow {
+  display: block;
+  width: 0;
+  height: 0;
+  /* دسکتاپ (RTL): فهرست سمت راست است، پس فلش به راست اشاره می‌کند */
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 22px solid var(--indigo);
+  opacity: 0.8;
+}
+
+@media (max-width: 920px) {
+  /* موبایل/تبلت: فهرست بالای محتواست، فلش رو به بالا */
+  .empty-arrow {
+    border-left: none;
+    border-top: none;
+    border-right: 14px solid transparent;
+    border-bottom: 22px solid var(--indigo);
+  }
+}
+
+/* ---------- راهنمای رنگی سفارشی نمودارها ---------- */
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  padding-top: 8px;
+  font-family: 'Vazirmatn', Tahoma, sans-serif;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   پولیش ویژوال داشبوردها — زنده‌تر بدون تغییر ساختار
+   ============================================================ */
+
+/* کارت‌های آمار: نوار رنگی ظریف سمت راست + هاور گرم‌تر */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  opacity: 0.85;
+}
+
+.stat-card.stat-indigo::before {
+  background: var(--indigo);
+}
+.stat-card.stat-sage::before {
+  background: var(--sage);
+}
+.stat-card.stat-amber::before {
+  background: var(--amber);
+}
+.stat-card.stat-pink::before {
+  background: var(--pink);
+}
+.stat-card.stat-teal::before {
+  background: var(--teal);
+}
+
+.stat-card .stat-icon {
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.12);
+}
+
+/* کارت‌های عمومی: گوشه‌ی گردتر و هاور خیلی ملایم */
+.card {
+  border-radius: var(--radius-lg);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--indigo) 22%, var(--hairline));
+}
+
+/* سکشن‌تایتل‌ها: خط تزئینی زیر عنوان */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ردیف‌های دانش‌آموز در پنل مشاور: فاصله‌ی نفس‌گیرتر */
+.overview-student {
+  transition: background 0.15s ease;
+  border-radius: var(--radius-sm);
+}
+
+.overview-student:hover {
+  background: var(--paper);
+}
+
+
+/* ===================================================================
+   موبایل: جلوگیری از عریض‌شدن صفحه‌ی پنل مشاور هنگام نمایش مشخصات دانش‌آموز
+   علت: ایمیل‌های بلند (مثل ایمیل داخلی ساخته‌شده خودکار) نمی‌شکستند و ستون
+   شبکه را از عرض صفحه بیرون می‌بردند؛ در نتیجه هدر نسبت به صفحه ناتراز می‌شد.
+   =================================================================== */
+.two-column > *,
+.detail-stack,
+.detail-stack > *,
+.page-body > * {
+  min-width: 0;
+}
+.student-contact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.contact-item {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.contact-item-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 720px) {
+  .two-column {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .student-contact-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  /* شبکه‌ی اطمینان: هیچ عنصری نباید صفحه را از عرض نمایشگر بیشتر کند */
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  @supports (overflow: clip) {
+    html,
+    body {
+      overflow-x: clip;
+    }
+  }
+  .app-header,
+  .header-content {
+    max-width: 100%;
+  }
+}
+
+/* ورودی ساعت (TimeInput): اعداد وسط‌چین و خوانا، ارقام هم‌عرض */
+.time-row input.time-input {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+.time-row input.time-input::placeholder {
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  opacity: 0.45;
+}
+
+/* بنر پیش‌نویس ذخیره‌نشده در فرم‌های برنامه و آزمون */
+.draft-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  background: var(--indigo-soft);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+}
+.draft-notice p {
+  margin: 0;
+  flex: 1 1 240px;
+  line-height: 1.8;
+  font-size: 13.5px;
+}
+.draft-notice.is-warning {
+  border-color: #e6a23c;
+}
+.draft-notice-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

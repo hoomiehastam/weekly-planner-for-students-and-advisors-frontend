@@ -4,6 +4,7 @@ import { changeMyPassword } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import ThemeToggle from '../components/ThemeToggle';
+import Ico from '../components/Ico';
 
 // صفحه‌ی تغییر رمز عبور اجباری — وقتی کاربر با OTP وارد شده، باید رمز جدید تعیین کند.
 // در این حالت currentPassword لازم نیست چون هویت کاربر با OTP تأیید شده.
@@ -78,7 +79,7 @@ export default function ChangePasswordPage() {
       <div className="auth-shell" style={{ gridTemplateColumns: '1fr', maxWidth: '460px' }}>
         <form className="auth-card" onSubmit={handleSubmit}>
           <div className="auth-card-head">
-            <h1>{isForced ? '🔑 تعیین رمز عبور جدید' : 'تغییر رمز عبور'}</h1>
+            <h1>{isForced ? <><Ico e="🔑" /> تعیین رمز عبور جدید</> : 'تغییر رمز عبور'}</h1>
             <p className="muted-text">
               {isForced
                 ? 'شما با رمز یک‌بار مصرف وارد شده‌اید. برای ادامه، یک رمز عبور جدید تعیین کنید.'
@@ -88,7 +89,7 @@ export default function ChangePasswordPage() {
 
           {isForced && (
             <div className="alert alert-info">
-              <span>ℹ️</span>
+              <span><Ico e="ℹ️" /></span>
               <div>
                 <strong>توجه:</strong> رمز قبلی شما توسط سوپرادمین بازنشانی شده و دیگر کار نمی‌کند.
                 لطفاً یک رمز جدید تعیین کنید تا بتوانید دوباره وارد شوید.
@@ -114,7 +115,7 @@ export default function ChangePasswordPage() {
                   onClick={() => setShowPassword((s) => !s)}
                   aria-label="نمایش رمز"
                 >
-                  {showPassword ? '🙈' : '👁'}
+                  <Ico e={showPassword ? '🙈' : '👁'} />
                 </button>
               </div>
             </label>
@@ -138,7 +139,7 @@ export default function ChangePasswordPage() {
                 onClick={() => setShowPassword((s) => !s)}
                 aria-label="نمایش رمز"
               >
-                {showPassword ? '🙈' : '👁'}
+                <Ico e={showPassword ? '🙈' : '👁'} />
               </button>
             </div>
             <span className="field-hint">
@@ -160,12 +161,12 @@ export default function ChangePasswordPage() {
 
           {error && (
             <div className="alert alert-error">
-              <span>⚠</span> {error}
+              <span><Ico e="⚠" /></span> {error}
             </div>
           )}
 
           <button type="submit" className="btn-primary btn-block" disabled={loading}>
-            {loading ? 'در حال ذخیره…' : '✓ ذخیره‌ی رمز جدید'}
+            {loading ? 'در حال ذخیره…' : <><Ico e="✓" /> ذخیره‌ی رمز جدید</>}
           </button>
 
           {!isForced && (

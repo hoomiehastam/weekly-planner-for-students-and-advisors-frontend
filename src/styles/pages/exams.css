@@ -1,0 +1,2182 @@
+/* ===== Exams ===== */
+
+/* ============================================================
+   نسخه‌ی ۱۶ — بخش آزمون‌ها
+   ============================================================ */
+
+/* --- ExamBuilder --- */
+.exam-builder {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.exam-builder .builder-row {
+  grid-template-columns: 2fr 1fr;
+}
+
+.visibility-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.visibility-toggle input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--indigo);
+  cursor: pointer;
+}
+
+.exam-questions-section {
+  margin-top: 6px;
+  border-top: 1px solid var(--hairline);
+  padding-top: 14px;
+}
+
+.exam-question-card {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.exam-q-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.exam-q-num {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--indigo-deep);
+}
+
+.exam-q-type {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--hairline);
+}
+
+.correct-option-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.correct-option-label select {
+  width: auto;
+  padding: 4px 10px;
+}
+
+.points-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.points-label input {
+  width: 70px;
+  padding: 4px 8px;
+}
+
+/* --- ExamTaker --- */
+.exam-taker-modal {
+  background: var(--sheet);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+.exam-taker-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.exam-taker-head h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.exam-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 6px;
+}
+
+.exam-questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.exam-take-question {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.exam-take-q-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+}
+
+.exam-take-q-num {
+  font-weight: 700;
+  color: var(--indigo-deep);
+}
+
+.exam-take-q-type {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.exam-take-q-points {
+  color: var(--ink-muted);
+}
+
+.exam-take-q-text {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.7;
+  margin: 0 0 10px 0;
+}
+
+.exam-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.exam-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--sheet);
+  border: 1.5px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 13.5px;
+}
+
+.exam-option:hover {
+  border-color: var(--indigo);
+  background: var(--indigo-soft);
+}
+
+.exam-option.selected {
+  border-color: var(--indigo);
+  background: var(--indigo-soft);
+  box-shadow: 0 0 0 3px rgba(74, 63, 190, 0.12);
+}
+
+.exam-option input[type='radio'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--indigo);
+  cursor: pointer;
+}
+
+.exam-option-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--hairline-soft);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--ink-soft);
+  flex-shrink: 0;
+}
+
+.exam-option.selected .exam-option-letter {
+  background: var(--indigo);
+  color: #fff;
+}
+
+.exam-option-text {
+  flex: 1;
+}
+
+.exam-descriptive-answer {
+  background: var(--sheet);
+  border: 1.5px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 13.5px;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.exam-taker-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--hairline);
+  padding-top: 14px;
+}
+
+.exam-result {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.exam-result-emoji {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.exam-result h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.exam-result-score {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--indigo-deep);
+  margin: 12px 0;
+}
+
+/* --- کارت آزمون در پنل مشاور --- */
+.exam-card {
+  margin-bottom: 12px;
+  padding: 18px 20px;
+}
+
+.exam-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.exam-title {
+  font-size: 15px;
+  color: var(--indigo-deep);
+  margin-bottom: 4px;
+}
+
+.exam-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin: 6px 0;
+  flex-wrap: wrap;
+}
+
+.exam-visibility.visible {
+  background: var(--sage-soft);
+  color: #1d6d4c;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.exam-visibility.hidden {
+  background: var(--amber-soft);
+  color: #8a5a18;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.exam-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* --- کارت آزمون در پنل دانش‌آموز --- */
+.exam-student-card {
+  margin-bottom: 12px;
+  padding: 18px 20px;
+  border-right: 4px solid var(--amber);
+}
+
+.exam-student-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.exam-student-status {
+  flex-shrink: 0;
+}
+
+.exam-graded-badge {
+  background: var(--sage-soft);
+  border: 1px solid var(--sage);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  text-align: center;
+}
+
+.exam-graded-badge span {
+  font-weight: 700;
+  color: #1d6d4c;
+  font-size: 14px;
+}
+
+.exam-feedback {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin: 4px 0 0 0;
+  font-style: italic;
+}
+
+.exam-submitted-badge {
+  background: var(--amber-soft);
+  color: #8a5a18;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* --- مودال نمره‌دهی --- */
+.grading-modal {
+  background: var(--sheet);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+.grading-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.grading-modal-head h3 {
+  font-size: 16px;
+}
+
+.submission-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.submission-info {
+  display: flex;
+  gap: 14px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  background: var(--paper);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+}
+
+.grading-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.grading-answer-row {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.grading-q-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--indigo-deep);
+}
+
+.grading-q-text {
+  font-size: 13.5px;
+  color: var(--ink);
+  margin: 0 0 8px 0;
+  line-height: 1.7;
+}
+
+.grading-mc {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12.5px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.grading-mc .correct {
+  color: #1d6d4c;
+  font-weight: 700;
+}
+
+.grading-mc .wrong {
+  color: var(--brick);
+  font-weight: 700;
+}
+
+.grading-descriptive {
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  background: var(--sheet);
+  border-radius: 6px;
+  border-right: 3px solid var(--amber);
+}
+
+.grading-answer-text {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.7;
+  margin: 4px 0 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* حالت فقط-نمایش: سوال تستی و تشریحی بدون ورودی */
+.grading-answer-row.readonly .grading-score-label {
+  display: none;
+}
+
+.grading-score-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.grading-score-label input {
+  width: 70px;
+  padding: 4px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- انتخاب چند دانش‌آموز در ExamBuilder (حالت گروهی) — گرید کارت --- */
+.students-picker-section {
+  margin-top: var(--gap-md);
+}
+.students-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--gap-sm);
+}
+.builder-field-title {
+  font-weight: 600;
+  color: var(--ink);
+}
+.students-picker-tools {
+  display: flex;
+  gap: var(--gap-xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.students-picker-search {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: var(--sheet);
+  font: inherit;
+  font-size: 0.85rem;
+  min-width: 180px;
+}
+.students-picker-search:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px var(--indigo-soft);
+}
+.students-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--gap-xs);
+}
+.student-pick-card {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  background: var(--sheet);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+.student-pick-card:hover {
+  border-color: var(--indigo);
+  transform: translateY(-1px);
+}
+.student-pick-card.checked {
+  background: var(--indigo-soft);
+  border-color: var(--indigo);
+}
+.student-pick-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.student-pick-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.student-pick-card.checked .student-pick-avatar {
+  background: var(--indigo);
+  color: #fff;
+}
+.student-pick-name {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.student-pick-check {
+  color: var(--indigo);
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.student-pick-card.checked .student-pick-check {
+  opacity: 1;
+}
+.student-pick-card {
+  position: relative;
+}
+
+/* --- نشان برند در هدر داشبورد --- */
+.header-brand-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-inline-start: var(--gap-sm);
+  white-space: nowrap;
+}
+.header-brand-chip.student {
+  background: var(--amber-soft);
+  color: #b8501e;
+}
+.header-brand-chip.advisor {
+  background: var(--sage-soft);
+  color: #0f6e56;
+}
+@media (max-width: 700px) {
+  .header-brand-chip {
+    display: none;
+  }
+}
+
+/* --- نشان برند در پنل احراز هویت --- */
+.aside-brands {
+  display: flex;
+  gap: var(--gap-sm);
+  margin: var(--gap-md) 0;
+}
+.aside-brand-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+.aside-brand-card.active {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+.aside-brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.aside-brand-card strong {
+  display: block;
+  font-size: 0.85rem;
+}
+.aside-brand-card small {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.72rem;
+}
+
+/* --- کارت‌های برند در لندینگ (دانش‌آموزینو / مشاور دانش‌آموزینو) --- */
+.brand-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+  margin: var(--gap-xl) 0 var(--gap-lg);
+  max-width: 820px;
+}
+.brand-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  padding: var(--gap-lg);
+  border-radius: var(--radius-xl);
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: var(--ink);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+.brand-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.brand-card-student:hover {
+  border-color: var(--indigo);
+}
+.brand-card-advisor:hover {
+  border-color: var(--amber);
+}
+.brand-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+}
+.brand-card-mark {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.brand-card-mark.student {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+}
+.brand-card-mark.advisor {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+.brand-card-name {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+.brand-card-tagline {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+.brand-card-points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  flex: 1;
+}
+.brand-card-points li {
+  position: relative;
+  padding-inline-start: 20px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+.brand-card-points li::before {
+  content: '✓';
+  position: absolute;
+  inset-inline-start: 0;
+  font-weight: 700;
+}
+.brand-card-student .brand-card-points li::before {
+  color: var(--indigo);
+}
+.brand-card-advisor .brand-card-points li::before {
+  color: var(--amber);
+}
+.brand-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.brand-card-cta.student {
+  color: var(--indigo);
+}
+.brand-card-cta.advisor {
+  color: var(--amber);
+}
+.brand-card-cta .cta-arrow {
+  transition: transform 0.2s ease;
+}
+.brand-card:hover .cta-arrow {
+  transform: translateX(-4px);
+}
+@media (max-width: 720px) {
+  .brand-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- بازطراحی مودال نمره‌دهی --- */
+.grading-progress-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  padding: var(--gap-xs) var(--gap-sm);
+  background: var(--indigo-soft);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--gap-sm);
+}
+.grading-mode-badge {
+  color: var(--indigo);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.grading-student-tabs {
+  display: flex;
+  gap: var(--gap-xs);
+  overflow-x: auto;
+  padding-bottom: var(--gap-xs);
+  margin-bottom: var(--gap-sm);
+}
+.grading-student-tab {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  background: var(--sheet);
+  font: inherit;
+  cursor: pointer;
+  min-width: 130px;
+}
+.grading-student-tab:hover {
+  border-color: var(--indigo);
+}
+.grading-student-tab.active {
+  border-color: var(--indigo);
+  background: var(--indigo-soft);
+  box-shadow: var(--shadow-sm);
+}
+.grading-student-tab .tab-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+.grading-student-tab .tab-status {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+.grading-student-tab .tab-status.submitted {
+  color: var(--amber);
+  font-weight: 600;
+}
+.grading-student-tab .tab-status.graded {
+  color: var(--sage);
+  font-weight: 700;
+}
+
+.grading-student-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  margin-bottom: var(--gap-sm);
+}
+.grading-student-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+.status-dot {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.status-dot.graded {
+  background: var(--sage-soft);
+  color: var(--sage);
+}
+.status-dot.submitted {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+.status-dot.progress {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+}
+
+/* --- شمارش معکوس آزمون (ExamTaker) --- */
+.exam-timer-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--gap-xs);
+}
+.exam-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  background: var(--indigo-soft);
+  border: 1px solid var(--indigo);
+}
+.exam-timer-label {
+  font-size: 0.68rem;
+  color: var(--indigo);
+  font-weight: 600;
+}
+.exam-timer-clock {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--indigo-deep);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+}
+.exam-timer.warning {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+}
+.exam-timer.warning .exam-timer-label,
+.exam-timer.warning .exam-timer-clock {
+  color: var(--amber);
+}
+.exam-timer.urgent {
+  background: var(--brick-soft);
+  border-color: var(--brick);
+  animation: timer-pulse 1s ease-in-out infinite;
+}
+.exam-timer.urgent .exam-timer-label,
+.exam-timer.urgent .exam-timer-clock {
+  color: var(--brick);
+}
+@keyframes timer-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exam-timer.urgent {
+    animation: none;
+  }
+}
+
+/* نوار پیشرفت پاسخ‌ها */
+.exam-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-sm);
+}
+.exam-progress-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--hairline-soft);
+  overflow: hidden;
+}
+.exam-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--indigo), var(--teal));
+  transition: width 0.3s ease;
+}
+.exam-progress small {
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+/* شبکه‌ی ناوبری سؤال‌ها */
+.exam-nav-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-xs);
+  padding: var(--gap-sm);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  margin-bottom: var(--gap-md);
+}
+.exam-nav-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.exam-nav-dot:hover {
+  border-color: var(--indigo);
+  color: var(--indigo);
+}
+.exam-nav-dot.answered {
+  background: var(--sage-soft);
+  border-color: var(--sage);
+  color: var(--sage);
+}
+.exam-nav-dot.active {
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: #fff;
+  transform: scale(1.08);
+}
+.exam-nav-dot.desc {
+  border-style: dashed;
+}
+
+.exam-take-question-single {
+  animation: q-fade-in 0.25s ease;
+}
+@keyframes q-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exam-take-question-single {
+    animation: none;
+  }
+}
+.exam-taker-actions-nav {
+  justify-content: space-between;
+}
+
+/* --- وضعیت نمره‌دهی در کارت آزمون مشاور --- */
+.exam-meta-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.exam-meta-tag.desc {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.exam-actions-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--gap-xs);
+  min-width: 200px;
+}
+.exam-actions-row {
+  display: flex;
+  gap: var(--gap-xs);
+}
+.exam-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  text-align: center;
+}
+.exam-status-pill.waiting {
+  background: var(--hairline-soft);
+  color: var(--ink-muted);
+}
+.exam-status-pill.progress {
+  background: var(--sky-soft);
+  color: var(--sky);
+}
+.exam-status-pill.needs-grading {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+.exam-status-pill.graded {
+  background: var(--sage-soft);
+  color: var(--sage);
+}
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+/* تابلوی جمع نمره */
+.grading-scoreboard {
+  display: flex;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-md);
+}
+.score-chip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  border: 1px solid var(--hairline-soft);
+}
+.score-chip-label {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+.score-chip-value {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.score-chip.total {
+  background: var(--indigo);
+  border-color: var(--indigo);
+}
+.score-chip.total .score-chip-label {
+  color: rgba(255, 255, 255, 0.75);
+}
+.score-chip.total .score-chip-value {
+  color: #fff;
+}
+
+.grading-locked-note {
+  margin-bottom: var(--gap-sm);
+}
+
+/* سطرهای پاسخ‌برگ */
+.grading-answer-row.row-correct {
+  border-inline-start: 3px solid var(--sage);
+}
+.grading-answer-row.row-wrong {
+  border-inline-start: 3px solid var(--brick);
+}
+.grading-answer-row.row-blank {
+  border-inline-start: 3px solid var(--hairline);
+  opacity: 0.75;
+}
+.grading-q-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--indigo);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.q-type-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.q-type-badge.mc {
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+.q-type-badge.desc {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.grading-mc-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+.mc-opt-line {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+}
+.mc-opt-line.correct {
+  background: var(--sage-soft);
+  border-color: var(--sage);
+}
+.mc-opt-line.selected:not(.correct) {
+  background: var(--brick-soft);
+  border-color: var(--brick);
+}
+.mc-opt-letter {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.mc-opt-text {
+  flex: 1;
+}
+.mc-opt-flag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.mc-opt-flag.correct {
+  color: var(--sage);
+}
+.mc-opt-flag.wrong {
+  color: var(--brick);
+}
+.mc-opt-flag.pick {
+  color: var(--sage);
+}
+.mc-unanswered {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+.grading-score-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  margin-top: var(--gap-sm);
+}
+.grading-score-row .grading-score-label {
+  margin: 0;
+}
+.btn-chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-chip:hover {
+  border-color: var(--indigo);
+  color: var(--indigo);
+  background: var(--indigo-soft);
+}
+.btn-chip.danger:hover {
+  border-color: var(--brick);
+  color: var(--brick);
+  background: var(--brick-soft);
+}
+.btn-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.grading-answer-text.empty {
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+@media (max-width: 560px) {
+  .grading-scoreboard {
+    flex-direction: column;
+  }
+  .grading-student-tab {
+    min-width: 110px;
+  }
+}
+
+.grading-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--hairline);
+  padding-top: 14px;
+}
+
+/* --- ریسپانسیو --- */
+@media (max-width: 720px) {
+  .exam-builder .builder-row {
+    grid-template-columns: 1fr;
+  }
+  .exam-taker-modal,
+  .grading-modal {
+    max-width: 100%;
+    padding: 16px;
+  }
+  .exam-card-head,
+  .exam-student-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .exam-actions,
+  .exam-student-status {
+    justify-content: flex-end;
+  }
+  .grading-actions,
+  .exam-taker-actions {
+    flex-direction: column-reverse;
+  }
+  .grading-actions button,
+  .exam-taker-actions button {
+    width: 100%;
+  }
+}
+
+
+/* ============================================================
+   نسخه‌ی ۱۷ — بهبود آزمون‌ها: شمسی، کنترل زمان، نمره‌دهی خودکار
+   ============================================================ */
+
+/* --- بخش visibility در ExamBuilder --- */
+.visibility-section {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.visible-from-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--hairline);
+}
+
+.visible-from-hint {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin: 0 0 8px 0;
+  line-height: 1.6;
+}
+
+/* --- بخش auto-grade info --- */
+.auto-grade-info {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auto-grade-badge {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.auto-grade-badge.auto {
+  background: var(--sage-soft);
+  color: #1d6d4c;
+}
+
+.auto-grade-badge.manual {
+  background: var(--amber-soft);
+  color: #8a5a18;
+}
+
+.auto-grade-badge.mixed {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+}
+
+/* --- ریسپانسیو --- */
+@media (max-width: 720px) {
+  .exam-builder .builder-row {
+    grid-template-columns: 1fr;
+  }
+  .visible-from-section .builder-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ============================================================
+   نسخه‌ی ۱۸ — UI بهتر گزینه‌ها + آپلود عکس + نمایش زمان
+   ============================================================ */
+
+/* --- رابط کاربری جدید گزینه‌ها در ExamBuilder --- */
+.options-section {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline-soft);
+}
+
+.options-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.options-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--indigo-deep);
+}
+
+.options-hint {
+  font-size: 10.5px;
+  color: var(--ink-muted);
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.option-row.correct {
+  background: var(--sage-soft);
+}
+
+.option-correct-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink-soft);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.option-correct-btn:hover {
+  border-color: var(--sage);
+  color: var(--sage);
+  background: var(--sheet);
+  transform: none;
+  box-shadow: none;
+}
+
+.option-correct-btn.active {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: #fff;
+}
+
+.option-correct-btn.active:hover {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+
+.option-input {
+  flex: 1;
+  padding: 7px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1.5px solid var(--hairline);
+  background: var(--sheet);
+  font-family: inherit;
+}
+
+.option-row.correct .option-input {
+  border-color: var(--sage);
+}
+
+.option-remove {
+  color: var(--brick);
+  font-size: 12px;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.option-remove:hover {
+  background: var(--brick-soft);
+  color: var(--brick);
+  transform: none;
+  box-shadow: none;
+}
+
+.add-option-btn {
+  margin-top: 6px;
+  font-size: 12px;
+  padding: 6px 12px !important;
+}
+
+.add-option-btn:hover {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  border-color: var(--indigo);
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- آپلود عکس سؤال --- */
+.question-image-section {
+  margin-bottom: 8px;
+}
+
+.image-upload-btn {
+  font-size: 12.5px;
+  padding: 8px 14px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.image-upload-btn:hover {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  border-color: var(--indigo);
+  transform: none;
+  box-shadow: none;
+}
+
+.question-image-preview {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.question-image-preview img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  display: block;
+}
+
+.image-remove {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(229, 72, 77, 0.9);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: none;
+}
+
+.image-remove:hover {
+  background: var(--brick);
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- نمایش عکس در ExamTaker و GradingModal --- */
+.exam-q-image-wrap {
+  margin: 8px 0;
+}
+
+.exam-q-image {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+}
+
+/* --- نمایش زمان آزمون در پنل دانش‌آموز --- */
+.exam-time-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: var(--paper);
+  border-radius: 6px;
+  border-right: 3px solid var(--indigo);
+}
+
+.exam-time-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.exam-time-label {
+  font-weight: 600;
+  color: var(--ink-soft);
+  flex-shrink: 0;
+}
+
+.exam-time-value {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- pill نمره تثبیت‌شده در پنل مشاور --- */
+.exam-graded-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: var(--sage-soft);
+  color: #1d6d4c;
+  border: 1px solid var(--sage);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* --- ریسپانسیو --- */
+@media (max-width: 600px) {
+  .option-row {
+    flex-wrap: wrap;
+  }
+  .option-input {
+    width: 100%;
+  }
+  .exam-time-info {
+    padding: 6px 8px;
+  }
+  .exam-time-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
+
+
+/* ---------- ۱) کارت نمرات آزمون‌های آزمایشی ---------- */
+/* .stat-card به‌صورت ردیفی (آیکون | متن) تعریف شده؛ این کارت محتوای عمودی دارد */
+.stat-card.mock-exams-card {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 16px;
+  min-width: 0;
+}
+.mock-exams-card > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.mock-exams-card > p {
+  margin: 0;
+  line-height: 1.9;
+}
+
+.mock-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0;
+}
+.mock-head .section-title {
+  margin: 0;
+  min-width: 0;
+}
+
+.mock-offline-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--amber-soft);
+  border: 1.5px solid var(--amber);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+/* نمودار */
+.mock-chart-wrap {
+  width: 100%;
+  height: 320px;
+  direction: ltr;
+  min-width: 0;
+}
+.mock-chart-wrap.is-compact {
+  height: 220px;
+}
+
+/* فهرست نمرات */
+.mock-score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mock-score-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'main actions'
+    'chips actions';
+  align-items: center;
+  gap: 6px 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+}
+.mock-score-main {
+  grid-area: main;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+}
+.mock-score-title {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.mock-score-date {
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.mock-score-chips {
+  grid-area: chips;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.mock-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--indigo-soft);
+  color: var(--indigo-deep);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.mock-score-actions {
+  grid-area: actions;
+  display: flex;
+  gap: 6px;
+}
+.mock-score-actions .btn-ghost {
+  min-height: 38px;
+  min-width: 38px;
+  padding: 6px 10px;
+}
+
+/* فرم ثبت/ویرایش */
+.mock-exam-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--hairline);
+  min-width: 0;
+}
+.mock-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+}
+.mock-exam-form .field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13.5px;
+}
+.mock-exam-form input[type='text'] {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.mock-exam-form .jalali-datepicker {
+  width: 100%;
+}
+.mock-exam-form .jdp-input {
+  min-height: 46px;
+  box-sizing: border-box;
+}
+.mock-exam-form .jdp-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mock-percent-block {
+  gap: 0;
+}
+.mock-percent-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 44px;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+.mock-percent-row input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.mock-percent-remove {
+  min-height: 44px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+.mock-percent-block > .btn-secondary {
+  align-self: flex-start;
+  margin-top: 10px;
+}
+
+.mock-form-actions {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.mock-form-actions .btn-primary {
+  flex: 1 1 auto;
+}
+.mock-form-actions .btn-secondary {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 520px) {
+  .stat-card.mock-exams-card {
+    padding: 14px 12px;
+  }
+  .mock-chart-wrap {
+    height: 260px;
+  }
+  .mock-chart-wrap.is-compact {
+    height: 200px;
+  }
+  /* نام درس یک ردیف کامل؛ درصد و دکمه‌ی حذف زیرش */
+  .mock-percent-row {
+    grid-template-columns: minmax(0, 1fr) 44px;
+  }
+  .mock-percent-row .mock-percent-name {
+    grid-column: 1 / -1;
+  }
+  .mock-score-row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'main' 'chips' 'actions';
+  }
+  .mock-score-actions {
+    justify-content: flex-end;
+  }
+  .mock-form-actions .btn-primary,
+  .mock-form-actions .btn-secondary {
+    min-height: 48px;
+  }
+}
+
+
+/* ---------- ۱٫۵) فهرست انتخاب سریِ نمودار آزمون‌های آزمایشی ---------- */
+.mock-series-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+}
+.mock-series-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.mock-series-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.mock-series-chip {
+  min-height: 38px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--hairline);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.mock-series-chip:hover {
+  border-color: var(--indigo);
+  color: var(--indigo-deep);
+}
+.mock-series-chip.active {
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: #fff;
+}
+
+
+/* ---------- ۱٫۷) کارت برنامه‌ی امتحان‌ها و پرسش‌های مدرسه ---------- */
+.stat-card.exam-schedule-card {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 16px;
+  min-width: 0;
+}
+.exam-schedule-card > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.exam-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.exam-schedule-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.exam-schedule-group-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+.exam-schedule-group.is-past {
+  opacity: 0.72;
+}
+
+.exam-schedule-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'kind main countdown'
+    'kind main actions';
+  align-items: center;
+  gap: 6px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+}
+.exam-schedule-row.is-soon {
+  border-color: var(--amber);
+  background: var(--amber-soft);
+}
+.exam-schedule-row.is-past {
+  background: transparent;
+}
+
+.exam-schedule-kind {
+  grid-area: kind;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--indigo-soft);
+  color: var(--indigo-deep);
+  white-space: nowrap;
+}
+.exam-schedule-kind.kind-quiz {
+  background: var(--amber-soft);
+  color: var(--ink);
+}
+
+.exam-schedule-main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.exam-schedule-title {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.exam-schedule-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+}
+.exam-schedule-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+.exam-schedule-subject {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+/* تخمین دانش‌آموز از تعداد بازه‌ی لازم برای این امتحان/پرسش.
+   با رنگ متفاوت از چیپ درس تا در فهرستِ مشاور سریع به چشم بیاید. */
+.exam-schedule-sessions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sage) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sage) 45%, transparent);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.exam-schedule-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.exam-schedule-countdown {
+  grid-area: countdown;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: var(--indigo-soft);
+  color: var(--indigo-deep);
+}
+.exam-schedule-countdown.tone-soon {
+  background: var(--amber);
+  color: #fff;
+}
+.exam-schedule-countdown.tone-past {
+  background: var(--paper);
+  color: var(--ink-soft);
+}
+
+.exam-schedule-actions {
+  grid-area: actions;
+  display: flex;
+  gap: 6px;
+  justify-self: end;
+}
+.exam-schedule-actions .btn-ghost {
+  min-height: 38px;
+  min-width: 38px;
+  padding: 6px 10px;
+}
+
+.exam-kind-toggle {
+  display: flex;
+  gap: 8px;
+}
+.exam-kind-btn {
+  flex: 1 1 0;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--hairline);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.exam-kind-btn.active {
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: #fff;
+}
+
+@media (max-width: 520px) {
+  .stat-card.exam-schedule-card {
+    padding: 14px 12px;
+  }
+
+  /* سرصفحه در موبایل تک‌ستونه می‌شود (قاعده‌ی کلی .section-head)؛ ولی
+     align-items پیش‌فرض آن center است و دکمه‌ی «مورد جدید» وسط‌چین زیر
+     عنوانِ راست‌چین می‌افتد. اینجا هر دو را به لبه‌ی راست (شروع خط) می‌چسبانیم. */
+  .exam-schedule-card > .section-head {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .exam-schedule-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'kind countdown'
+      'main main'
+      'actions actions';
+  }
+
+  /* چیپ «امتحان/پرسش» ستون 1fr را پر می‌کرد و به شکل یک قرص خالی بزرگ
+     کشیده می‌شد؛ حالا فقط به اندازه‌ی محتوایش است. */
+  .exam-schedule-kind {
+    justify-self: start;
+  }
+  .exam-schedule-countdown {
+    justify-self: end;
+  }
+
+  .exam-schedule-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* راهنمای حالت ویرایش — در گوشی فرم زیرِ فهرست باز می‌شود و این خط،
+   اتصال فرم به ردیفی که کاربر روی آن «ویرایش» زده را روشن می‌کند. */
+.exam-schedule-editing-hint {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}

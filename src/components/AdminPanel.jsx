@@ -22,6 +22,8 @@ import {
   createUserOtp,
   updateUserSubscription,
   updateInstituteLimits,
+  setAdvisorStudentLimit,
+  setInstituteReferralAdmin,
   setInstituteCard,
   setSystemCard,
   setUserMonthlyPrice,
@@ -31,17 +33,15 @@ import {
   fetchAuditLogs,
 } from '../api/client';
 import { formatJalaliDate, toFaDigits } from '../utils/jalali';
-import { konkurCountdownText } from '../utils/konkurDate';
 import { useToast } from '../context/ToastContext';
-import ConfirmModal from './ConfirmModal';
-import FaNumberInput from './FaNumberInput';
-import JalaliDatePicker from './JalaliDatePicker';
+import Ico from './Ico';
 
-const ALL_FIELDS = [
-  { value: 'HUMANITIES', label: 'علوم انسانی', emoji: '📚' },
-  { value: 'MATH_PHYSICS', label: 'ریاضی و فیزیک', emoji: '📐' },
-  { value: 'EXPERIMENTAL', label: 'علوم تجربی', emoji: '🧪' },
-];
+import AdminModals from './admin/AdminModals';
+import AdminInstitutesSection from './admin/AdminInstitutesSection';
+import AdminPendingAdvisorsSection from './admin/AdminPendingAdvisorsSection';
+import AdminStudentsSection from './admin/AdminStudentsSection';
+import AdminAdvisorsSection from './admin/AdminAdvisorsSection';
+import AdminSystemSection from './admin/AdminSystemSection';
 
 // برچسب خوانای اکشن‌های لاگ ممیزی
 const AUDIT_ACTION_LABELS = {
@@ -67,40 +67,38 @@ function auditActionLabel(action) {
 
 export default function AdminPanel() {
   const toast = useToast();
+  const [activeTab, setActiveTab] = useState('all'); // all | institutes | pending | advisors | students | system
+
   const [pending, setPending] = useState([]);
   const [overview, setOverview] = useState([]);
   const [students, setStudents] = useState([]);
   const [institutes, setInstitutes] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState(null);
-  const [showInstituteForm, setShowInstituteForm] = useState(false);
-  const [newInstituteName, setNewInstituteName] = useState('');
   const [createdInstitute, setCreatedInstitute] = useState(null);
 
-  // مدیریت حالت‌های مودال و ویرایش
-  const [editingSub, setEditingSub] = useState(null); // { instituteId, daysFromNow, status }
-  const [assigningAdvisor, setAssigningAdvisor] = useState(null); // { advisorId, advisorName, currentInstituteId }
-  const [editingFields, setEditingFields] = useState(null); // { advisorId, advisorName, selectedFields: [] }
-  const [editingLeader, setEditingLeader] = useState(null); // { instituteId, instituteName, leaderId }
-  const [otpResult, setOtpResult] = useState(null); // { user, otp, expiresAt }
-  const [otpTarget, setOtpTarget] = useState(null); // { id, name }
-  const [confirmState, setConfirmState] = useState(null); // { message, onConfirm, danger }
-  // اشتراک فردی کاربر (مشاور/دانش‌آموز) و محدودیت مؤسسه و کارت‌ها
-  const [editingUserSub, setEditingUserSub] = useState(null); // { userId, name, daysFromNow, status }
-  const [editingLimits, setEditingLimits] = useState(null); // { instituteId, name, maxAdvisors, maxStudents }
-  const [editingCard, setEditingCard] = useState(null); // { kind, ownerId, title, cardNumber, shaba, holderName }
-  const [systemCardInfo, setSystemCardInfo] = useState(null); // کارت پلتفرم فعلی
-  // مبلغ ماهانه — { kind: 'USER'|'INSTITUTE', id, name, price }
+  // حالت‌های مودال‌ها
+  const [editingSub, setEditingSub] = useState(null);
+  const [assigningAdvisor, setAssigningAdvisor] = useState(null);
+  const [editingFields, setEditingFields] = useState(null);
+  const [editingLeader, setEditingLeader] = useState(null);
+  const [otpResult, setOtpResult] = useState(null);
+  const [otpTarget, setOtpTarget] = useState(null);
+  const [confirmState, setConfirmState] = useState(null);
+  const [editingUserSub, setEditingUserSub] = useState(null);
+  const [editingLimits, setEditingLimits] = useState(null);
+  const [editingAdvisorLimit, setEditingAdvisorLimit] = useState(null);
+  const [editingCard, setEditingCard] = useState(null);
+  const [systemCardInfo, setSystemCardInfo] = useState(null);
   const [editingPrice, setEditingPrice] = useState(null);
-  // تاریخ کنکور (تنظیمات سراسری) — فقط سوپرادمین همین‌جا تغییرش می‌دهد
+
+  // تنظیمات سراسری
   const [konkurDate, setKonkurDateDraft] = useState('');
   const [initialKonkurDate, setInitialKonkurDate] = useState('');
-  // ردپای تغییرات (لاگ ممیزی)
   const [auditLogs, setAuditLogs] = useState([]);
 
-  async function loadAll() {
-    setLoading(true);
+  async function loadAll(showSpinner = false) {
+    if (showSpinner) setLoading(true);
     try {
       const [pendingData, overviewData, studentsData, institutesData] = await Promise.all([
         fetchPendingAdvisors(),
@@ -108,10 +106,10 @@ export default function AdminPanel() {
         fetchStudentsOverview(),
         fetchInstitutes(),
       ]);
-      setPending(pendingData.advisors);
-      setOverview(overviewData.advisors);
-      setStudents(studentsData.students);
-      setInstitutes(institutesData.institutes);
+      setPending(pendingData.advisors || []);
+      setOverview(overviewData.advisors || []);
+      setStudents(studentsData.students || []);
+      setInstitutes(institutesData.institutes || []);
       setSystemCardInfo(institutesData.systemCard || null);
     } catch (err) {
       setError(err.message);
@@ -121,9 +119,7 @@ export default function AdminPanel() {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadAll();
-    // تاریخ کنکور را هم برای بخش تنظیمات سراسری می‌گیریم
+    void loadAll(false);
     fetchKonkurDate()
       .then((data) => {
         setKonkurDateDraft(data.konkurDate || '');
@@ -135,7 +131,6 @@ export default function AdminPanel() {
       .catch(() => {});
   }, []);
 
-  // ذخیره‌ی تاریخ کنکور — روزشمار لندینگ بلافاصله به‌روز می‌شود
   async function handleSaveKonkurDate() {
     try {
       const res = await saveKonkurDate(konkurDate);
@@ -149,6 +144,7 @@ export default function AdminPanel() {
   async function handleApprove(id) {
     try {
       await approveAdvisor(id);
+      toast.success('مشاور تأیید شد');
       loadAll();
     } catch (err) {
       setError(err.message);
@@ -158,42 +154,37 @@ export default function AdminPanel() {
   async function handleReject(id) {
     try {
       await rejectAdvisor(id);
+      toast.success('مشاور رد شد');
       loadAll();
     } catch (err) {
       setError(err.message);
     }
   }
 
-  async function handleCreateInstitute(e) {
-    e.preventDefault();
+  async function handleCreateInstitute(payload) {
     setError('');
-    try {
-      const data = await createInstitute(newInstituteName);
-      setCreatedInstitute(data.institute);
-      setNewInstituteName('');
-      setShowInstituteForm(false);
-      loadAll();
-    } catch (err) {
-      setError(err.message);
-    }
+    const data = await createInstitute(payload);
+    setCreatedInstitute(data.institute);
+    toast.success(data.message || 'آموزشگاه با موفقیت ساخته شد');
+    loadAll();
   }
 
   async function handleActivateInstitute(id) {
     setError('');
     try {
-      await activateInstitute(id);
+      const res = await activateInstitute(id);
+      toast.success(res.message || 'آموزشگاه و حساب مدیر فعال شدند');
       loadAll();
     } catch (err) {
       setError(err.message);
     }
   }
 
-  // تأیید حذف مؤسسه — اعضا به مستقل تبدیل می‌شوند
   function handleDeleteInstitute(inst) {
     setConfirmState({
       message: `مؤسسه‌ی «${inst.name}» حذف شود؟ ${toFaDigits(inst._count?.members || 0)} کاربر به مستقل تبدیل می‌شوند. این عمل قابل بازگشت نیست.`,
       danger: true,
-      confirmText: '🗑 حذف',
+      confirmText: 'حذف',
       onConfirm: async () => {
         setConfirmState(null);
         try {
@@ -207,7 +198,6 @@ export default function AdminPanel() {
     });
   }
 
-  // ذخیره‌ی تنظیمات اشتراک مؤسسه
   async function handleSaveSubscription() {
     if (!editingSub) return;
     const payload = {};
@@ -223,7 +213,6 @@ export default function AdminPanel() {
     }
   }
 
-  // ذخیره‌ی اشتراک فردی کاربر (مشاور مستقل / دانش‌آموز)
   async function handleSaveUserSubscription() {
     if (!editingUserSub) return;
     const payload = {};
@@ -239,7 +228,6 @@ export default function AdminPanel() {
     }
   }
 
-  // ذخیره‌ی سقف اعضای مؤسسه
   async function handleSaveLimits() {
     if (!editingLimits) return;
     const toNum = (v) => (v === '' || v == null ? null : Number(v));
@@ -256,37 +244,45 @@ export default function AdminPanel() {
     }
   }
 
-  // ذخیره‌ی کارت واریز (مؤسسه یا سیستم)
-  async function handleSaveCard() {
-    if (!editingCard) return;
+  async function handleSaveAdvisorLimit() {
+    if (!editingAdvisorLimit) return;
+    const value = editingAdvisorLimit.value === '' || editingAdvisorLimit.value == null
+      ? null
+      : Number(editingAdvisorLimit.value);
     try {
-      const rawPrice = String(editingCard.monthlyPrice || '').replace(/[^\d]/g, '');
-      const payload = {
-        cardNumber: editingCard.cardNumber,
-        shaba: editingCard.shaba || undefined,
-        holderName: editingCard.holderName || undefined,
-        monthlyPrice: rawPrice ? Number(rawPrice) : null,
-      };
-      const res = editingCard.kind === 'SYSTEM'
-        ? await setSystemCard(payload)
-        : await setInstituteCard(editingCard.ownerId, payload);
-      toast.success(res.message || 'کارت ذخیره شد');
-      setEditingCard(null);
+      const res = await setAdvisorStudentLimit(editingAdvisorLimit.advisorId, value);
+      toast.success(res.message || 'سقف دانش‌آموزان مشاور ذخیره شد');
+      setEditingAdvisorLimit(null);
+      loadAll();
     } catch (err) {
       toast.error(err.message);
     }
   }
 
-  // ذخیره‌ی مبلغ ماهانه (کاربر یا مؤسسه) — خالی یعنی حذف قیمت
+  async function handleToggleInstituteReferral(inst) {
+    const nextState = inst.referralEnabled === false;
+    try {
+      await setInstituteReferralAdmin(inst.id, nextState);
+      toast.success(`برنامه‌ی تخفیف دعوت برای «${inst.name}» ${nextState ? 'روشن' : 'خاموش'} شد`);
+      loadAll();
+    } catch (err) {
+      toast.error(err.message);
+    }
+  }
+
   async function handleSavePrice() {
     if (!editingPrice) return;
-    const raw = String(editingPrice.price || '').replace(/[^\d]/g, '');
-    const price = raw ? Number(raw) : null;
+    const priceNum = editingPrice.price === '' || editingPrice.price == null
+      ? null
+      : Number(editingPrice.price);
     try {
-      const res = editingPrice.kind === 'USER'
-        ? await setUserMonthlyPrice(editingPrice.id, price)
-        : await setInstituteMonthlyPrice(editingPrice.id, price);
-      toast.success(res.message || 'مبلغ ماهانه ذخیره شد');
+      if (editingPrice.kind === 'USER') {
+        const res = await setUserMonthlyPrice(editingPrice.id, priceNum);
+        toast.success(res.message || 'مبلغ ماهانه‌ی کاربر ذخیره شد');
+      } else {
+        const res = await setInstituteMonthlyPrice(editingPrice.id, priceNum);
+        toast.success(res.message || 'مبلغ ماهانه‌ی مؤسسه ذخیره شد');
+      }
       setEditingPrice(null);
       loadAll();
     } catch (err) {
@@ -294,27 +290,38 @@ export default function AdminPanel() {
     }
   }
 
-  // برچسب وضعیت اشتراک فردی کاربر
-  // (مقایسه‌ی تاریخ در هر رندر صریحاً خواسته شده — برای جلوگیری از warning پurity
-  // از eslint-disable استفاده می‌شود)
-  function userSubLabel(sub) {
-    if (!sub) return { text: 'بدون اشتراک (آزاد)', cls: 'pending' };
-    // eslint-disable-next-line react-hooks/purity
-    const expired = sub.status === 'EXPIRED' || new Date(sub.endsAt).getTime() < Date.now();
-    if (expired) return { text: `⛔ منقضی (${formatJalaliDate(sub.endsAt, { withYear: false })})`, cls: 'skipped' };
-    if (sub.status === 'TRIAL') return { text: `آزمایشی تا ${formatJalaliDate(sub.endsAt, { withYear: false })}`, cls: 'pending' };
-    return { text: `فعال تا ${formatJalaliDate(sub.endsAt, { withYear: false })}`, cls: 'done' };
+  async function handleSaveCard() {
+    if (!editingCard) return;
+    const toNum = (v) => (v === '' || v == null ? null : Number(v));
+    const payload = {
+      cardNumber: editingCard.cardNumber,
+      shaba: editingCard.shaba || null,
+      holderName: editingCard.holderName || null,
+      monthlyPrice: toNum(editingCard.monthlyPrice),
+    };
+    try {
+      if (editingCard.kind === 'SYSTEM') {
+        const res = await setSystemCard(payload);
+        toast.success(res.message || 'کارت پلتفرم ذخیره شد');
+      } else {
+        const res = await setInstituteCard(editingCard.ownerId, payload);
+        toast.success(res.message || 'کارت مؤسسه ذخیره شد');
+      }
+      setEditingCard(null);
+      loadAll();
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
-  // تخصیص مشاور به مؤسسه
   async function handleAssignAdvisor() {
     if (!assigningAdvisor) return;
     try {
       const res = await assignAdvisorToInstitute(
         assigningAdvisor.advisorId,
-        assigningAdvisor.selectedInstituteId || null
+        assigningAdvisor.selectedInstituteId || null,
       );
-      toast.success(res.message || 'تخصیص انجام شد');
+      toast.success(res.message || 'مشاور به مؤسسه تخصیص داده شد');
       setAssigningAdvisor(null);
       loadAll();
     } catch (err) {
@@ -322,7 +329,6 @@ export default function AdminPanel() {
     }
   }
 
-  // ذخیره‌ی رشته‌های تخصص مشاور
   async function handleSaveFields() {
     if (!editingFields) return;
     try {
@@ -335,7 +341,6 @@ export default function AdminPanel() {
     }
   }
 
-  // تعیین/عزل نماینده‌ی مؤسسه
   async function handleSaveLeader() {
     if (!editingLeader) return;
     try {
@@ -348,12 +353,11 @@ export default function AdminPanel() {
     }
   }
 
-  // غیرفعال‌کردن مشاور
   function handleDeactivateAdvisor(advisor) {
     setConfirmState({
-      message: `مشاور «${advisor.fullName}» غیرفعال شود؟ نمی‌تواند وارد شود و در فهرست مشاوران دانش‌آموزان نمایش داده نمی‌شود. قابل بازگشت است.`,
+      message: `مشاور «${advisor.fullName}» غیرفعال شود؟ نمی‌تواند وارد شود و در فهرست مشاوران دانش‌آموزان نمایش داده نمی‌شود.`,
       danger: true,
-      confirmText: '⏸ غیرفعال',
+      confirmText: 'غیرفعال',
       onConfirm: async () => {
         setConfirmState(null);
         try {
@@ -367,7 +371,6 @@ export default function AdminPanel() {
     });
   }
 
-  // فعال‌کردن مجدد مشاور
   async function handleReactivateAdvisor(advisor) {
     try {
       const res = await reactivateAdvisor(advisor.id);
@@ -378,59 +381,11 @@ export default function AdminPanel() {
     }
   }
 
-  // غیرفعال‌کردن دانش‌آموز
-  function handleDeactivateStudent(student) {
-    setConfirmState({
-      message: `دانش‌آموز «${student.fullName}» غیرفعال شود؟ نمی‌تواند وارد شود. قابل بازگشت است.`,
-      danger: true,
-      confirmText: '⏸ غیرفعال',
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const res = await deactivateStudent(student.id);
-          toast.success(res.message || 'دانش‌آموز غیرفعال شد');
-          loadAll();
-        } catch (err) {
-          toast.error(err.message);
-        }
-      },
-    });
-  }
-
-  // فعال‌کردن مجدد دانش‌آموز
-  async function handleReactivateStudent(student) {
-    try {
-      const res = await reactivateStudent(student.id);
-      toast.success(res.message || 'دانش‌آموز دوباره فعال شد');
-      loadAll();
-    } catch (err) {
-      toast.error(err.message);
-    }
-  }
-
-  // حذف دانش‌آموز (hard delete)
-  function handleDeleteStudent(student) {
-    setConfirmState({
-      message: `دانش‌آموز «${student.fullName}» برای همیشه حذف شود؟ همه‌ی برنامه‌ها و آزمون‌های او هم پاک می‌شوند. این عمل قابل بازگشت نیست.`,
-      danger: true,
-      confirmText: '🗑 حذف برای همیشه',
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const res = await deleteStudent(student.id);
-          toast.success(res.message || 'دانش‌آموز حذف شد');
-          loadAll();
-        } catch (err) {
-          toast.error(err.message);
-        }
-      },
-    });
-  }
   function handleDeleteAdvisor(advisor) {
     setConfirmState({
-      message: `مشاور «${advisor.fullName}» برای همیشه حذف شود؟ همه‌ی برنامه‌ها، آزمون‌ها و یادآورهای او هم پاک می‌شوند. این عمل قابل بازگشت نیست.`,
+      message: `مشاور «${advisor.fullName}» حذف شود؟ حساب کاربر، رشته‌های تخصص و تمام اتصال‌هایش به دانش‌آموزان حذف خواهد شد.`,
       danger: true,
-      confirmText: '🗑 حذف برای همیشه',
+      confirmText: 'حذف کامل',
       onConfirm: async () => {
         setConfirmState(null);
         try {
@@ -444,7 +399,52 @@ export default function AdminPanel() {
     });
   }
 
-  // ساخت OTP برای کاربر
+  function handleDeactivateStudent(student) {
+    setConfirmState({
+      message: `دانش‌آموز «${student.fullName}» غیرفعال شود؟ نمی‌تواند وارد شود و مشاورش نمی‌تواند برای او برنامه/آزمون بسازد.`,
+      danger: true,
+      confirmText: 'غیرفعال',
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const res = await deactivateStudent(student.id);
+          toast.success(res.message || 'دانش‌آموز غیرفعال شد');
+          loadAll();
+        } catch (err) {
+          toast.error(err.message);
+        }
+      },
+    });
+  }
+
+  async function handleReactivateStudent(student) {
+    try {
+      const res = await reactivateStudent(student.id);
+      toast.success(res.message || 'دانش‌آموز دوباره فعال شد');
+      loadAll();
+    } catch (err) {
+      toast.error(err.message);
+    }
+  }
+
+  function handleDeleteStudent(student) {
+    setConfirmState({
+      message: `دانش‌آموز «${student.fullName}» به‌طور کامل حذف شود؟ برنامه‌ها، ثبت ساعات مطالعه، آزمون‌ها و پاسخ‌برگ‌هایش برای همیشه پاک می‌شوند.`,
+      danger: true,
+      confirmText: 'حذف کامل',
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const res = await deleteStudent(student.id);
+          toast.success(res.message || 'دانش‌آموز حذف شد');
+          loadAll();
+        } catch (err) {
+          toast.error(err.message);
+        }
+      },
+    });
+  }
+
   async function handleCreateOtp() {
     if (!otpTarget) return;
     try {
@@ -465,1178 +465,195 @@ export default function AdminPanel() {
     return { text: 'منقضی', cls: 'skipped' };
   }
 
+  function userSubLabel(sub) {
+    if (!sub) return { text: 'بدون اشتراک (نامحدود)', cls: 'done' };
+    const s = sub.status;
+    if (s === 'ACTIVE') return { text: `فعال تا ${formatJalaliDate(sub.endsAt, { withYear: false })}`, cls: 'done' };
+    if (s === 'TRIAL') return { text: `آزمایشی تا ${formatJalaliDate(sub.endsAt, { withYear: false })}`, cls: 'pending' };
+    if (s === 'GRACE') return { text: 'مهلت تمدید', cls: 'pending' };
+    return { text: 'منقضی', cls: 'skipped' };
+  }
+
+  const pendingInstitutesCount = institutes.filter((i) => i.status !== 'ACTIVE').length;
+
   return (
     <div className="admin-panel-wrap">
       {error && (
         <div className="alert alert-error" onClick={() => setError('')}>
-          <span>⚠</span> {error}
+          <span><Ico e="⚠" /></span> {error}
         </div>
       )}
+
       {loading && (
         <div className="loading-state">
           <div className="spinner" />
-          <p>در حال بارگذاری…</p>
+          <p>در حال بارگذاری اطلاعات پنل مدیریت…</p>
         </div>
       )}
 
       {!loading && (
         <>
-          {/* کارت واریز پلتفرم — مشاوران مستقل و مؤسسه‌ها به این کارت واریز می‌کنند */}
-          <section className="card admin-section">
-            <h3 className="card-title">
-              <span aria-hidden>💳</span> کارت واریز پلتفرم
-            </h3>
-            <p className="muted-text" style={{ margin: '0 0 10px', fontSize: 13 }}>
-              مشاوران مستقل، مدیران مؤسسه و مؤسسه‌ها برای تمدید اشتراک‌شان به این کارت واریز می‌کنند
-              و رسیدشان در صفحه‌ی واریز برای شما نمایش داده می‌شود تا تأیید کنید.
-            </p>
-            {systemCardInfo ? (
-              <div className="card-number-box" style={{ marginBottom: 10 }}>
-                <div className="card-number" dir="ltr">
-                  {String(systemCardInfo.cardNumber).replace(/(\d{4})(?=\d)/g, '$1 ')}
-                </div>
-                {systemCardInfo.holderName && <div className="card-holder">{systemCardInfo.holderName}</div>}
-              </div>
-            ) : (
-              <div className="expired-banner warn" style={{ marginBottom: 10 }}>
-                هنوز کارتی ثبت نشده — تا ثبت، مشاوران مستقل و مدیران مؤسسه صفحه‌ی واریز خالی می‌بینند.
-              </div>
-            )}
+          {/* نوار فیلتر و تب‌های بالای پنل مدیریت */}
+          <div className="admin-tab-bar" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
             <button
-              className="btn-secondary btn-sm"
-              onClick={() => setEditingCard({
-                kind: 'SYSTEM',
-                ownerId: null,
-                title: 'کارت واریز پلتفرم (سوپرادمین)',
-                cardNumber: systemCardInfo?.cardNumber || '',
-                shaba: systemCardInfo?.shaba || '',
-                holderName: systemCardInfo?.holderName || '',
-                monthlyPrice: systemCardInfo?.monthlyPrice != null ? String(systemCardInfo.monthlyPrice) : '',
-              })}
+              type="button"
+              className={`btn-tab ${activeTab === 'all' ? 'active' : ''}`}
+              onClick={() => setActiveTab('all')}
             >
-              {systemCardInfo ? '💳 ویرایش کارت پلتفرم' : '💳 تنظیم کارت پلتفرم'}
+              <Ico e="📋" /> همه بخش‌ها
             </button>
-          </section>
-
-          {/* تنظیمات سراسری — تاریخ کنکور (روزشمار لندینگ). فقط همین‌جا قابل تغییر است. */}
-          <section className="card admin-section">
-            <h3 className="card-title">
-              <span aria-hidden>📅</span> تنظیمات سراسری
-            </h3>
-            <label className="field-label">
-              تاریخ کنکور (روزشمار صفحه‌ی لندینگ)
-              <JalaliDatePicker
-                value={konkurDate}
-                onChange={(v) => setKonkurDateDraft(v)}
-                placeholder="تاریخ کنکور را انتخاب کنید"
-              />
-            </label>
-            <div className="profile-form-actions" style={{ marginTop: 8 }}>
-              <button
-                className="btn-primary btn-sm"
-                onClick={handleSaveKonkurDate}
-                disabled={!konkurDate || konkurDate === initialKonkurDate}
-              >
-                ✓ ذخیره‌ی تاریخ کنکور
-              </button>
-              {konkurDate && (
-                <span className="field-hint">
-                  {konkurCountdownText(konkurDate) || 'این تاریخ گذشته است'} — در لندینگ همین‌طور نمایش داده می‌شود
+            <button
+              type="button"
+              className={`btn-tab ${activeTab === 'institutes' ? 'active' : ''}`}
+              onClick={() => setActiveTab('institutes')}
+            >
+              <Ico e="🏫" /> آموزشگاه‌ها ({toFaDigits(institutes.length)})
+              {pendingInstitutesCount > 0 && (
+                <span className="badge-pending" style={{ marginRight: 6, background: 'var(--amber, #f59e0b)', color: '#fff', padding: '2px 6px', borderRadius: 10, fontSize: 11 }}>
+                  {toFaDigits(pendingInstitutesCount)}
                 </span>
               )}
-            </div>
-          </section>
-
-          {/* ردپای تغییرات — لاگ ممیزی آخرین اکشن‌های مدیریتی */}
-          <section className="card admin-section">
-            <h3 className="card-title">
-              <span aria-hidden>🧾</span> ردپای تغییرات
-            </h3>
-            <p className="muted-text" style={{ margin: '0 0 12px', fontSize: 13 }}>
-              آخرین اکشن‌های مدیریتی با تاریخ و جزئیات — برای شفافیت و پیگیری.
-            </p>
-            {auditLogs.length === 0 ? (
-              <p className="muted-text">هنوز اکشنی ثبت نشده.</p>
-            ) : (
-              <div className="audit-log-list">
-                {auditLogs.map((log) => (
-                  <div key={log.id} className="audit-log-row">
-                    <span className={`audit-action audit-${log.targetType.toLowerCase()}`}>
-                      {auditActionLabel(log.action)}
-                    </span>
-                    <span className="audit-detail">
-                      {log.details?.label || log.targetId}
-                      {log.details?.after != null && log.details?.before != null && (
-                        <small>
-                          {' '}({toFaDigits(log.details.before)} ← {toFaDigits(log.details.after)})
-                        </small>
-                      )}
-                    </span>
-                    <span className="audit-meta">
-                      {log.actorName} · {formatJalaliDate(log.createdAt, { withYear: false })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* بخش مؤسسه‌ها */}
-          <section className="card admin-section">
-            <h3 className="card-title">
-              <span aria-hidden>🏫</span> مؤسسه‌های آموزشی
-            </h3>
-
-            <button
-              className="btn-secondary btn-sm"
-              onClick={() => setShowInstituteForm((s) => !s)}
-            >
-              {showInstituteForm ? '✕ بستن فرم' : '＋ مؤسسه‌ی جدید'}
             </button>
+            <button
+              type="button"
+              className={`btn-tab ${activeTab === 'pending' ? 'active' : ''}`}
+              onClick={() => setActiveTab('pending')}
+            >
+              <Ico e="⏳" /> مشاوران در انتظار ({toFaDigits(pending.length)})
+            </button>
+            <button
+              type="button"
+              className={`btn-tab ${activeTab === 'students' ? 'active' : ''}`}
+              onClick={() => setActiveTab('students')}
+            >
+              <Ico e="🎒" /> دانش‌آموزان ({toFaDigits(students.length)})
+            </button>
+            <button
+              type="button"
+              className={`btn-tab ${activeTab === 'advisors' ? 'active' : ''}`}
+              onClick={() => setActiveTab('advisors')}
+            >
+              <Ico e="👥" /> مشاوران ({toFaDigits(overview.length)})
+            </button>
+            <button
+              type="button"
+              className={`btn-tab ${activeTab === 'system' ? 'active' : ''}`}
+              onClick={() => setActiveTab('system')}
+            >
+              <Ico e="⚙️" /> تنظیمات، کارت و ممیزی
+            </button>
+          </div>
 
-            {showInstituteForm && (
-              <form className="institute-create-form" onSubmit={handleCreateInstitute}>
-                <input
-                  value={newInstituteName}
-                  onChange={(e) => setNewInstituteName(e.target.value)}
-                  placeholder="نام مؤسسه — مثلاً آموزشگاه گاج تهران"
-                  required
-                  minLength={2}
-                />
-                <button type="submit" className="btn-primary btn-sm">
-                  ساخت مؤسسه
-                </button>
-              </form>
-            )}
+          {(activeTab === 'all' || activeTab === 'institutes') && (
+            <AdminInstitutesSection
+              institutes={institutes}
+              subLabel={subLabel}
+              handleCreateInstitute={handleCreateInstitute}
+              handleActivateInstitute={handleActivateInstitute}
+              handleDeleteInstitute={handleDeleteInstitute}
+              handleToggleInstituteReferral={handleToggleInstituteReferral}
+              setEditingSub={setEditingSub}
+              setEditingPrice={setEditingPrice}
+              setEditingLeader={setEditingLeader}
+              setEditingLimits={setEditingLimits}
+              setEditingCard={setEditingCard}
+              createdInstitute={createdInstitute}
+            />
+          )}
 
-            {createdInstitute && (
-              <div className="alert alert-success">
-                <span>✓</span>
-                <div>
-                  «{createdInstitute.name}» ساخته شد. کد دعوت:
-                  <strong className="institute-code-box sm" dir="ltr">{createdInstitute.code}</strong>
-                </div>
-              </div>
-            )}
+          {(activeTab === 'all' || activeTab === 'pending') && (
+            <AdminPendingAdvisorsSection
+              pending={pending}
+              handleApprove={handleApprove}
+              handleReject={handleReject}
+            />
+          )}
 
-            {institutes.length === 0 && (
-              <div className="empty-card small">
-                <span className="empty-emoji" aria-hidden>🏫</span>
-                <p>هنوز مؤسسه‌ای ثبت نشده است.</p>
-              </div>
-            )}
-            <div className="institute-admin-list">
-              {institutes.map((inst) => {
-                const sub = subLabel(inst);
-                return (
-                  <div key={inst.id} className="institute-admin-row institute-admin-row-extended">
-                    <div className="institute-admin-info">
-                      <strong>
-                        {inst.name}
-                        {inst.leader && (
-                          <span className="leader-pill" title="نماینده‌ی مؤسسه">👤 {inst.leader.fullName}</span>
-                        )}
-                      </strong>
-                      <small className="muted-text">
-                        {toFaDigits(inst._count.members)} عضو · ساخته‌شده {formatJalaliDate(inst.createdAt, { withYear: false })}
-                      </small>
-                    </div>
-                    <span className="institute-code-box sm" dir="ltr" title="کد دعوت">{inst.code}</span>
-                    <span className={`status-pill ${sub.cls}`}>{sub.text}</span>
-                    <span className={`status-pill ${inst.status === 'ACTIVE' ? 'done' : 'pending'}`}>
-                      {inst.status === 'ACTIVE' ? 'تأییدشده' : 'در انتظار تأیید'}
-                    </span>
-                    <div className="institute-admin-actions">
-                      {inst.status !== 'ACTIVE' && (
-                        <button
-                          className="btn-primary btn-sm"
-                          onClick={() => handleActivateInstitute(inst.id)}
-                        >
-                          ✓ تأیید
-                        </button>
-                      )}
-                      <button
-                        className="btn-secondary btn-sm"
-                        onClick={() => setEditingSub({
-                          instituteId: inst.id,
-                          name: inst.name,
-                          daysFromNow: 30,
-                          status: inst.subscription?.status || 'ACTIVE',
-                        })}
-                        title="تنظیم مدت اشتراک"
-                      >
-                        ⏳ اشتراک
-                      </button>
-                      <button
-                        className="btn-secondary btn-sm"
-                        onClick={() => setEditingPrice({
-                          kind: 'INSTITUTE',
-                          id: inst.id,
-                          name: inst.name,
-                          price: inst.monthlyPrice != null ? String(inst.monthlyPrice) : '',
-                        })}
-                        title="مبلغ ماهانه‌ی اشتراک مؤسسه — مبنای محاسبه‌ی خودکار روزهای تمدید"
-                      >
-                        💰 مبلغ ماهانه{inst.monthlyPrice != null ? ` (${toFaDigits(Number(inst.monthlyPrice).toLocaleString('en-US'))})` : ''}
-                      </button>
-                      <button
-                        className="btn-secondary btn-sm"
-                        onClick={() => setEditingLeader({
-                          instituteId: inst.id,
-                          instituteName: inst.name,
-                          leaderId: inst.leader?.id || '',
-                        })}
-                        title="تعیین نماینده‌ی مؤسسه"
-                      >
-                        👤 نماینده
-                      </button>
-                      <button
-                        className="btn-secondary btn-sm"
-                        onClick={() => setEditingLimits({
-                          instituteId: inst.id,
-                          name: inst.name,
-                          maxAdvisors: inst.subscription?.maxAdvisors ?? '',
-                          maxStudents: inst.subscription?.maxStudents ?? '',
-                        })}
-                        title="سقف مشاور/دانش‌آموز مؤسسه — خالی یعنی بی‌نهایت"
-                      >
-                        🚧 سقف اعضا
-                      </button>
-                      <button
-                        className="btn-secondary btn-sm"
-                        onClick={() => setEditingCard({
-                          kind: 'INSTITUTE',
-                          ownerId: inst.id,
-                          title: `کارت واریز مؤسسه ${inst.name}`,
-                          cardNumber: inst.card?.cardNumber || '',
-                          shaba: inst.card?.shaba || '',
-                          holderName: inst.card?.holderName || inst.name,
-                          monthlyPrice: inst.card?.monthlyPrice != null ? String(inst.card.monthlyPrice) : (inst.monthlyPrice != null ? String(inst.monthlyPrice) : ''),
-                        })}
-                        title="شماره کارتی که اعضا برای تمدید به آن واریز می‌کنند"
-                      >
-                        💳 کارت
-                      </button>
-                      <button
-                        className="btn-secondary btn-sm btn-danger"
-                        onClick={() => handleDeleteInstitute(inst)}
-                        title="حذف مؤسسه"
-                      >
-                        🗑
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+          {(activeTab === 'all' || activeTab === 'students') && (
+            <AdminStudentsSection
+              students={students}
+              userSubLabel={userSubLabel}
+              setEditingUserSub={setEditingUserSub}
+              setEditingPrice={setEditingPrice}
+              setOtpTarget={setOtpTarget}
+              handleDeactivateStudent={handleDeactivateStudent}
+              handleReactivateStudent={handleReactivateStudent}
+              handleDeleteStudent={handleDeleteStudent}
+            />
+          )}
 
-          {/* بخش مشاوران در انتظار تأیید */}
-          <section className="card admin-section">
-            <h3 className="card-title">
-              <span aria-hidden>⏳</span> مشاوران در انتظار تأیید
-            </h3>
-            {pending.length === 0 && (
-              <div className="empty-card small">
-                <span className="empty-emoji" aria-hidden>✅</span>
-                <p>فعلاً مشاور در انتظاری وجود ندارد.</p>
-              </div>
-            )}
-            <div className="pending-advisor-list">
-              {pending.map((advisor) => (
-                <div key={advisor.id} className="pending-advisor-card">
-                  <div className="pending-advisor-head">
-                    <div className="pending-advisor-avatar">
-                      {(advisor.fullName || '؟').charAt(0)}
-                    </div>
-                    <div className="pending-advisor-info">
-                      <strong className="pending-advisor-name">{advisor.fullName}</strong>
-                      <span className="pending-advisor-date">
-                        ثبت‌نام در: {formatJalaliDate(advisor.createdAt, { withWeekday: false })}
-                      </span>
-                      {advisor.institute && (
-                        <span className="muted-text" style={{ fontSize: '11px' }}>
-                          🏫 {advisor.institute.name}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+          {(activeTab === 'all' || activeTab === 'advisors') && (
+            <AdminAdvisorsSection
+              overview={overview}
+              userSubLabel={userSubLabel}
+              setEditingUserSub={setEditingUserSub}
+              setEditingPrice={setEditingPrice}
+              setEditingAdvisorLimit={setEditingAdvisorLimit}
+              setAssigningAdvisor={setAssigningAdvisor}
+              setEditingFields={setEditingFields}
+              setOtpTarget={setOtpTarget}
+              handleDeactivateAdvisor={handleDeactivateAdvisor}
+              handleReactivateAdvisor={handleReactivateAdvisor}
+              handleDeleteAdvisor={handleDeleteAdvisor}
+            />
+          )}
 
-                  <div className="pending-advisor-contacts">
-                    <div className="contact-row">
-                      <span className="contact-label">📧 ایمیل:</span>
-                      <a href={`mailto:${advisor.email}`} className="contact-value" dir="ltr">
-                        {advisor.email}
-                      </a>
-                    </div>
-                    {advisor.phone && (
-                      <div className="contact-row">
-                        <span className="contact-label">📞 تماس:</span>
-                        <a href={`tel:${advisor.phone}`} className="contact-value" dir="ltr">
-                          {toFaDigits(advisor.phone)}
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
-                  {advisor.bio && (
-                    <div className="pending-advisor-bio">
-                      <div className="bio-label">📝 توضیحات مشاور:</div>
-                      <p className="bio-text">{advisor.bio}</p>
-                    </div>
-                  )}
-
-                  <div className="pending-advisor-actions">
-                    <button className="btn-primary" onClick={() => handleApprove(advisor.id)}>
-                      ✓ تأیید
-                    </button>
-                    <button className="btn-secondary" onClick={() => handleReject(advisor.id)}>
-                      ✕ رد
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* بخش دانش‌آموزان (نمای کلی) */}
-          <section className="card admin-section">
-            <h3 className="card-title">
-              <span aria-hidden>🎒</span> نمای کلی دانش‌آموزان
-            </h3>
-            {students.length === 0 && (
-              <div className="empty-card small">
-                <span className="empty-emoji" aria-hidden>🎒</span>
-                <p>هنوز دانش‌آموزی ثبت‌نام نکرده است.</p>
-              </div>
-            )}
-            <div className="overview-list">
-              {students.map((student) => (
-                <div key={student.id} className="overview-row">
-                  <div
-                    className="overview-head"
-                    onClick={() => setExpandedId(expandedId === student.id ? null : student.id)}
-                  >
-                    <div className="overview-advisor">
-                      <div className="overview-avatar">
-                        {student.photoUrl ? (
-                          <img src={student.photoUrl} alt="" className="avatar-photo" />
-                        ) : (
-                          (student.fullName || '؟').charAt(0)
-                        )}
-                      </div>
-                      <div>
-                        <strong>{student.fullName || 'بدون نام'}</strong>
-                        <span className="muted-text overview-count">
-                          {student.advisor
-                            ? `مشاور: ${student.advisor.fullName}`
-                            : student.pendingAdvisor
-                              ? `⏳ درخواست به ${student.pendingAdvisor.fullName}`
-                              : 'بدون مشاور'}
-                          {student.institute && (
-                            <span className="advisor-institute-pill">🏫 {student.institute.name}</span>
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="overview-contacts">
-                      <span className={`status-pill ${
-                        student.status === 'ACTIVE' ? 'done'
-                        : student.status === 'SUSPENDED' ? 'skipped'
-                        : student.status === 'PENDING' ? 'pending'
-                        : 'skipped'
-                      }`}>
-                        {student.status === 'ACTIVE' ? '✓ فعال'
-                         : student.status === 'SUSPENDED' ? '⏸ غیرفعال'
-                         : student.status === 'PENDING' ? '⏳ در انتظار'
-                         : '✕ رد شده'}
-                      </span>
-                      <span className="chevron">{expandedId === student.id ? '▾' : '▸'}</span>
-                    </div>
-                  </div>
-
-                  {expandedId === student.id && (
-                    <div className="overview-detail">
-                      <div className="overview-bio-row">
-                        <span className="muted-text">📧 ایمیل:</span>
-                        <a href={`mailto:${student.email}`} dir="ltr">{student.email}</a>
-                      </div>
-                      {student.phone && (
-                        <div className="overview-bio-row">
-                          <span className="muted-text">📞 تماس:</span>
-                          <a href={`tel:${student.phone}`} dir="ltr">{toFaDigits(student.phone)}</a>
-                        </div>
-                      )}
-                      {student.bio && (
-                        <div className="overview-bio-row">
-                          <span className="muted-text">📝 توضیحات:</span>
-                          <span>{student.bio}</span>
-                        </div>
-                      )}
-                      <div className="overview-bio-row">
-                        <span className="muted-text">🎓 رشته:</span>
-                        <span>
-                          {student.field
-                            ? (ALL_FIELDS.find((x) => x.value === student.field)?.label || student.field)
-                            : '—'}
-                        </span>
-                      </div>
-                      <div className="overview-bio-row">
-                        <span className="muted-text">🏫 مؤسسه:</span>
-                        <span>{student.institute ? student.institute.name : 'مستقل'}</span>
-                      </div>
-                      <div className="overview-bio-row">
-                        <span className="muted-text">📅 اشتراک فردی:</span>
-                        <span className={`status-pill ${userSubLabel(student.subscription).cls}`}>
-                          {userSubLabel(student.subscription).text}
-                        </span>
-                        <button
-                          className="btn-secondary btn-xs"
-                          onClick={() => setEditingUserSub({
-                            userId: student.id,
-                            name: student.fullName,
-                            daysFromNow: 30,
-                            status: student.subscription?.status || 'ACTIVE',
-                          })}
-                          title="تنظیم اشتراک فردی این دانش‌آموز"
-                        >
-                          ⏳ اشتراک
-                        </button>
-                        <button
-                          className="btn-secondary btn-xs"
-                          onClick={() => setEditingPrice({
-                            kind: 'USER',
-                            id: student.id,
-                            name: student.fullName,
-                            price: student.monthlyPrice != null ? String(student.monthlyPrice) : '',
-                          })}
-                          title="مبلغ ماهانه — مبنای محاسبه‌ی خودکار روزهای تمدید هنگام تأیید رسید"
-                        >
-                          💰 مبلغ ماهانه
-                        </button>
-                      </div>
-                      <div className="overview-bio-row">
-                        <span className="muted-text">👥 مشاور:</span>
-                        <span>
-                          {student.advisor
-                            ? `${student.advisor.fullName} (فعال)`
-                            : student.pendingAdvisor
-                              ? `${student.pendingAdvisor.fullName} (در انتظار تأیید)`
-                              : 'بدون مشاور'}
-                        </span>
-                      </div>
-
-                      <div className="overview-admin-actions">
-                        <button
-                          className="btn-secondary btn-sm"
-                          onClick={() => setOtpTarget({ id: student.id, name: student.fullName })}
-                          title="ساخت رمز یک‌بار مصرف"
-                        >
-                          🔑 OTP
-                        </button>
-                        {student.status === 'ACTIVE' && (
-                          <button
-                            className="btn-secondary btn-sm"
-                            onClick={() => handleDeactivateStudent(student)}
-                            title="غیرفعال‌کردن دانش‌آموز"
-                          >
-                            ⏸ غیرفعال
-                          </button>
-                        )}
-                        {student.status === 'SUSPENDED' && (
-                          <button
-                            className="btn-primary btn-sm"
-                            onClick={() => handleReactivateStudent(student)}
-                          >
-                            ✓ فعال‌کردن
-                          </button>
-                        )}
-                        <button
-                          className="btn-secondary btn-sm btn-danger"
-                          onClick={() => handleDeleteStudent(student)}
-                          title="حذف دانش‌آموز (غیرقابل بازگشت)"
-                        >
-                          🗑 حذف
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* بخش نمای کلی مشاوران فعال */}
-          <section className="card admin-section">
-            <h3 className="card-title">
-              <span aria-hidden>👥</span> نمای کلی مشاوران فعال
-            </h3>
-            {overview.length === 0 && (
-              <div className="empty-card small">
-                <span className="empty-emoji" aria-hidden>👥</span>
-                <p>هنوز مشاور فعالی وجود ندارد.</p>
-              </div>
-            )}
-            <div className="overview-list">
-              {overview.map((advisor) => (
-                <div key={advisor.id} className="overview-row">
-                  <div
-                    className="overview-head"
-                    onClick={() => setExpandedId(expandedId === advisor.id ? null : advisor.id)}
-                  >
-                    <div className="overview-advisor">
-                      <div className="overview-avatar">
-                        {(advisor.fullName || '؟').charAt(0)}
-                      </div>
-                      <div>
-                        <strong>
-                          {advisor.fullName || 'بدون نام'}
-                          {advisor.role === 'SUPERADMIN' && (
-                            <span className="superadmin-pill" title="این حساب مدیر ارشد پلتفرم است">
-                              👑 مدیر ارشد
-                            </span>
-                          )}
-                        </strong>
-                        <span className="muted-text overview-count">
-                          {toFaDigits(advisor.asAdvisorLinks.length)} دانش‌آموز
-                          {advisor.institute && (
-                            <span className="advisor-institute-pill">🏫 {advisor.institute.name}</span>
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="overview-contacts">
-                      {advisor.phone && (
-                        <a
-                          href={`tel:${advisor.phone}`}
-                          className="contact-pill"
-                          dir="ltr"
-                          onClick={(e) => e.stopPropagation()}
-                          title={`تماس با ${advisor.fullName}`}
-                        >
-                          📞 {toFaDigits(advisor.phone)}
-                        </a>
-                      )}
-                      <span className="chevron">{expandedId === advisor.id ? '▾' : '▸'}</span>
-                    </div>
-                  </div>
-
-                  {expandedId === advisor.id && (
-                    <div className="overview-detail">
-                      <div className="overview-bio-row">
-                        <span className="muted-text">📧 ایمیل:</span>
-                        <a href={`mailto:${advisor.email}`} dir="ltr">{advisor.email}</a>
-                      </div>
-                      {advisor.bio && (
-                        <div className="overview-bio-row">
-                          <span className="muted-text">📝 توضیحات:</span>
-                          <span>{advisor.bio}</span>
-                        </div>
-                      )}
-                      <div className="overview-bio-row">
-                        <span className="muted-text">🏫 مؤسسه:</span>
-                        <span>{advisor.institute ? advisor.institute.name : 'مستقل'}</span>
-                      </div>
-                      <div className="overview-bio-row">
-                        <span className="muted-text">📅 اشتراک فردی:</span>
-                        <span className={`status-pill ${userSubLabel(advisor.subscription).cls}`}>
-                          {userSubLabel(advisor.subscription).text}
-                        </span>
-                        {advisor.role !== 'SUPERADMIN' && (
-                          <button
-                            className="btn-secondary btn-xs"
-                            onClick={() => setEditingUserSub({
-                              userId: advisor.id,
-                              name: advisor.fullName,
-                              daysFromNow: 30,
-                              status: advisor.subscription?.status || 'ACTIVE',
-                            })}
-                            title="تنظیم اشتراک فردی این مشاور"
-                          >
-                            ⏳ اشتراک
-                          </button>
-                        )}
-                        {advisor.role !== 'SUPERADMIN' && (
-                          <button
-                            className="btn-secondary btn-xs"
-                            onClick={() => setEditingPrice({
-                              kind: 'USER',
-                              id: advisor.id,
-                              name: advisor.fullName,
-                              price: advisor.monthlyPrice != null ? String(advisor.monthlyPrice) : '',
-                            })}
-                            title="مبلغ ماهانه — مبنای محاسبه‌ی خودکار روزهای تمدید هنگام تأیید رسید"
-                          >
-                            💰 مبلغ ماهانه
-                          </button>
-                        )}
-                      </div>
-                      <div className="overview-bio-row">
-                        <span className="muted-text">📊 وضعیت:</span>
-                        <span className={`status-pill ${
-                          advisor.status === 'ACTIVE' ? 'done'
-                          : advisor.status === 'SUSPENDED' ? 'skipped'
-                          : advisor.status === 'PENDING' ? 'pending'
-                          : 'skipped'
-                        }`}>
-                          {advisor.status === 'ACTIVE' ? '✓ فعال'
-                           : advisor.status === 'SUSPENDED' ? '⏸ غیرفعال'
-                           : advisor.status === 'PENDING' ? '⏳ در انتظار تأیید'
-                           : '✕ رد شده'}
-                        </span>
-                      </div>
-                      {advisor.fields && advisor.fields.length > 0 && (
-                        <div className="overview-bio-row">
-                          <span className="muted-text">🎓 رشته‌های تخصص:</span>
-                          <div className="advisor-pick-fields">
-                            {advisor.fields.map((f) => {
-                              const fieldInfo = ALL_FIELDS.find((x) => x.value === f);
-                              return (
-                                <span
-                                  key={f}
-                                  className={`advisor-pick-field field-pill-${f.toLowerCase().replace('_', '-')}`}
-                                >
-                                  {fieldInfo?.emoji} {fieldInfo?.label}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="overview-admin-actions">
-                        <button
-                          className="btn-secondary btn-sm"
-                          onClick={() => setAssigningAdvisor({
-                            advisorId: advisor.id,
-                            advisorName: advisor.fullName,
-                            currentInstituteId: advisor.institute?.id || null,
-                            selectedInstituteId: advisor.institute?.id || '',
-                          })}
-                        >
-                          🏫 تخصیص به مؤسسه
-                        </button>
-                        <button
-                          className="btn-secondary btn-sm"
-                          onClick={() => setEditingFields({
-                            advisorId: advisor.id,
-                            advisorName: advisor.fullName,
-                            selectedFields: advisor.fields || [],
-                          })}
-                          title="ویرایش رشته‌های تخصص"
-                        >
-                          🎓 رشته‌های تخصص
-                        </button>
-                        <button
-                          className="btn-secondary btn-sm"
-                          onClick={() => setOtpTarget({ id: advisor.id, name: advisor.fullName })}
-                          title="ساخت رمز یک‌بار مصرف"
-                        >
-                          🔑 OTP
-                        </button>
-                        {/* حساب سوپرادمین غیرفعال/حذف نمی‌شود — کل پنل مدیریتی به آن وابسته است */}
-                        {advisor.role !== 'SUPERADMIN' && advisor.status === 'ACTIVE' && (
-                          <button
-                            className="btn-secondary btn-sm"
-                            onClick={() => handleDeactivateAdvisor(advisor)}
-                            title="غیرفعال‌کردن مشاور"
-                          >
-                            ⏸ غیرفعال
-                          </button>
-                        )}
-                        {advisor.role !== 'SUPERADMIN' && advisor.status === 'SUSPENDED' && (
-                          <button
-                            className="btn-primary btn-sm"
-                            onClick={() => handleReactivateAdvisor(advisor)}
-                            title="فعال‌کردن مجدد"
-                          >
-                            ✓ فعال‌کردن
-                          </button>
-                        )}
-                        {advisor.role !== 'SUPERADMIN' && (
-                          <button
-                            className="btn-secondary btn-sm btn-danger"
-                            onClick={() => handleDeleteAdvisor(advisor)}
-                            title="حذف مشاور (غیرقابل بازگشت)"
-                          >
-                            🗑 حذف
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="overview-students">
-                        <div className="overview-students-title">دانش‌آموزها:</div>
-                        {advisor.asAdvisorLinks.length === 0 && (
-                          <p className="muted-text">هنوز دانش‌آموزی ندارد.</p>
-                        )}
-                        {advisor.asAdvisorLinks.map((link) => (
-                          <div key={link.student.id} className="overview-student">
-                            <span className="student-bullet">—</span>
-                            <div className="student-info">
-                              <strong>{link.student.fullName}</strong>
-                              <div className="student-contacts">
-                                <a href={`mailto:${link.student.email}`} dir="ltr">
-                                  📧 {link.student.email}
-                                </a>
-                                {link.student.phone && (
-                                  <a href={`tel:${link.student.phone}`} dir="ltr">
-                                    📞 {toFaDigits(link.student.phone)}
-                                  </a>
-                                )}
-                                <button
-                                  className="btn-secondary btn-xs"
-                                  onClick={() => setOtpTarget({ id: link.student.id, name: link.student.fullName })}
-                                  title="رمز یک‌بار مصرف"
-                                >
-                                  🔑 OTP
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+          {(activeTab === 'all' || activeTab === 'system') && (
+            <AdminSystemSection
+              systemCardInfo={systemCardInfo}
+              setEditingCard={setEditingCard}
+              konkurDate={konkurDate}
+              setKonkurDateDraft={setKonkurDateDraft}
+              handleSaveKonkurDate={handleSaveKonkurDate}
+              initialKonkurDate={initialKonkurDate}
+              auditLogs={auditLogs}
+              auditActionLabel={auditActionLabel}
+            />
+          )}
         </>
       )}
 
-      {/* مودال تأیید */}
-      {confirmState && (
-        <ConfirmModal
-          message={confirmState.message}
-          confirmText={confirmState.confirmText}
-          danger={confirmState.danger}
-          onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
-        />
-      )}
-
-      {/* مودال ویرایش اشتراک */}
-      {editingSub && (
-        <div className="modal-overlay" onClick={() => setEditingSub(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div className="profile-modal-head">
-              <h3>⏳ تنظیم اشتراک — {editingSub.name}</h3>
-              <button className="btn-icon-only" onClick={() => setEditingSub(null)} aria-label="بستن">✕</button>
-            </div>
-            <div className="profile-form">
-              <label className="field-label">
-                تعداد روز تمدید از الان
-                <FaNumberInput
-                  value={editingSub.daysFromNow}
-                  onChange={(v) => setEditingSub({ ...editingSub, daysFromNow: v })}
-                  placeholder="مثلاً ۳۰"
-                />
-                <span className="field-hint">مثلاً ۳۰ = یک ماه، ۹۰ = سه ماه</span>
-              </label>
-              <label className="field-label">
-                وضعیت اشتراک
-                <select
-                  value={editingSub.status}
-                  onChange={(e) => setEditingSub({ ...editingSub, status: e.target.value })}
-                >
-                  <option value="ACTIVE">فعال (ACTIVE)</option>
-                  <option value="TRIAL">آزمایشی (TRIAL)</option>
-                  <option value="GRACE">مهلت تمدید (GRACE)</option>
-                  <option value="EXPIRED">منقضی (EXPIRED)</option>
-                </select>
-              </label>
-              <div className="profile-form-actions">
-                <button className="btn-primary" onClick={handleSaveSubscription}>✓ ذخیره</button>
-                <button className="btn-secondary" onClick={() => setEditingSub(null)}>انصراف</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال تخصیص مشاور به مؤسسه */}
-      {assigningAdvisor && (
-        <div className="modal-overlay" onClick={() => setAssigningAdvisor(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div className="profile-modal-head">
-              <h3>🏫 تخصیص مشاور به مؤسسه</h3>
-              <button className="btn-icon-only" onClick={() => setAssigningAdvisor(null)} aria-label="بستن">✕</button>
-            </div>
-            <p className="muted-text" style={{ marginBottom: 12 }}>
-              مشاور «{assigningAdvisor.advisorName}» را به مؤسسه‌ی دلخواه تخصیص بده.
-              فقط دانش‌آموزان همان مؤسسه می‌توانند او را انتخاب کنند.
-            </p>
-            <div className="profile-form">
-              <label className="field-label">
-                مؤسسه
-                <select
-                  value={assigningAdvisor.selectedInstituteId || ''}
-                  onChange={(e) => setAssigningAdvisor({
-                    ...assigningAdvisor,
-                    selectedInstituteId: e.target.value,
-                  })}
-                >
-                  <option value="">— مستقل (بدون مؤسسه) —</option>
-                  {institutes
-                    .filter((i) => i.status === 'ACTIVE')
-                    .map((i) => (
-                      <option key={i.id} value={i.id}>{i.name}</option>
-                    ))}
-                </select>
-                <span className="field-hint">
-                  اگر «مستقل» را انتخاب کنی، مشاور از هر مؤسسه‌ای جدا می‌شود.
-                </span>
-              </label>
-              <div className="profile-form-actions">
-                <button className="btn-primary" onClick={handleAssignAdvisor}>✓ ذخیره</button>
-                <button className="btn-secondary" onClick={() => setAssigningAdvisor(null)}>انصراف</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال ویرایش رشته‌های تخصص مشاور */}
-      {editingFields && (
-        <div className="modal-overlay" onClick={() => setEditingFields(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
-            <div className="profile-modal-head">
-              <h3>🎓 رشته‌های تخصص مشاور</h3>
-              <button className="btn-icon-only" onClick={() => setEditingFields(null)} aria-label="بستن">✕</button>
-            </div>
-            <p className="muted-text" style={{ marginBottom: 12 }}>
-              مشاور «{editingFields.advisorName}» در کدام رشته‌ها تخصص دارد؟
-              دانش‌آموزان فقط در صورتی می‌توانند این مشاور را انتخاب کنند که رشته‌ی آن‌ها در این لیست باشد.
-              می‌توانید چند رشته انتخاب کنید.
-            </p>
-            <div className="profile-form">
-              <div className="field-label">
-                رشته‌های تخصص
-                <div className="field-picker">
-                  {ALL_FIELDS.map((f) => {
-                    const isSelected = editingFields.selectedFields.includes(f.value);
-                    return (
-                      <button
-                        key={f.value}
-                        type="button"
-                        className={`field-card field-card-${
-                          f.value === 'HUMANITIES' ? 'amber'
-                          : f.value === 'MATH_PHYSICS' ? 'indigo'
-                          : 'sage'
-                        } ${isSelected ? 'active' : ''}`}
-                        onClick={() => {
-                          setEditingFields((prev) => ({
-                            ...prev,
-                            selectedFields: isSelected
-                              ? prev.selectedFields.filter((v) => v !== f.value)
-                              : [...prev.selectedFields, f.value],
-                          }));
-                        }}
-                      >
-                        <span className="field-emoji" aria-hidden>{f.emoji}</span>
-                        <span className="field-name">{f.label}</span>
-                        {isSelected && <span className="field-check" aria-hidden>✓</span>}
-                      </button>
-                    );
-                  })}
-                </div>
-                <span className="field-hint">
-                  {editingFields.selectedFields.length === 0
-                    ? '⚠️ حداقل یک رشته باید انتخاب باشد، وگرنه هیچ دانش‌آموزی نمی‌تواند این مشاور را انتخاب کند.'
-                    : `${toFaDigits(editingFields.selectedFields.length)} رشته انتخاب شده`}
-                </span>
-              </div>
-              <div className="profile-form-actions">
-                <button className="btn-primary" onClick={handleSaveFields}>✓ ذخیره</button>
-                <button className="btn-secondary" onClick={() => setEditingFields(null)}>انصراف</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال تعیین نماینده‌ی مؤسسه */}
-      {editingLeader && (
-        <div className="modal-overlay" onClick={() => setEditingLeader(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
-            <div className="profile-modal-head">
-              <h3>👤 نماینده‌ی مؤسسه</h3>
-              <button className="btn-icon-only" onClick={() => setEditingLeader(null)} aria-label="بستن">✕</button>
-            </div>
-            <p className="muted-text" style={{ marginBottom: 12 }}>
-              یکی از اعضای فعال «{editingLeader.instituteName}» را به‌عنوان نماینده تعیین کن.
-              نماینده می‌تواند اعضای جدید را تأیید/رد کند، فهرست دانش‌آموزان و مشاوران را ببیند
-              و عضو متخلف را از مؤسسه حذف کند — بدون اینکه نقشش تغییر کند.
-            </p>
-            <div className="profile-form">
-              <label className="field-label">
-                نماینده‌ی مؤسسه
-                <select
-                  value={editingLeader.leaderId || ''}
-                  onChange={(e) => setEditingLeader({ ...editingLeader, leaderId: e.target.value })}
-                >
-                  <option value="">— بدون نماینده —</option>
-                  {overview
-                    .filter((a) => a.institute?.id === editingLeader.instituteId && a.status === 'ACTIVE')
-                    .map((a) => (
-                      <option key={a.id} value={a.id}>{a.fullName}</option>
-                    ))}
-                  {students
-                    .filter((s) => s.institute?.id === editingLeader.instituteId && s.status === 'ACTIVE')
-                    .map((s) => (
-                      <option key={s.id} value={s.id}>{s.fullName} (دانش‌آموز)</option>
-                    ))}
-                </select>
-                <span className="field-hint">
-                  «بدون نماینده» یعنی عزل نماینده‌ی فعلی — تأیید اعضا به سوپرادمین برمی‌گردد.
-                </span>
-              </label>
-              <div className="profile-form-actions">
-                <button className="btn-primary" onClick={handleSaveLeader}>✓ ذخیره</button>
-                <button className="btn-secondary" onClick={() => setEditingLeader(null)}>انصراف</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال تأیید ساخت OTP */}
-      {otpTarget && (
-        <div className="modal-overlay" onClick={() => setOtpTarget(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div className="profile-modal-head">
-              <h3>🔑 ساخت رمز یک‌بار مصرف</h3>
-              <button className="btn-icon-only" onClick={() => setOtpTarget(null)} aria-label="بستن">✕</button>
-            </div>
-            <p style={{ lineHeight: 1.8 }}>
-              برای کاربر «{otpTarget.name}» یک رمز یک‌بار مصرف ساخته می‌شود.
-              این رمز به‌صورت خودکار به ایمیل کاربر ارسال می‌شود؛ اگر SMTP تنظیم نباشد،
-              باید دستی به او بدهید. کاربر با ایمیل و این رمز وارد می‌شود
-              و بعد از ورود باید رمز عبور جدیدی تعیین کند.
-            </p>
-            <div className="profile-form-actions">
-              <button className="btn-primary" onClick={handleCreateOtp}>🔑 ساخت OTP</button>
-              <button className="btn-secondary" onClick={() => setOtpTarget(null)}>انصراف</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* نمایش OTP ساخته‌شده */}
-      {otpResult && (
-        <div className="modal-overlay" onClick={() => setOtpResult(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 460 }}>
-            <div className="profile-modal-head">
-              <h3>✅ رمز یک‌بار مصرف ساخته شد</h3>
-              <button className="btn-icon-only" onClick={() => setOtpResult(null)} aria-label="بستن">✕</button>
-            </div>
-            <p className="muted-text" style={{ marginBottom: 12 }}>
-              {otpResult.emailed
-                ? 'این رمز به‌صورت خودکار به ایمیل کاربر ارسال شد.'
-                : '⚠ ارسال خودکار ایمیل انجام نشد (SMTP تنظیم نیست)؛ این رمز را دستی به کاربر بدهید.'}
-              {' '}طول عمر آن {toFaDigits(otpResult.ttlHours)} ساعت است و فقط یک بار قابل استفاده است.
-            </p>
-            <div className="otp-result-box" dir="ltr">
-              {otpResult.otp}
-            </div>
-            <p className="muted-text" style={{ marginTop: 12, fontSize: 12 }}>
-              💡 کاربر باید با ایمیل خود و این رمز وارد شود و سپس رمز جدیدی تعیین کند.
-            </p>
-            <div className="profile-form-actions">
-              <button className="btn-primary" onClick={() => {
-                navigator.clipboard?.writeText(otpResult.otp);
-                toast.success('کپی شد');
-              }}>📋 کپی رمز</button>
-              <button className="btn-secondary" onClick={() => setOtpResult(null)}>بستن</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال اشتراک فردی کاربر (مشاور/دانش‌آموز) */}
-      {editingUserSub && (
-        <div className="modal-overlay" onClick={() => setEditingUserSub(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div className="profile-modal-head">
-              <h3>⏳ اشتراک فردی — {editingUserSub.name}</h3>
-              <button className="btn-icon-only" onClick={() => setEditingUserSub(null)} aria-label="بستن">✕</button>
-            </div>
-            <div className="profile-form">
-              <p className="muted-text" style={{ margin: '0 0 8px', fontSize: 13 }}>
-                کاربر عضو مؤسسه هم که باشد، این اشتراک فردی مستقل از اشتراک مؤسسه کار می‌کند
-                (هرکدام که دیرتر تمام شود دسترسی می‌دهد).
-              </p>
-              <label className="field-label">
-                تعداد روز تمدید از الان
-                <FaNumberInput
-                  value={editingUserSub.daysFromNow}
-                  onChange={(v) => setEditingUserSub({ ...editingUserSub, daysFromNow: v })}
-                  placeholder="مثلاً ۳۰"
-                />
-                <span className="field-hint">مثلاً ۳۰ = یک ماه، ۹۰ = سه ماه</span>
-              </label>
-              <label className="field-label">
-                وضعیت اشتراک
-                <select
-                  value={editingUserSub.status}
-                  onChange={(e) => setEditingUserSub({ ...editingUserSub, status: e.target.value })}
-                >
-                  <option value="ACTIVE">فعال (ACTIVE)</option>
-                  <option value="TRIAL">آزمایشی (TRIAL)</option>
-                  <option value="GRACE">مهلت تمدید (GRACE)</option>
-                  <option value="EXPIRED">منقضی (EXPIRED)</option>
-                </select>
-              </label>
-              <div className="profile-form-actions">
-                <button className="btn-primary" onClick={handleSaveUserSubscription}>✓ ذخیره</button>
-                <button className="btn-secondary" onClick={() => setEditingUserSub(null)}>انصراف</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال مبلغ ماهانه (کاربر یا مؤسسه) */}
-      {editingPrice && (
-        <div className="modal-overlay" onClick={() => setEditingPrice(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div className="profile-modal-head">
-              <h3>💰 مبلغ ماهانه — {editingPrice.name}</h3>
-              <button className="btn-icon-only" onClick={() => setEditingPrice(null)} aria-label="بستن">✕</button>
-            </div>
-            <div className="profile-form">
-              <p className="muted-text" style={{ margin: '0 0 8px', fontSize: 13 }}>
-                {editingPrice.kind === 'USER'
-                  ? 'این مبلغ در صفحه‌ی واریزِ این کاربر نمایش داده می‌شود و با تأیید رسید، تعداد روزهای تمدید خودکار از آن محاسبه می‌شود (مبلغ ÷ قیمت ماهانه × ۳۰ روز).'
-                  : 'این مبلغ در صفحه‌ی واریز مدیر مؤسسه نمایش داده می‌شود و با تأیید رسید، روزهای تمدید خودکار از آن محاسبه می‌شود (مبلغ ÷ قیمت ماهانه × ۳۰ روز).'}
-                خالی گذاشتن یعنی بدون قیمت — در این حالت مدت تمدید دستی تعیین می‌شود.
-              </p>
-              <label className="field-label">
-                مبلغ ماهانه (تومان)
-                <FaNumberInput
-                  value={editingPrice.price}
-                  onChange={(v) => setEditingPrice({ ...editingPrice, price: v })}
-                  placeholder="مثلاً ۵۰۰٬۰۰۰"
-                  grouping
-                  autoFocus
-                />
-                {editingPrice.price && (
-                  <span className="field-hint">
-                    هر مبلغ کامل این‌حرفی یک ماه تمدید می‌دهد؛ مثلاً نصف این مبلغ = ۱۵ روز
-                  </span>
-                )}
-              </label>
-              <div className="profile-form-actions">
-                <button className="btn-primary" onClick={handleSavePrice}>✓ ذخیره</button>
-                <button className="btn-secondary" onClick={() => setEditingPrice(null)}>انصراف</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال سقف اعضای مؤسسه */}
-      {editingLimits && (
-        <div className="modal-overlay" onClick={() => setEditingLimits(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div className="profile-modal-head">
-              <h3>🚧 سقف اعضا — {editingLimits.name}</h3>
-              <button className="btn-icon-only" onClick={() => setEditingLimits(null)} aria-label="بستن">✕</button>
-            </div>
-            <div className="profile-form">
-              <p className="muted-text" style={{ margin: '0 0 8px', fontSize: 13 }}>
-                وقتی تعداد اعضا به سقف برسد، عضو جدید پذیرفته نمی‌شود و پیام «اشتراک را ارتقا دهید» نمایش داده می‌شود.
-                خالی گذاشتن یعنی بی‌نهایت.
-              </p>
-              <label className="field-label">
-                سقف مشاوران (خالی = بی‌نهایت)
-                <FaNumberInput
-                  value={editingLimits.maxAdvisors}
-                  onChange={(v) => setEditingLimits({ ...editingLimits, maxAdvisors: v })}
-                  placeholder="مثلاً ۵"
-                />
-              </label>
-              <label className="field-label">
-                سقف دانش‌آموزان (خالی = بی‌نهایت)
-                <FaNumberInput
-                  value={editingLimits.maxStudents}
-                  onChange={(v) => setEditingLimits({ ...editingLimits, maxStudents: v })}
-                  placeholder="مثلاً ۵۰"
-                />
-              </label>
-              <div className="profile-form-actions">
-                <button className="btn-primary" onClick={handleSaveLimits}>✓ ذخیره</button>
-                <button className="btn-secondary" onClick={() => setEditingLimits(null)}>انصراف</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال کارت واریز (مؤسسه یا پلتفرم) */}
-      {editingCard && (
-        <div className="modal-overlay" onClick={() => setEditingCard(null)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div className="profile-modal-head">
-              <h3>💳 {editingCard.title}</h3>
-              <button className="btn-icon-only" onClick={() => setEditingCard(null)} aria-label="بستن">✕</button>
-            </div>
-            <div className="profile-form">
-              <p className="muted-text" style={{ margin: '0 0 8px', fontSize: 13 }}>
-                این شماره در صفحه‌ی واریزِ مقصد درست نمایش داده می‌شود:
-                {editingCard.kind === 'INSTITUTE'
-                  ? ' اعضای مؤسسه (دانش‌آموزان و مشاوران) این کارت را می‌بینند.'
-                  : ' مشاوران مستقل، مؤسسه‌ها و مدیران مؤسسه این کارت را می‌بینند.'}
-              </p>
-              <label className="field-label">
-                شماره کارت (۱۶ رقم)
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  dir="ltr"
-                  value={editingCard.cardNumber}
-                  onChange={(e) => setEditingCard({ ...editingCard, cardNumber: e.target.value })}
-                  placeholder="1234 5678 9012 3456"
-                />
-              </label>
-              <label className="field-label">
-                نام صاحب کارت (اختیاری)
-                <input
-                  type="text"
-                  value={editingCard.holderName}
-                  onChange={(e) => setEditingCard({ ...editingCard, holderName: e.target.value })}
-                />
-              </label>
-              <label className="field-label">
-                مبلغ ماهانه (تومان — اختیاری)
-                <FaNumberInput
-                  value={editingCard.monthlyPrice || ''}
-                  onChange={(v) => setEditingCard({ ...editingCard, monthlyPrice: v })}
-                  placeholder="مثلاً ۵۰۰٬۰۰۰"
-                  grouping
-                />
-                <span className="field-hint">
-                  اگر تعیین شود، واریزکنندگان به این کارت آن را می‌بینند و روزهای تمدید خودکار از آن محاسبه می‌شود
-                </span>
-              </label>
-              <label className="field-label">
-                شماره شبا (اختیاری)
-                <input
-                  type="text"
-                  dir="ltr"
-                  value={editingCard.shaba}
-                  onChange={(e) => setEditingCard({ ...editingCard, shaba: e.target.value })}
-                  placeholder="IR"
-                />
-              </label>
-              <div className="profile-form-actions">
-                <button className="btn-primary" onClick={handleSaveCard}>✓ ذخیره</button>
-                <button className="btn-secondary" onClick={() => setEditingCard(null)}>انصراف</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* تمام مودال‌های پنل مدیریت */}
+      <AdminModals
+        confirmState={confirmState}
+        setConfirmState={setConfirmState}
+        editingSub={editingSub}
+        setEditingSub={setEditingSub}
+        handleSaveSubscription={handleSaveSubscription}
+        editingUserSub={editingUserSub}
+        setEditingUserSub={setEditingUserSub}
+        handleSaveUserSubscription={handleSaveUserSubscription}
+        assigningAdvisor={assigningAdvisor}
+        setAssigningAdvisor={setAssigningAdvisor}
+        institutes={institutes}
+        handleAssignAdvisor={handleAssignAdvisor}
+        editingFields={editingFields}
+        setEditingFields={setEditingFields}
+        handleSaveFields={handleSaveFields}
+        editingLeader={editingLeader}
+        setEditingLeader={setEditingLeader}
+        overview={overview}
+        students={students}
+        handleSaveLeader={handleSaveLeader}
+        otpTarget={otpTarget}
+        setOtpTarget={setOtpTarget}
+        handleCreateOtp={handleCreateOtp}
+        otpResult={otpResult}
+        setOtpResult={setOtpResult}
+        editingLimits={editingLimits}
+        setEditingLimits={setEditingLimits}
+        handleSaveLimits={handleSaveLimits}
+        editingAdvisorLimit={editingAdvisorLimit}
+        setEditingAdvisorLimit={setEditingAdvisorLimit}
+        handleSaveAdvisorLimit={handleSaveAdvisorLimit}
+        editingPrice={editingPrice}
+        setEditingPrice={setEditingPrice}
+        handleSavePrice={handleSavePrice}
+        editingCard={editingCard}
+        setEditingCard={setEditingCard}
+        handleSaveCard={handleSaveCard}
+        toast={toast}
+      />
     </div>
   );
 }

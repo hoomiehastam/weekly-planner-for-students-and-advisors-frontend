@@ -1,0 +1,28 @@
+# SPA fallback for React Router (BrowserRouter).
+# Apache must serve index.html for client-side routes like /advisor or /login,
+# otherwise a page refresh returns 404 before React can boot.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Never rewrite real files or directories (/assets/..., /logo.svg)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Never rewrite the API prefix, in case it is ever proxied on the same origin
+  RewriteRule ^api/ - [L]
+
+  # Everything else is a client-side route
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# If mod_rewrite is unavailable, Apache's own 404 handler still serves the app shell
+ErrorDocument 404 /index.html
+
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType text/css .css
+  AddType image/svg+xml .svg
+</IfModule>

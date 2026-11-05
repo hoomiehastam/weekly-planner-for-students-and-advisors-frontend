@@ -1,0 +1,923 @@
+/* ===== Modals, Toasts & Alerts ===== */
+
+/* ============================================================
+   Error Boundary + 404 Page
+   ============================================================ */
+
+.error-boundary {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--paper);
+}
+
+.error-boundary-card {
+  text-align: center;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  max-width: 420px;
+  box-shadow: var(--shadow-md);
+}
+
+.error-emoji {
+  font-size: 56px;
+  margin-bottom: 16px;
+}
+
+.error-boundary-card h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--indigo-deep);
+}
+
+.error-boundary-card p {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.error-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.error-details {
+  margin-top: 20px;
+  text-align: right;
+  font-size: 12px;
+}
+
+.error-details summary {
+  cursor: pointer;
+  color: var(--ink-muted);
+  padding: 6px 10px;
+  background: var(--paper);
+  border-radius: 6px;
+}
+
+.error-details pre {
+  background: var(--paper);
+  padding: 10px 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  color: var(--brick);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* --- صفحه‌ی ۴۰۴ --- */
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(74, 63, 190, 0.08), transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(255, 138, 61, 0.06), transparent 50%), var(--paper);
+}
+
+.not-found-card {
+  text-align: center;
+}
+
+.not-found-emoji {
+  font-size: 64px;
+  margin-bottom: 12px;
+}
+
+.not-found-card h1 {
+  font-size: 72px;
+  margin: 0;
+  background: linear-gradient(135deg, var(--indigo), var(--pink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+.not-found-card h2 {
+  font-size: 18px;
+  margin: 12px 0 8px;
+  color: var(--indigo-deep);
+}
+
+.not-found-card p {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+}
+
+.not-found-card .btn-primary {
+  text-decoration: none;
+  display: inline-flex;
+  padding: 12px 24px;
+}
+
+
+/* ============================================================
+   Toast Notifications + ConfirmModal + Mobile improvements
+   ============================================================ */
+
+/* --- Toast container --- */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 90%;
+  width: 380px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  animation: toast-slide-in 0.3s ease;
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+  font-size: 13.5px;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.toast-success {
+  background: linear-gradient(135deg, var(--sage), #3bc878);
+  color: #fff;
+}
+
+.toast-error {
+  background: linear-gradient(135deg, var(--brick), #d04050);
+  color: #fff;
+}
+
+.toast-info {
+  background: linear-gradient(135deg, var(--indigo), var(--indigo-deep));
+  color: #fff;
+}
+
+.toast-warning {
+  background: linear-gradient(135deg, var(--amber), #e09030);
+  color: #fff;
+}
+
+.toast-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: inherit;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- ConfirmModal --- */
+.confirm-modal {
+  background: var(--sheet);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 28px 24px 20px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  animation: confirm-pop 0.2s ease;
+}
+
+@keyframes confirm-pop {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.confirm-modal-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.confirm-modal-message {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.7;
+  margin: 0 0 20px 0;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-danger-confirm {
+  background: var(--brick);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(229, 72, 77, 0.3);
+  transition: background 0.15s;
+}
+
+.btn-danger-confirm:hover:not(:disabled) {
+  background: #d04050;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(229, 72, 77, 0.4);
+}
+
+/* --- بهبود ریسپانسیو موبایل --- */
+
+/* هدر در موبایل */
+@media (max-width: 600px) {
+  .header-content {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .header-left {
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .user-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 16px !important;
+  }
+
+  .header-actions {
+    flex-shrink: 0;
+  }
+
+  .header-actions .btn-ghost {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .header-actions .btn-ghost span[aria-hidden] {
+    display: inline;
+  }
+
+  /* در موبایل خیلی کوچک، فقط آیکون‌ها را نشان بده */
+  @media (max-width: 380px) {
+    .header-actions .btn-ghost {
+      padding: 6px 8px;
+      font-size: 0;
+    }
+    .header-actions .btn-ghost span[aria-hidden] {
+      font-size: 16px;
+    }
+  }
+
+  .greeting {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-date {
+    font-size: 11px;
+  }
+}
+
+/* بدنه‌ی صفحه در موبایل */
+@media (max-width: 600px) {
+  .page-body {
+    padding: 16px 12px 40px;
+    gap: 16px;
+  }
+
+  .card {
+    padding: 16px 14px;
+  }
+
+  /* کارت‌های آمار در موبایل: ۲ ستون */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+
+  /* گزارش‌ها در موبایل */
+  .reports-summary {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px;
+  }
+
+  .report-stat-card {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  /* نمودارها در موبایل */
+  .recharts-wrapper {
+    overflow-x: auto;
+  }
+
+  /* مودال‌ها در موبایل */
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .exam-taker-modal,
+  .grading-modal,
+  .profile-modal {
+    max-width: 100%;
+    padding: 16px;
+    max-height: 95vh;
+  }
+
+  .confirm-modal {
+    max-width: 95%;
+    padding: 20px 16px 16px;
+  }
+
+  /* فرم ثبت‌نام/ورود در موبایل */
+  .auth-shell {
+    grid-template-columns: 1fr !important;
+    max-width: 100%;
+    min-height: auto;
+  }
+
+  .auth-aside {
+    display: none;
+  }
+
+  .auth-card {
+    padding: 24px 20px;
+  }
+
+  /* role-picker در موبایل */
+  .role-picker {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* دو ستونه مشاور در موبایل */
+  .two-column {
+    grid-template-columns: 1fr !important;
+  }
+
+  .student-list {
+    position: static !important;
+    margin-bottom: 12px;
+  }
+
+  .advisor-sidebar-shell {
+    position: static !important;
+    margin-bottom: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  /* builder-row در موبایل */
+  .builder-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* section-head در موبایل */
+  .section-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .section-head.with-tabs {
+    gap: 8px;
+  }
+
+  .view-tabs {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .tab-btn-sm {
+    flex: 1;
+    white-space: nowrap;
+  }
+
+  /* plan-card در موبایل */
+  .plan-card-header {
+    flex-direction: column;
+  }
+
+  .plan-actions {
+    border-right: none;
+    border-top: 1px solid var(--hairline-soft);
+    padding: 8px 14px;
+    justify-content: flex-end;
+  }
+
+  /* exam-card در موبایل */
+  .exam-card-head {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .exam-student-head {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* toast در موبایل */
+  .toast-container {
+    bottom: 12px;
+    width: calc(100% - 24px);
+  }
+
+  .toast {
+    font-size: 12.5px;
+    padding: 10px 14px;
+  }
+}
+
+/* موبایل خیلی کوچک */
+@media (max-width: 380px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .reports-summary {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* ===================================================================
+   پنجره‌ی پایان اشتراک و نوار حالت بدون اینترنت
+   =================================================================== */
+.expired-modal {
+  max-width: 400px;
+}
+.expired-title {
+  margin: 6px 0 8px;
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--indigo-deep);
+}
+.expired-date {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.expired-actions {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.expired-primary {
+  width: 100%;
+  justify-content: center;
+  padding-block: 12px;
+  font-size: 15px;
+}
+.expired-logout {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 6px;
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.expired-logout:hover {
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+  color: var(--ink);
+}
+
+.offline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: var(--amber-soft);
+  color: var(--ink);
+  border: 1px solid var(--amber);
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+.offline-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+
+/* ===================================================================
+   راهنمای نصب (و سایر ConfirmModal‌ها) در موبایل — اصلاح نمایش bottom-sheet
+   - سایه‌ی آفست دسکتاپ روی شیت پایین‌چسب حذف شود
+   - ارتفاع با dvh (نوار آدرس سافاری) و فاصله‌ی ناحیه‌ی امن پایین (ایندیکاتور خانه‌ی آیفون)
+   =================================================================== */
+.install-help-modal {
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 720px) {
+  .confirm-modal {
+    max-height: 92vh;
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 26px 26px 0 0;
+    border-bottom: 0;
+    box-shadow: none;
+    padding-bottom: calc(20px + var(--safe-b));
+  }
+}
+
+/* تب‌بار پنل مدیریت ادمین کل */
+.admin-tab-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  background: var(--surface-soft, rgba(255, 255, 255, 0.04));
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--hairline-soft);
+}
+
+.admin-tab-bar .btn-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.admin-tab-bar .btn-tab:hover {
+  color: var(--ink);
+  background: var(--surface, rgba(255, 255, 255, 0.08));
+}
+
+.admin-tab-bar .btn-tab.active {
+  color: var(--primary, #6366f1);
+  background: var(--sheet, #ffffff);
+  border-color: var(--hairline-soft);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ===================================================================
+   صفحات آفلاین، خطای ۴۰۴، بررسی جلسه و ErrorBoundary — طراحی ۲۰۲۶
+   =================================================================== */
+
+.offline-screen-wrap,
+.error-screen-wrap,
+.session-loading-wrap {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.offline-ambient-glow,
+.error-ambient-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.error-glow-danger {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.16) 0%, transparent 70%);
+}
+
+.offline-card,
+.error-card,
+.session-loading-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 500px;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 28px;
+  padding: 38px 32px;
+  text-align: center;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+[data-theme='dark'] .offline-card,
+[data-theme='dark'] .error-card,
+[data-theme='dark'] .session-loading-card {
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+/* رادار پالس آفلاین */
+.offline-radar-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 4px;
+}
+
+.offline-radar-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.18);
+  animation: radar-pulse 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+@keyframes radar-pulse {
+  0% { transform: scale(0.7); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.offline-icon-circle {
+  position: relative;
+  z-index: 2;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+}
+
+.offline-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  background: var(--paper);
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+}
+
+.offline-title,
+.error-card-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.offline-desc,
+.error-card-desc {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.offline-notice-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--sage-soft);
+  color: var(--sage-ink);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+  width: 100%;
+}
+
+.offline-actions,
+.error-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.offline-actions .btn-primary,
+.offline-actions .btn-secondary,
+.error-actions .btn-primary,
+.error-actions .btn-secondary {
+  flex: 1;
+  min-width: 140px;
+  justify-content: center;
+  padding: 11px 18px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* کارت ۴۰۴ */
+.error-badge-404 {
+  font-size: clamp(4rem, 3.5rem + 5vw, 6.5rem);
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--indigo), #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2px;
+}
+
+.error-icon-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
+  margin-bottom: 4px;
+}
+
+.error-details-box {
+  width: 100%;
+  margin-top: 10px;
+  text-align: right;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--paper);
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.error-details-box summary {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.error-details-box pre {
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--sheet);
+  border-top: 1px solid var(--hairline);
+  color: var(--ink);
+  font-family: monospace;
+  direction: ltr;
+  overflow-x: auto;
+  font-size: 11.5px;
+}
+
+/* لودینگ جلسه */
+.session-logo-pulse {
+  animation: session-bob 2.2s ease-in-out infinite;
+}
+
+@keyframes session-bob {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.session-loading-title {
+  margin: 8px 0 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.session-loading-bar-wrap {
+  width: 180px;
+  height: 4px;
+  background: var(--hairline);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.session-loading-bar {
+  height: 100%;
+  width: 45%;
+  background: linear-gradient(90deg, var(--indigo), var(--amber));
+  border-radius: 999px;
+  animation: session-bar 1.5s ease-in-out infinite;
+}
+
+@keyframes session-bar {
+  0% { transform: translateX(120%); }
+  100% { transform: translateX(-120%); }
+}
+
+.session-loading-sub {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}

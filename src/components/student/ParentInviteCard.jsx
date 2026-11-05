@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createParentInvite, fetchMyParentInvite } from '../../api/client';
 import { toFaDigits, formatJalaliDate } from '../../utils/jalali';
+import Ico from '../Ico';
 
 // کارت «کد دعوت والد» — دانش‌آموز کد می‌سازد و به والدش می‌دهد.
 // والد با همان کد در پنل خودش متصل می‌شود؛ کد یک‌بارمصرف و ۷ روزه است.
@@ -43,7 +44,7 @@ export default function ParentInviteCard() {
   return (
     <section className="card parent-invite-card">
       <h3 className="card-title">
-        <span aria-hidden>👨‍👩‍👦</span> پنل والد
+        <span aria-hidden><Ico e="👨‍👩‍👦" /></span> پنل والد
       </h3>
       {invite ? (
         <>
@@ -54,7 +55,7 @@ export default function ParentInviteCard() {
           <div className="parent-invite-code-row">
             <strong className="parent-invite-code" dir="ltr">{toFaDigits(invite.code)}</strong>
             <button type="button" className="btn-secondary btn-sm" onClick={handleCopy}>
-              {copied ? '✓ کپی شد' : '📋 کپی'}
+              {copied ? <><Ico e="✓" /> کپی شد</> : <><Ico e="📋" /> کپی</>}
             </button>
           </div>
         </>
@@ -65,11 +66,11 @@ export default function ParentInviteCard() {
             و آمار هفتگی و نمرات آزمون‌هایت را در پنل خودش می‌بیند.
           </p>
           <button type="button" className="btn-primary btn-sm" onClick={handleCreate} disabled={busy}>
-            {busy ? 'در حال ساخت…' : '🎟 ساخت کد دعوت والد'}
+            {busy ? 'در حال ساخت…' : <><Ico e="🎟" /> ساخت کد دعوت والد</>}
           </button>
         </>
       )}
-      {error && <div className="alert alert-error"><span>⚠</span> {error}</div>}
+      {error && <div className="alert alert-error"><span><Ico e="⚠" /></span> {error}</div>}
     </section>
   );
 }

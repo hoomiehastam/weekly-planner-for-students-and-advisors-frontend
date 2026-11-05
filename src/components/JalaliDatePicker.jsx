@@ -1,16 +1,24 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   toJalali,
   jalaliToGregorianDate,
-  isLeapJalaaliYear,
   getJalaliWeekday,
   jalaaliMonthLength,
   J_MONTH_NAMES,
   WEEKDAY_NAMES,
   toFaDigits,
 } from '../utils/jalali';
+import Ico from './Ico';
 
 const WEEKDAY_SHORT = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'];
+
+// رشته‌ی فقط‌تاریخ (YYYY-MM-DD) را روی ظهرِ همان روز محلی می‌خواند تا در هیچ منطقه‌ی زمانی
+// یک روز جابه‌جا نشود؛ رشته‌های کامل (ISO) مثل قبل خوانده می‌شوند.
+function parseValue(value) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date(`${value}T12:00:00`);
+  return new Date(value);
+}
 
 // ساخت آرایه‌ی روزهای یک ماه با placeholderهای ابتدا و انتها برای چیدمان صحیح
 function buildMonthGrid(jy, jm) {
@@ -30,10 +38,10 @@ function buildMonthGrid(jy, jm) {
 //   onChange: (gregorianDateString) => void
 //   label: اختیاری
 //   placeholder: اختیاری
-export default function JalaliDatePicker({ value, onChange, label, placeholder }) {
+export default function JalaliDatePicker({ value, onChange, label: _label, placeholder }) {
   const initial = useMemo(() => {
     if (!value) return null;
-    const d = new Date(value);
+    const d = parseValue(value);
     if (Number.isNaN(d.getTime())) return null;
     return toJalali(d);
   }, [value]);
@@ -122,14 +130,23 @@ export default function JalaliDatePicker({ value, onChange, label, placeholder }
         ref={inputRef}
         type="button"
         className="jdp-input"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          // با هر بار باز شدن، تقویم روی تاریخ انتخاب‌شده (یا امروز) می‌ایستد
+          if (!open) {
+            const base = initial || today;
+            setViewYear(base[0]);
+            setViewMonth(base[1]);
+          }
+          setOpen((o) => !o);
+        }}
       >
-        <span className="jdp-icon">📅</span>
+        <span className="jdp-icon"><Ico e="📅" /></span>
         <span className="jdp-value">{displayValue}</span>
         <span className="jdp-caret">{open ? '▴' : '▾'}</span>
       </button>
 
-      {open && (
+      {/* با پورتال به body می‌رود تا کارت‌های دارای افکت (چرخش/محو) جای ثابت تقویم را جابه‌جا یا بُرش نزنند */}
+      {open && createPortal(
         <>
           <div className="jdp-overlay" onClick={() => setOpen(false)} />
           <div
@@ -195,7 +212,8 @@ export default function JalaliDatePicker({ value, onChange, label, placeholder }
               </button>
             </div>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );

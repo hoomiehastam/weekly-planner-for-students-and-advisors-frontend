@@ -18,15 +18,43 @@ export function setSubscriptionExpiredHandler(fn) {
   onSubscriptionExpired = fn;
 }
 
-async function request(path, { method = 'GET', body } = {}) {
+// مهلت پاسخ: روی اینترنتِ ظاهراً وصل ولی بی‌جان، درخواست بی‌نهایت منتظر نماند و صفحه گیر نکند
+const DEFAULT_TIMEOUT_MS = 20000; // خواندن
+const WRITE_TIMEOUT_MS = 40000; // نوشتن (مثلاً ارسال عکس)
+
+function makeNetworkError() {
+  // قطعی اینترنت یا در دسترس نبودن سرور (نه پاسخ خطا از سرور) — پیام روشن به‌جای «Failed to fetch»
+  const netErr = new Error('اتصال به اینترنت برقرار نیست');
+  netErr.isNetworkError = true;
+  return netErr;
+}
+
+async function request(path, { method = 'GET', body, timeoutMs } = {}) {
   const headers = { 'Content-Type': 'application/json' };
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    credentials: 'include',
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  // دستگاه خودش می‌گوید آفلاین است؛ بی‌خود منتظر شبکه نمی‌مانیم
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    throw makeNetworkError();
+  }
+
+  const controller = new AbortController();
+  const limit = timeoutMs || (method === 'GET' ? DEFAULT_TIMEOUT_MS : WRITE_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), limit);
+
+  let response;
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers,
+      credentials: 'include',
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+  } catch {
+    throw makeNetworkError();
+  } finally {
+    clearTimeout(timer);
+  }
 
   // پاسخ ۴۰۱ یعنی توکن نامعتبر/منقضی یا ورود لازم است؛
   // با یک بار فراخوانی هندلر، جلسه بسته و کاربر به صفحه‌ی ورود هدایت می‌شود
@@ -59,12 +87,17 @@ export function register(payload) {
   return request('/api/auth/register', { method: 'POST', body: payload });
 }
 
+export function registerInstitute(payload) {
+  return request('/api/auth/register-institute', { method: 'POST', body: payload });
+}
+
 export function logoutApi() {
   return request('/api/auth/logout', { method: 'POST' });
 }
 
 export function getMe() {
-  return request('/api/auth/me');
+  // بررسی جلسه‌ی ابتدای برنامه: مهلت کوتاه‌تر تا با اینترنت ضعیف سریع به حالت آفلاین برویم
+  return request('/api/auth/me', { timeoutMs: 8000 });
 }
 
 // به‌روزرسانی پروفایل کاربر لاگین‌شده
@@ -233,6 +266,37 @@ export function deleteItemTagLog(planItemId, tagId) {
   });
 }
 
+// --- مطالعه‌ی آزاد (خارج از برنامه‌ی مشاور) و پیشروی دروس ---
+export function fetchStudyTags() {
+  return request('/api/study/tags');
+}
+export function fetchMyStudyEntries() {
+  return request('/api/study/entries/mine');
+}
+export function createStudyEntry(payload) {
+  return request('/api/study/entries', { method: 'POST', body: payload });
+}
+export function updateStudyEntry(id, payload) {
+  return request(`/api/study/entries/${id}`, { method: 'PUT', body: payload });
+}
+export function deleteStudyEntry(id) {
+  return request(`/api/study/entries/${id}`, { method: 'DELETE' });
+}
+// مشاور/والد/خود دانش‌آموز
+export function fetchStudyEntriesForStudent(studentId) {
+  return request(`/api/study/entries/student/${studentId}`);
+}
+// payload: { studyDay: 'YYYY-MM-DD', items: [{ subject, position }] }
+export function saveSubjectProgress(payload) {
+  return request('/api/study/progress', { method: 'PUT', body: payload });
+}
+export function fetchMySubjectProgress() {
+  return request('/api/study/progress/mine');
+}
+export function fetchSubjectProgressForStudent(studentId) {
+  return request(`/api/study/progress/student/${studentId}`);
+}
+
 // --- بخش دانش‌آموزهای خود مشاور ---
 export function fetchMyStudents() {
   return request('/api/students/mine');
@@ -254,6 +318,14 @@ export function setStudentWeeklyGoal(studentId, weeklyGoalMinutes) {
   return request(`/api/students/${studentId}/weekly-goal`, {
     method: 'PUT',
     body: { weeklyGoalMinutes },
+  });
+}
+
+// دانش‌آموز: انتخاب مشاور توسط خودش (بعد از تکمیل رشته داخل پنل)
+export function chooseMyAdvisor(advisorId) {
+  return request('/api/students/me/advisor', {
+    method: 'POST',
+    body: { advisorId },
   });
 }
 
@@ -364,8 +436,9 @@ export function removeInstituteMember(memberId) {
 }
 
 // ====== سوپرادمین: مدیریت مؤسسه‌ها ======
-export function createInstitute(name) {
-  return request('/api/admin/institutes', { method: 'POST', body: { name } });
+export function createInstitute(payload) {
+  const body = typeof payload === 'string' ? { name: payload } : payload;
+  return request('/api/admin/institutes', { method: 'POST', body });
 }
 
 export function fetchInstitutes() {
@@ -589,6 +662,54 @@ export function fetchKonkurDate() {
   return request('/api/settings/konkur-date');
 }
 
+// ====== نمرات آزمون‌های آزمایشی (MOCK) ======
+
+// فهرست نمرات یک دانش‌آموز — دانش‌آموز برای خودش، مشاور برای دانش‌آموزهایش،
+// والد برای فرزندهایش. پاسخ: { scores: [...], access: 'SELF'|'ADVISOR'|'PARENT' }
+export function fetchMockExamScores(studentId) {
+  return request(`/api/students/${studentId}/mock-exams`);
+}
+
+// ثبت نمره‌ی جدید — فقط خود دانش‌آموز
+// payload: { title, takenAt, rank?, percentages? }
+export function createMockExamScore(studentId, payload) {
+  return request(`/api/students/${studentId}/mock-exams`, { method: 'POST', body: payload });
+}
+
+// ویرایش نمره — فقط خود دانش‌آموز
+export function updateMockExamScore(scoreId, payload) {
+  return request(`/api/mock-exams/${scoreId}`, { method: 'PUT', body: payload });
+}
+
+// حذف نمره — فقط خود دانش‌آموز
+export function deleteMockExamScore(scoreId) {
+  return request(`/api/mock-exams/${scoreId}`, { method: 'DELETE' });
+}
+
+// ====== برنامه‌ی امتحان‌ها و پرسش‌های مدرسه ======
+
+// فهرست امتحان/پرسش‌های یک دانش‌آموز — خودش، مشاورش یا والدش
+// پاسخ: { events: [{ id, title, kind, subject, dueAt, note }], access }
+export function fetchStudentExamEvents(studentId) {
+  return request(`/api/students/${studentId}/exam-events`);
+}
+
+// دانش‌آموز: ثبت مورد جدید
+// payload: { title, kind: 'EXAM'|'QUIZ', subject?, dueAt, note? }
+export function createMyExamEvent(payload) {
+  return request('/api/students/me/exam-events', { method: 'POST', body: payload });
+}
+
+// دانش‌آموز: ویرایش مورد خودش
+export function updateMyExamEvent(eventId, payload) {
+  return request(`/api/students/me/exam-events/${eventId}`, { method: 'PUT', body: payload });
+}
+
+// دانش‌آموز: حذف مورد خودش
+export function deleteMyExamEvent(eventId) {
+  return request(`/api/students/me/exam-events/${eventId}`, { method: 'DELETE' });
+}
+
 // تعیین تاریخ کنکور — فقط سوپرادمین؛ date: 'YYYY-MM-DD'
 export function setKonkurDate(date) {
   return request('/api/settings/konkur-date', { method: 'PUT', body: { date } });
@@ -596,4 +717,61 @@ export function setKonkurDate(date) {
 
 export function setSystemCard(payload) {
   return request('/api/admin/card/system', { method: 'PUT', body: payload });
+}
+// ====== لینک دعوت مشاور / دعوت دوست / تخفیف ======
+
+// عمومی: اطلاعات یک کد دعوت برای نمایش در صفحه‌ی ثبت‌نام
+export function lookupInvite(code) {
+  return request(`/api/invites/lookup/${encodeURIComponent(code)}`);
+}
+
+// مشاور: لینک دعوت ثابت من
+export function fetchMyAdvisorInvite() {
+  return request('/api/invites/advisor/me');
+}
+
+// مشاور: payload: { enabled?, referralEnabled?, regenerate? }
+export function updateMyAdvisorInvite(payload) {
+  return request('/api/invites/advisor/me', { method: 'PUT', body: payload });
+}
+
+// دانش‌آموز: لینک دعوت دوست + وضعیت تخفیف
+export function fetchMyFriendInvite() {
+  return request('/api/invites/student/me');
+}
+
+// ====== یادداشت خصوصی مشاور ======
+export function fetchStudentNotes(studentId) {
+  return request(`/api/students/${studentId}/notes`);
+}
+
+export function createStudentNote(studentId, content) {
+  return request(`/api/students/${studentId}/notes`, { method: 'POST', body: { content } });
+}
+
+export function updateStudentNote(studentId, noteId, content) {
+  return request(`/api/students/${studentId}/notes/${noteId}`, { method: 'PUT', body: { content } });
+}
+
+export function deleteStudentNote(studentId, noteId) {
+  return request(`/api/students/${studentId}/notes/${noteId}`, { method: 'DELETE' });
+}
+
+// ====== پیش‌نویس برنامه از بازه‌ی امتحان‌ها ======
+// payload: { studentId, from: 'ISO', to: 'ISO', eventIds?, sessionMinutes? }
+export function createExamDrafts(payload) {
+  return request('/api/plans/exam-drafts', { method: 'POST', body: payload });
+}
+
+// ====== سقف دانش‌آموز فعال و تخفیف (سوپرادمین / مدیر مؤسسه) ======
+export function setAdvisorStudentLimit(advisorId, maxActiveStudents) {
+  return request(`/api/admin/advisors/${advisorId}/student-limit`, { method: 'PUT', body: { maxActiveStudents } });
+}
+
+export function setInstituteReferralAdmin(instituteId, enabled) {
+  return request(`/api/admin/institutes/${instituteId}/referral`, { method: 'PUT', body: { enabled } });
+}
+
+export function setMyInstituteReferral(enabled) {
+  return request('/api/institute/referral', { method: 'PUT', body: { enabled } });
 }

@@ -1,0 +1,851 @@
+/* ===== Jalali DatePicker & Pickers ===== */
+
+/* ===================================================================
+   نسخه‌ی ۴ — استایل‌های جدید
+   شامل: JalaliDatePicker، WeeklyCalendarView، Reports، WeeklyGoal، DnD
+   =================================================================== */
+
+/* ----- JalaliDatePicker ----- */
+.jalali-picker-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label-text {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.req-star {
+  color: var(--brick);
+  margin-right: 2px;
+}
+
+.picker-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--hairline);
+  background: var(--paper);
+  font-family: inherit;
+  font-size: 14.5px;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: right;
+  box-shadow: none;
+  width: 100%;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.picker-trigger:hover {
+  border-color: var(--indigo);
+  background: var(--sheet);
+  transform: none;
+  box-shadow: none;
+}
+
+.picker-trigger.empty .picker-text {
+  color: var(--ink-muted);
+}
+
+.picker-icon {
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.picker-text {
+  flex: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.picker-clear {
+  background: transparent;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.picker-clear:hover {
+  background: var(--brick-soft);
+  color: var(--brick);
+  transform: none;
+  box-shadow: none;
+}
+
+.picker-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 100;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 16px;
+  width: 280px;
+  animation: datepicker-in 0.15s ease;
+}
+
+@keyframes datepicker-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.picker-nav {
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: inherit;
+  box-shadow: none;
+  font-weight: 700;
+}
+
+.picker-nav:hover {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  transform: none;
+  box-shadow: none;
+}
+
+.picker-month-year {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.picker-month {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--indigo-deep);
+}
+
+.picker-year {
+  font-size: 12px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.picker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.weekday-cell {
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.picker-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.day-cell {
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: inherit;
+  box-shadow: none;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background 0.1s,
+    color 0.1s;
+}
+
+.day-cell.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.day-cell:hover:not(.empty):not(.selected) {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  transform: none;
+  box-shadow: none;
+}
+
+.day-cell.today {
+  font-weight: 700;
+  color: var(--amber);
+  border: 1px solid var(--amber);
+}
+
+.day-cell.selected {
+  background: var(--indigo);
+  color: #fff;
+  font-weight: 700;
+  transform: none;
+  box-shadow: 0 2px 6px rgba(74, 63, 190, 0.3);
+}
+
+/* ----- Reports ----- */
+.reports-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.reports-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-card.goal {
+  background: linear-gradient(135deg, var(--indigo-soft), var(--pink-soft));
+  border-color: var(--indigo);
+}
+
+.summary-icon {
+  font-size: 28px;
+}
+
+.summary-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--indigo-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.report-section {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.report-title {
+  font-size: 14px;
+  margin-bottom: 14px;
+  color: var(--indigo-deep);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.chart-wrap {
+  width: 100%;
+}
+
+.reports-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.goal-section {
+  background: linear-gradient(180deg, var(--indigo-soft) 0%, var(--sheet) 100%);
+}
+
+.goal-chart-wrap {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 0;
+}
+
+.goal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.goal-big {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--indigo);
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-detail {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-target {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.goal-celebrate {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--sage);
+  font-weight: 700;
+}
+
+/* ----- تب‌های نما (لیست/تقویم/گزارش) ----- */
+.view-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--sheet);
+  padding: 5px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  width: fit-content;
+  margin-bottom: 16px;
+}
+
+/* نکته: کلاس .view-tab حذف شد — جایی استفاده نمی‌شد؛ دکمه‌های واقعی .tab-btn-sm هستند */
+.section-head.with-tabs {
+  margin-bottom: 8px;
+}
+
+/* ----- کارت هدف هفتگی (مشاور) ----- */
+.weekly-goal-card {
+  background: linear-gradient(135deg, var(--indigo-soft) 0%, var(--paper) 100%);
+  border: 1.5px solid var(--indigo);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.goal-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.goal-card-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.goal-card-head h4 {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.goal-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+
+.goal-input-row label {
+  flex: 0 0 200px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.goal-current {
+  font-size: 13px;
+  color: var(--sage);
+  margin: 0;
+}
+
+.goal-current strong {
+  color: var(--indigo-deep);
+}
+
+/* ----- نوار پیشرفت هدف هفتگی در داشبورد دانش‌آموز ----- */
+.goal-progress-banner {
+  background: linear-gradient(135deg, var(--indigo) 0%, var(--pink) 100%);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-md);
+  color: #fff;
+}
+
+.goal-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.goal-banner-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.goal-banner-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.goal-banner-text strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.goal-banner-bar {
+  flex: 1;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  overflow: hidden;
+  min-width: 100px;
+}
+
+.goal-banner-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber), #fff);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.goal-banner-pct {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  min-width: 50px;
+  text-align: left;
+}
+
+/* ----- Drag-and-drop در PlanBuilder ----- */
+.drag-handle {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--ink-muted);
+  cursor: grab;
+  padding: 0 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  flex-shrink: 0;
+  font-family: inherit;
+  box-shadow: none;
+  letter-spacing: -2px;
+}
+
+.drag-handle:hover {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  border-color: var(--indigo);
+  transform: none;
+  box-shadow: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.builder-item.dragging {
+  box-shadow: 0 8px 24px rgba(74, 63, 190, 0.2);
+  border-color: var(--indigo);
+  background: var(--sheet);
+}
+
+.builder-hint {
+  font-size: 12px;
+  color: var(--ink-muted);
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+.day-item-count {
+  font-size: 11px;
+  color: var(--indigo);
+  background: var(--indigo-soft);
+  padding: 1px 8px;
+  border-radius: 999px;
+  margin-right: auto;
+}
+
+/* ----- ریسپانسیو برای نسخه‌ی ۴ ----- */
+@media (max-width: 920px) {
+  .reports-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .reports-summary {
+    grid-template-columns: 1fr;
+  }
+  .goal-chart-wrap {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .goal-input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .goal-input-row label {
+    flex: 1;
+  }
+  .view-tabs {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .view-tab {
+    white-space: nowrap;
+  }
+  .goal-banner-content {
+    flex-wrap: wrap;
+  }
+  .goal-banner-bar {
+    order: 3;
+    width: 100%;
+    flex-basis: 100%;
+  }
+}
+
+/* ============================================================
+   نسخه‌ی ۴ — تقویم شمسی، تقویم هفتگی، آمار، drag-and-drop
+   ============================================================ */
+
+/* --- تقویم شمسی (JalaliDatePicker) --- */
+.jalali-datepicker {
+  position: relative;
+}
+
+.jdp-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--hairline);
+  background: var(--paper);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: right;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  box-shadow: none;
+}
+
+.jdp-input:hover {
+  border-color: var(--indigo);
+  background: var(--sheet);
+  transform: none;
+}
+
+.jdp-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.jdp-value {
+  flex: 1;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.jdp-caret {
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
+.jdp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(35, 43, 62, 0.35);
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+.jdp-calendar {
+  width: 320px;
+  max-width: calc(100vw - 16px);
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 101;
+  padding: 16px;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.jdp-header {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.jdp-title {
+  text-align: center;
+  font-weight: 700;
+  color: var(--indigo-deep);
+  font-size: 15px;
+}
+
+.jdp-nav {
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  box-shadow: none;
+  font-family: inherit;
+}
+
+.jdp-nav:hover {
+  background: var(--paper);
+  color: var(--indigo);
+  transform: none;
+  box-shadow: none;
+}
+
+.jdp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.jdp-weekday {
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-muted);
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.jdp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.jdp-day,
+.jdp-empty {
+  height: 42px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 13.5px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  box-shadow: none;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.jdp-day:hover {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  transform: none;
+  box-shadow: none;
+}
+
+.jdp-day.is-today {
+  font-weight: 700;
+  color: var(--amber);
+  border: 1.5px solid var(--amber);
+}
+
+.jdp-day.is-selected {
+  background: linear-gradient(135deg, var(--indigo), var(--pink));
+  color: #fff;
+  font-weight: 700;
+  border: none;
+}
+
+.jdp-empty {
+  cursor: default;
+}
+
+.jdp-footer {
+  margin-top: 10px;
+  border-top: 1px solid var(--hairline-soft);
+  padding-top: 8px;
+}
+
+.jdp-today-btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--indigo);
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.jdp-today-btn:hover {
+  background: var(--indigo-soft);
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- تب‌های نمایش (لیست/تقویم/آمار) --- */
+.section-head.with-tabs {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.view-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--sheet);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  margin-right: auto;
+}
+
+.tab-btn-sm {
+  background: transparent;
+  color: var(--ink-soft);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  box-shadow: none;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.tab-btn-sm:hover {
+  background: var(--paper);
+  color: var(--indigo);
+  transform: none;
+  box-shadow: none;
+}
+
+.tab-btn-sm.active {
+  background: var(--indigo);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(27, 31, 59, 0.22);
+}
+
+/* --- نوار پیشرفت بزرگ --- */
+.goal-banner {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-sm);
+  border-right: 4px solid var(--amber);
+}
+
+.goal-banner-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.goal-banner-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--indigo-deep);
+}
+
+.goal-banner-value {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-track.big {
+  height: 12px;
+  border-radius: 999px;
+}
+
+.goal-banner-foot {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+
+/* ===================================================================
+   اصلاح‌ها و بخش‌های جدید — بعد از global.css و theme-v2.css لود می‌شود
+   ۱) کارت نمرات آزمون‌های آزمایشی (چیدمان درست در گوشی، تبلت و لپ‌تاپ)
+   ۲) راهنمای شروع کار پنل
+   =================================================================== */
+
+/* ---------- ۰) تقویم شمسی: در گوشی از لبه‌ی راست صفحه بیرون می‌زد ---------- */
+/* عرض ۳۲۰ (یا عرض صفحه منهای حاشیه) باید شامل فاصله‌ی داخلی هم باشد، نه بیشتر از آن */
+.jdp-calendar {
+  box-sizing: border-box;
+}
+.jdp-calendar .jdp-day,
+.jdp-calendar .jdp-nav {
+  touch-action: manipulation;
+}

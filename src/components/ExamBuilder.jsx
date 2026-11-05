@@ -1,9 +1,15 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { createExam, updateExam } from '../api/client';
 import { useToast } from '../context/ToastContext';
 import JalaliDatePicker from './JalaliDatePicker';
 import FaNumberInput from './FaNumberInput';
+import TimeInput from './TimeInput';
+import DraftNotice from './DraftNotice';
+import { useAuth } from '../context/AuthContext';
+import { useDraft } from '../hooks/useDraft';
+import { clearDraft, draftKey, readDraft } from '../utils/drafts';
 import { toFaDigits } from '../utils/jalali';
+import Ico from './Ico';
 
 // تبدیل ISO به YYYY-MM-DD
 function toDateOnly(value) {
@@ -50,7 +56,7 @@ function OptionRow({ index, value, isCorrect, onChange, onRemove, onToggleCorrec
         onClick={() => onToggleCorrect(index)}
         title={isCorrect ? 'گزینه‌ی صحیح' : 'انتخاب به‌عنوان صحیح'}
       >
-        {isCorrect ? '✓' : letter}
+        {isCorrect ? <Ico e="✓" /> : letter}
       </button>
       <input
         type="text"
@@ -66,7 +72,7 @@ function OptionRow({ index, value, isCorrect, onChange, onRemove, onToggleCorrec
           onClick={() => onRemove(index)}
           title="حذف گزینه"
         >
-          ✕
+          <Ico e="✕" />
         </button>
       )}
     </div>
@@ -121,7 +127,7 @@ function QuestionCard({ question, idx, onUpdate, onRemove }) {
       const base64 = await fileToBase64(file);
       onUpdate(idx, { imageUrl: base64 });
       toast.success('عکس بارگذاری شد');
-    } catch (err) {
+    } catch {
       toast.error('خطا در بارگذاری عکس');
     } finally {
       setImageUploading(false);
@@ -133,7 +139,7 @@ function QuestionCard({ question, idx, onUpdate, onRemove }) {
   }
 
   return (
-    <div className="exam-question-card">
+    <div className="exam-question-card" data-tour="eb-question">
       <div className="exam-q-head">
         <span className="exam-q-num">سؤال {toFaDigits(idx + 1)}</span>
         <select
@@ -150,7 +156,7 @@ function QuestionCard({ question, idx, onUpdate, onRemove }) {
           onClick={() => onRemove(idx)}
           title="حذف سؤال"
         >
-          ✕
+          <Ico e="✕" />
         </button>
       </div>
 
@@ -165,7 +171,7 @@ function QuestionCard({ question, idx, onUpdate, onRemove }) {
               onClick={removeImage}
               title="حذف عکس"
             >
-              🗑
+              <Ico e="🗑" />
             </button>
           </div>
         ) : (
@@ -175,7 +181,7 @@ function QuestionCard({ question, idx, onUpdate, onRemove }) {
             onClick={() => fileInputRef.current?.click()}
             disabled={imageUploading}
           >
-            {imageUploading ? '⏳ در حال بارگذاری…' : '🖼 آپلود عکس سؤال'}
+            {imageUploading ? <><Ico e="⏳" /> در حال بارگذاری…</> : <><Ico e="🖼" /> آپلود عکس سؤال</>}
           </button>
         )}
         <input
@@ -239,32 +245,22 @@ function QuestionCard({ question, idx, onUpdate, onRemove }) {
   );
 }
 
-// کامپوننت اصلی
-export default function ExamBuilder({ studentId, students = [], existingExam, onSaved, onCancel }) {
-  const { showToast } = useToast();
-  // حالت گروهی: انتخاب چند دانش‌آموز (فقط برای آزمون جدید)
-  const [selectedStudentIds, setSelectedStudentIds] = useState(
-    studentId ? [studentId] : []
-  );
-  const [studentSearch, setStudentSearch] = useState('');
-  const [title, setTitle] = useState(existingExam?.title || '');
-  const [description, setDescription] = useState(existingExam?.description || '');
-  const [scheduledDate, setScheduledDate] = useState(
-    existingExam?.scheduledAt ? toDateOnly(existingExam.scheduledAt) : toDateOnly(new Date())
-  );
-  const [scheduledTime, setScheduledTime] = useState(
-    existingExam?.scheduledAt ? toTimeOnly(existingExam.scheduledAt) : '09:00'
-  );
-  const [durationMinutes, setDurationMinutes] = useState(existingExam?.durationMinutes || 60);
-  const [visibleToStudent, setVisibleToStudent] = useState(existingExam?.visibleToStudent || false);
-  const [visibleFromDate, setVisibleFromDate] = useState(
-    existingExam?.visibleFrom ? toDateOnly(existingExam.visibleFrom) : ''
-  );
-  const [visibleFromTime, setVisibleFromTime] = useState(
-    existingExam?.visibleFrom ? toTimeOnly(existingExam.visibleFrom) : '09:00'
-  );
-  const [questions, setQuestions] = useState(
-    existingExam?.questions?.map((q) => ({
+// ----- کمک‌های پیش‌نویس خودکار -----
+const BLANK_QUESTION = { id: null, type: 'MULTIPLE_CHOICE', text: '', options: '||', correctOption: 1, points: 1, imageUrl: null };
+
+// مقدار اولیه‌ی همه‌ی فیلدهای فرم (بدون در نظر گرفتن پیش‌نویس)
+function buildExamDefaults(existingExam, studentId) {
+  return {
+    selectedStudentIds: studentId ? [studentId] : [],
+    title: existingExam?.title || '',
+    description: existingExam?.description || '',
+    scheduledDate: existingExam?.scheduledAt ? toDateOnly(existingExam.scheduledAt) : toDateOnly(new Date()),
+    scheduledTime: existingExam?.scheduledAt ? toTimeOnly(existingExam.scheduledAt) : '09:00',
+    durationMinutes: existingExam?.durationMinutes || 60,
+    visibleToStudent: existingExam?.visibleToStudent || false,
+    visibleFromDate: existingExam?.visibleFrom ? toDateOnly(existingExam.visibleFrom) : '',
+    visibleFromTime: existingExam?.visibleFrom ? toTimeOnly(existingExam.visibleFrom) : '09:00',
+    questions: existingExam?.questions?.map((q) => ({
       id: q.id,
       type: q.type,
       text: q.text || '',
@@ -272,12 +268,105 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
       correctOption: q.correctOption || 1,
       points: q.points || 1,
       imageUrl: q.imageUrl || null,
-    })) || [
-      { id: null, type: 'MULTIPLE_CHOICE', text: '', options: '||', correctOption: 1, points: 1, imageUrl: null },
-    ]
+    })) || [{ ...BLANK_QUESTION }],
+  };
+}
+
+// عکس‌های تازه‌بارگذاری‌شده (base64) حجم زیادی دارند و جا در حافظه‌ی مرورگر نمی‌شود؛
+// در پیش‌نویس نگه داشته نمی‌شوند. عکس‌هایی که از قبل روی سرور هستند (آدرس) می‌مانند.
+function stripLocalImages(questions) {
+  return questions.map((q) =>
+    q.imageUrl && String(q.imageUrl).startsWith('data:') ? { ...q, imageUrl: null } : q
   );
+}
+
+function isValidExamSnapshot(d) {
+  return !!d && typeof d.title === 'string' && Array.isArray(d.questions) && d.questions.length > 0
+    && Array.isArray(d.selectedStudentIds);
+}
+
+// کامپوننت اصلی
+export default function ExamBuilder({ studentId, students = [], existingExam, onSaved, onCancel }) {
+  const { auth } = useAuth();
+  const userId = auth?.user?.id;
+
+  // ----- پیش‌نویس خودکار: با رفرش یا بسته‌شدن صفحه، نوشته‌ها از بین نمی‌روند -----
+  const scope = `exam:${studentId}:${existingExam ? existingExam.id : 'new'}`;
+  const key = userId ? draftKey(userId, scope) : null;
+  const examStamp = existingExam?.updatedAt || null;
+
+  const [defaults] = useState(() => buildExamDefaults(existingExam, studentId));
+  const [defaultsSig] = useState(() => JSON.stringify(defaults));
+  const [saved] = useState(() => {
+    const d = key ? readDraft(key) : null;
+    return d && isValidExamSnapshot(d.data) ? d : null;
+  });
+  // اگر آزمون بعد از ذخیره‌ی پیش‌نویس روی سرور عوض شده باشد، بی‌صدا جایگزینش نمی‌کنیم
+  const conflict = !!saved && !!existingExam && (saved.meta?.examStamp ?? null) !== examStamp;
+  const [notice, setNotice] = useState(saved ? (conflict ? 'conflict' : 'restored') : null);
+  const init = saved && !conflict ? { ...defaults, ...saved.data } : defaults;
+
+  // حالت گروهی: انتخاب چند دانش‌آموز (فقط برای آزمون جدید)
+  const [selectedStudentIds, setSelectedStudentIds] = useState(init.selectedStudentIds);
+  const [studentSearch, setStudentSearch] = useState('');
+  const [title, setTitle] = useState(init.title);
+  const [description, setDescription] = useState(init.description);
+  const [scheduledDate, setScheduledDate] = useState(init.scheduledDate);
+  const [scheduledTime, setScheduledTime] = useState(init.scheduledTime);
+  const [durationMinutes, setDurationMinutes] = useState(init.durationMinutes);
+  const [visibleToStudent, setVisibleToStudent] = useState(init.visibleToStudent);
+  const [visibleFromDate, setVisibleFromDate] = useState(init.visibleFromDate);
+  const [visibleFromTime, setVisibleFromTime] = useState(init.visibleFromTime);
+  const [questions, setQuestions] = useState(init.questions);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+
+  const snapshot = useMemo(
+    () => ({
+      selectedStudentIds, title, description, scheduledDate, scheduledTime, durationMinutes,
+      visibleToStudent, visibleFromDate, visibleFromTime, questions: stripLocalImages(questions),
+    }),
+    [selectedStudentIds, title, description, scheduledDate, scheduledTime, durationMinutes,
+      visibleToStudent, visibleFromDate, visibleFromTime, questions]
+  );
+  const dirty = useMemo(() => JSON.stringify(snapshot) !== defaultsSig, [snapshot, defaultsSig]);
+  const droppedImages = questions.some((q) => q.imageUrl && String(q.imageUrl).startsWith('data:'));
+  const { discard } = useDraft({
+    key,
+    data: snapshot,
+    meta: { examStamp, droppedImages },
+    dirty,
+    enabled: notice !== 'conflict',
+  });
+
+  function applySnapshot(snap) {
+    setSelectedStudentIds(snap.selectedStudentIds);
+    setTitle(snap.title);
+    setDescription(snap.description);
+    setScheduledDate(snap.scheduledDate);
+    setScheduledTime(snap.scheduledTime);
+    setDurationMinutes(snap.durationMinutes);
+    setVisibleToStudent(snap.visibleToStudent);
+    setVisibleFromDate(snap.visibleFromDate);
+    setVisibleFromTime(snap.visibleFromTime);
+    setQuestions(snap.questions);
+  }
+  function handleResetDraft() {
+    applySnapshot(defaults);
+    setNotice(null);
+  }
+  function handleRestoreConflict() {
+    applySnapshot({ ...defaults, ...saved.data });
+    setNotice('restored');
+  }
+  function handleDeleteConflict() {
+    if (key) clearDraft(key);
+    setNotice(null);
+  }
+  function handleCancel() {
+    discard();
+    onCancel();
+  }
 
   // دانش‌آموزهای فیلترشده بر اساس جستجو
   const filteredStudents = students.filter((s) =>
@@ -305,6 +394,8 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
     if (!title.trim()) return 'عنوان آزمون را وارد کن';
     if (selectedStudentIds.length === 0) return 'حداقل یک دانش‌آموز انتخاب کن';
     if (!scheduledDate) return 'تاریخ شروع را انتخاب کن';
+    if (!scheduledTime) return 'ساعت شروع را کامل وارد کن (مثلاً ۰۹:۳۰)';
+    if (!visibleToStudent && visibleFromDate && !visibleFromTime) return 'ساعت نمایش را کامل وارد کن (مثلاً ۰۹:۰۰)';
     const mins = Number(durationMinutes);
     if (!Number.isInteger(mins) || mins < 1 || mins > 600) {
       return 'مدت آزمون باید بین ۱ و ۶۰۰ دقیقه باشد';
@@ -367,6 +458,7 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
         : await createExam(payload);
 
       // حالت گروهی چند آزمون برمی‌گرداند؛ تک‌دانش‌آموزی یک آزمون
+      discard();
       onSaved(data.exams && data.exams.length > 1 ? data.exams : data.exam);
     } catch (err) {
       setError(err.message);
@@ -382,11 +474,22 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
   return (
     <form className="exam-builder" onSubmit={handleSubmit}>
       <div className="builder-head">
-        <h3>{existingExam ? '✎ ویرایش آزمون' : '📝 ساخت آزمون جدید'}</h3>
+        <h3>{existingExam ? <><Ico e="✎" /> ویرایش آزمون</> : <><Ico e="📝" /> ساخت آزمون جدید</>}</h3>
       </div>
 
+      {notice && (
+        <DraftNotice
+          variant={notice}
+          savedAt={saved?.savedAt}
+          extra={saved?.meta?.droppedImages ? 'عکس‌های سؤال‌ها در پیش‌نویس ذخیره نمی‌شوند؛ اگر عکسی داشتی دوباره اضافه‌اش کن.' : ''}
+          onReset={handleResetDraft}
+          onRestore={handleRestoreConflict}
+          onDelete={handleDeleteConflict}
+        />
+      )}
+
       {/* انتخاب دانش‌آموز(ها) — فقط برای آزمون جدید؛ در ویرایش ثابت است */}
-      <div className="students-picker-section">
+      <div className="students-picker-section" data-tour="eb-students">
         <div className="students-picker-head">
           <span className="builder-field-title">
             دانش‌آموز{selectedStudentIds.length > 1 ? `ها (${toFaDigits(selectedStudentIds.length)})` : ''}
@@ -396,7 +499,7 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
               <input
                 type="text"
                 className="students-picker-search"
-                placeholder="🔍 جستجوی نام…"
+                placeholder="جستجوی نام…"
                 value={studentSearch}
                 onChange={(e) => setStudentSearch(e.target.value)}
               />
@@ -453,7 +556,7 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
                     {String(s.fullName || '?').trim().charAt(0)}
                   </span>
                   <span className="student-pick-name">{s.fullName}</span>
-                  <span className="student-pick-check" aria-hidden>✓</span>
+                  <span className="student-pick-check" aria-hidden><Ico e="✓" /></span>
                 </label>
               );
             })}
@@ -469,7 +572,7 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
         )}
       </div>
 
-      <div className="builder-row">
+      <div className="builder-row" data-tour="eb-title-row">
         <label className="builder-field">
           <span>عنوان آزمون</span>
           <input
@@ -490,9 +593,9 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
         </label>
       </div>
 
-      <div className="builder-row">
+      <div className="builder-row" data-tour="eb-when">
         <div className="builder-field">
-          <span>📅 تاریخ شروع آزمون</span>
+          <span><Ico e="📅" /> تاریخ شروع آزمون</span>
           <JalaliDatePicker
             value={scheduledDate}
             onChange={(v) => setScheduledDate(v)}
@@ -500,13 +603,10 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
           />
         </div>
         <label className="builder-field">
-          <span>⏰ ساعت شروع</span>
-          <input
-            type="time"
+          <span><Ico e="⏰" /> ساعت شروع</span>
+          <TimeInput
             value={scheduledTime}
-            onChange={(e) => setScheduledTime(e.target.value)}
-            required
-            dir="ltr"
+            onChange={setScheduledTime}
           />
           <span className="field-hint">دانش‌آموز نمی‌تواند قبل از این زمان آزمون را شروع کند</span>
         </label>
@@ -522,7 +622,7 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
         />
       </label>
 
-      <div className="visibility-section">
+      <div className="visibility-section" data-tour="eb-visibility">
         <label className="visibility-toggle">
           <input
             type="checkbox"
@@ -530,9 +630,11 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
             onChange={(e) => setVisibleToStudent(e.target.checked)}
           />
           <span>
-            {visibleToStudent
-              ? '🔍 آزمون فوراً برای دانش‌آموز نمایش داده می‌شود'
-              : '🔒 آزمون مخفی است تا زمان مشخص‌شده'}
+            {visibleToStudent ? (
+              <><Ico e="🔍" /> آزمون فوراً برای دانش‌آموز نمایش داده می‌شود</>
+            ) : (
+              <><Ico e="🔒" /> آزمون مخفی است تا زمان مشخص‌شده</>
+            )}
           </span>
         </label>
 
@@ -543,7 +645,7 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
             </p>
             <div className="builder-row">
               <div className="builder-field">
-                <span>📅 تاریخ نمایش</span>
+                <span><Ico e="📅" /> تاریخ نمایش</span>
                 <JalaliDatePicker
                   value={visibleFromDate}
                   onChange={(v) => setVisibleFromDate(v)}
@@ -551,12 +653,10 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
                 />
               </div>
               <label className="builder-field">
-                <span>⏰ ساعت نمایش</span>
-                <input
-                  type="time"
+                <span><Ico e="⏰" /> ساعت نمایش</span>
+                <TimeInput
                   value={visibleFromTime}
-                  onChange={(e) => setVisibleFromTime(e.target.value)}
-                  dir="ltr"
+                  onChange={setVisibleFromTime}
                 />
               </label>
             </div>
@@ -564,7 +664,7 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
         )}
       </div>
 
-      <div className="exam-questions-section">
+      <div className="exam-questions-section" data-tour="eb-questions">
         <div className="section-head">
           <h4>سؤالات ({toFaDigits(questions.length)})</h4>
           <button type="button" className="btn-secondary" onClick={addQuestion}>
@@ -585,25 +685,25 @@ export default function ExamBuilder({ studentId, students = [], existingExam, on
 
       <div className="auto-grade-info">
         {allMultipleChoice ? (
-          <span className="auto-grade-badge auto">✅ این آزمون فقط تستی است — نمره پس از ارسال خودکار ثبت می‌شود</span>
+          <span className="auto-grade-badge auto"><Ico e="✅" /> این آزمون فقط تستی است — نمره پس از ارسال خودکار ثبت می‌شود</span>
         ) : hasDescriptive ? (
-          <span className="auto-grade-badge mixed">🔄 این آزمون ترکیبی است — سؤالات تستی خودکار، تشریحی دستی نمره می‌گیرند</span>
+          <span className="auto-grade-badge mixed"><Ico e="🔄" /> این آزمون ترکیبی است — سؤالات تستی خودکار، تشریحی دستی نمره می‌گیرند</span>
         ) : (
-          <span className="auto-grade-badge manual">📝 این آزمون فقط تشریحی است — نیاز به نمره‌دهی دستی دارد</span>
+          <span className="auto-grade-badge manual"><Ico e="📝" /> این آزمون فقط تشریحی است — نیاز به نمره‌دهی دستی دارد</span>
         )}
       </div>
 
       {error && (
         <div className="alert alert-error">
-          <span>⚠</span> {error}
+          <span><Ico e="⚠" /></span> {error}
         </div>
       )}
 
-      <div className="builder-actions">
+      <div className="builder-actions" data-tour="eb-actions">
         <button type="submit" className="btn-primary" disabled={saving}>
           {saving ? 'در حال ذخیره…' : existingExam ? 'ذخیره‌ی تغییرات' : 'ساخت آزمون'}
         </button>
-        <button type="button" className="btn-secondary" onClick={onCancel}>
+        <button type="button" className="btn-secondary" onClick={handleCancel}>
           انصراف
         </button>
       </div>

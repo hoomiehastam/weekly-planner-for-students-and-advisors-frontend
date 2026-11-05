@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { toFaDigits, formatJalaliDate } from '../../utils/jalali';
 import FaNumberInput from '../FaNumberInput';
+import Ico from '../Ico';
 
 // مودال پاسخ‌ها و نمره‌دهی (مشاور/سوپرادمین) — بازطراحی کامل:
 //   • تب برای هر دانش‌آموز (حتی تک‌ارسال، با نوار مشخصات)
@@ -117,8 +118,8 @@ export default function GradingModal({ data, onClose, onGrade }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="grading-modal" onClick={(e) => e.stopPropagation()}>
         <div className="grading-modal-head">
-          <h3>📋 پاسخ‌ها و نمره‌دهی: {exam.title}</h3>
-          <button className="btn-icon-only" onClick={onClose} aria-label="بستن">✕</button>
+          <h3><Ico e="📋" /> پاسخ‌ها و نمره‌دهی: {exam.title}</h3>
+          <button className="btn-icon-only" onClick={onClose} aria-label="بستن"><Ico e="✕" /></button>
         </div>
 
         <div className="grading-progress-strip">
@@ -235,8 +236,8 @@ export default function GradingModal({ data, onClose, onGrade }) {
                         <div key={i} className={`mc-opt-line ${selected ? 'selected' : ''} ${correct ? 'correct' : ''}`}>
                           <span className="mc-opt-letter">{OPTION_LETTERS[i] || toFaDigits(i + 1)}</span>
                           <span className="mc-opt-text">{opt.trim() || `گزینه‌ی ${toFaDigits(i + 1)}`}</span>
-                          {correct && <span className="mc-opt-flag correct">✓ صحیح</span>}
-                          {selected && !correct && <span className="mc-opt-flag wrong">✗ پاسخ دانش‌آموز</span>}
+                          {correct && <span className="mc-opt-flag correct"><Ico e="✓" /> صحیح</span>}
+                          {selected && !correct && <span className="mc-opt-flag wrong"><Ico e="✗" /> پاسخ دانش‌آموز</span>}
                           {selected && correct && <span className="mc-opt-flag pick">پاسخ دانش‌آموز</span>}
                         </div>
                       );
@@ -297,7 +298,7 @@ export default function GradingModal({ data, onClose, onGrade }) {
 
         {error && (
           <div className="alert alert-error">
-            <span>⚠</span> {error}
+            <span><Ico e="⚠" /></span> {error}
           </div>
         )}
 
@@ -307,7 +308,7 @@ export default function GradingModal({ data, onClose, onGrade }) {
             onClick={() => handleSave()}
             disabled={saving || isLocked}
           >
-            {saving ? 'در حال ذخیره…' : isLocked ? 'نمره تثبیت شده' : '💾 ثبت نمره'}
+            {saving ? 'در حال ذخیره…' : isLocked ? 'نمره تثبیت شده' : <><Ico e="💾" /> ثبت نمره</>}
           </button>
           {submissions.length > 1 && selectedIdx < submissions.length - 1 && (
             <button

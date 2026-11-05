@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Error Boundary — خطاهای رندر React را می‌گیرد و کل اپ را از خرابی نجات می‌دهد
+// Error Boundary مدرن ۲۰۲۶ — محافظت از سقوط کل اپ و نمایش خطا با کارت شیشه‌ای
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -23,25 +23,40 @@ export default class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="error-boundary">
-          <div className="error-boundary-card">
-            <div className="error-emoji">😵</div>
-            <h2>اوه! مشکلی پیش اومد</h2>
-            <p>صفحه دچار خطا شد. می‌تونی دوباره صفحه رو بارگذاری کنی یا به صفحه‌ی اصلی برگردی.</p>
+        <div className="error-screen-wrap" role="alert">
+          <div className="error-ambient-glow error-glow-danger" />
+          <div className="error-card">
+            <div className="error-icon-circle">
+              <i className="ti ti-alert-triangle" />
+            </div>
+            <h1 className="error-card-title">مشکلی در اجرای برنامه رخ داد</h1>
+            <p className="error-card-desc">
+              یک خطای پیش‌بینی‌نشده در این بخش اتفاق افتاده است. داده‌های شما محفوظ هستند و می‌توانید با بارگذاری مجدد به کار خود ادامه دهید.
+            </p>
             <div className="error-actions">
-              <button className="btn-primary" onClick={this.handleReset}>
-                🏠 بازگشت به خانه
-              </button>
               <button
-                className="btn-secondary"
+                type="button"
+                className="btn-primary"
                 onClick={() => window.location.reload()}
               >
-                🔄 بارگذاری مجدد
+                <i className="ti ti-refresh" />
+                <span>بارگذاری مجدد صفحه</span>
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={this.handleReset}
+              >
+                <i className="ti ti-home" />
+                <span>بازگشت به خانه</span>
               </button>
             </div>
             {this.state.error && (
-              <details className="error-details">
-                <summary>جزئیات خطا</summary>
+              <details className="error-details-box">
+                <summary>
+                  <i className="ti ti-code" />
+                  <span>جزئیات فنی خطا (برای پشتیبانی)</span>
+                </summary>
                 <pre>{String(this.state.error.message || this.state.error)}</pre>
               </details>
             )}

@@ -1,0 +1,11 @@
+vite v5.4.21 building for production...
+transforming...
+✓ 38 modules transformed.
+x Build failed in 184ms
+error during build:
+Could not resolve "./pages/LandingPage.jsx" from "src/App.jsx"
+file: /Users/hoomanrabinezhad/Desktop/Planner/frontend/src/App.jsx
+    at getRollupError (file:///Users/hoomanrabinezhad/Desktop/Planner/frontend/node_modules/rollup/dist/es/shared/parseAst.js:317:41)
+    at error (file:///Users/hoomanrabinezhad/Desktop/Planner/frontend/node_modules/rollup/dist/es/shared/parseAst.js:313:42)
+    at ModuleLoader.handleInvalidResolvedId (file:///Users/hoomanrabinezhad/Desktop/Planner/frontend/node_modules/rollup/dist/es/shared/node-entry.js:22005:24)
+    at file:///Users/hoomanrabinezhad/Desktop/Planner/frontend/node_modules/rollup/dist/es/shared/node-entry.js:21965:26

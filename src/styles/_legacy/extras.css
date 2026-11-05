@@ -1,0 +1,2469 @@
+/* ===================================================================
+   اصلاح‌ها و بخش‌های جدید — بعد از global.css و theme-v2.css لود می‌شود
+   ۱) کارت نمرات آزمون‌های آزمایشی (چیدمان درست در گوشی، تبلت و لپ‌تاپ)
+   ۲) راهنمای شروع کار پنل
+   =================================================================== */
+
+/* ---------- ۰) تقویم شمسی: در گوشی از لبه‌ی راست صفحه بیرون می‌زد ---------- */
+/* عرض ۳۲۰ (یا عرض صفحه منهای حاشیه) باید شامل فاصله‌ی داخلی هم باشد، نه بیشتر از آن */
+.jdp-calendar {
+  box-sizing: border-box;
+}
+.jdp-calendar .jdp-day,
+.jdp-calendar .jdp-nav {
+  touch-action: manipulation;
+}
+
+/* ---------- ۱) کارت نمرات آزمون‌های آزمایشی ---------- */
+/* .stat-card به‌صورت ردیفی (آیکون | متن) تعریف شده؛ این کارت محتوای عمودی دارد */
+.stat-card.mock-exams-card {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 16px;
+  min-width: 0;
+}
+.mock-exams-card > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.mock-exams-card > p {
+  margin: 0;
+  line-height: 1.9;
+}
+
+.mock-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0;
+}
+.mock-head .section-title {
+  margin: 0;
+  min-width: 0;
+}
+
+.mock-offline-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--amber-soft);
+  border: 1.5px solid var(--amber);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+/* نمودار */
+.mock-chart-wrap {
+  width: 100%;
+  height: 320px;
+  direction: ltr;
+  min-width: 0;
+}
+.mock-chart-wrap.is-compact {
+  height: 220px;
+}
+
+/* فهرست نمرات */
+.mock-score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mock-score-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'main actions'
+    'chips actions';
+  align-items: center;
+  gap: 6px 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+}
+.mock-score-main {
+  grid-area: main;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+}
+.mock-score-title {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.mock-score-date {
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.mock-score-chips {
+  grid-area: chips;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.mock-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--indigo-soft);
+  color: var(--indigo-deep);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.mock-score-actions {
+  grid-area: actions;
+  display: flex;
+  gap: 6px;
+}
+.mock-score-actions .btn-ghost {
+  min-height: 38px;
+  min-width: 38px;
+  padding: 6px 10px;
+}
+
+/* فرم ثبت/ویرایش */
+.mock-exam-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--hairline);
+  min-width: 0;
+}
+.mock-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+}
+.mock-exam-form .field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13.5px;
+}
+.mock-exam-form input[type='text'] {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.mock-exam-form .jalali-datepicker {
+  width: 100%;
+}
+.mock-exam-form .jdp-input {
+  min-height: 46px;
+  box-sizing: border-box;
+}
+.mock-exam-form .jdp-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mock-percent-block {
+  gap: 0;
+}
+.mock-percent-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 44px;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+.mock-percent-row input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.mock-percent-remove {
+  min-height: 44px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+.mock-percent-block > .btn-secondary {
+  align-self: flex-start;
+  margin-top: 10px;
+}
+
+.mock-form-actions {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.mock-form-actions .btn-primary {
+  flex: 1 1 auto;
+}
+.mock-form-actions .btn-secondary {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 520px) {
+  .stat-card.mock-exams-card {
+    padding: 14px 12px;
+  }
+  .mock-chart-wrap {
+    height: 260px;
+  }
+  .mock-chart-wrap.is-compact {
+    height: 200px;
+  }
+  /* نام درس یک ردیف کامل؛ درصد و دکمه‌ی حذف زیرش */
+  .mock-percent-row {
+    grid-template-columns: minmax(0, 1fr) 44px;
+  }
+  .mock-percent-row .mock-percent-name {
+    grid-column: 1 / -1;
+  }
+  .mock-score-row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'main' 'chips' 'actions';
+  }
+  .mock-score-actions {
+    justify-content: flex-end;
+  }
+  .mock-form-actions .btn-primary,
+  .mock-form-actions .btn-secondary {
+    min-height: 48px;
+  }
+}
+
+/* ---------- ۱٫۵) فهرست انتخاب سریِ نمودار آزمون‌های آزمایشی ---------- */
+.mock-series-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+}
+.mock-series-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.mock-series-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.mock-series-chip {
+  min-height: 38px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--hairline);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.mock-series-chip:hover {
+  border-color: var(--indigo);
+  color: var(--indigo-deep);
+}
+.mock-series-chip.active {
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: #fff;
+}
+
+/* ---------- ۱٫۷) کارت برنامه‌ی امتحان‌ها و پرسش‌های مدرسه ---------- */
+.stat-card.exam-schedule-card {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 16px;
+  min-width: 0;
+}
+.exam-schedule-card > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.exam-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.exam-schedule-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.exam-schedule-group-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+.exam-schedule-group.is-past {
+  opacity: 0.72;
+}
+
+.exam-schedule-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'kind main countdown'
+    'kind main actions';
+  align-items: center;
+  gap: 6px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+}
+.exam-schedule-row.is-soon {
+  border-color: var(--amber);
+  background: var(--amber-soft);
+}
+.exam-schedule-row.is-past {
+  background: transparent;
+}
+
+.exam-schedule-kind {
+  grid-area: kind;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--indigo-soft);
+  color: var(--indigo-deep);
+  white-space: nowrap;
+}
+.exam-schedule-kind.kind-quiz {
+  background: var(--amber-soft);
+  color: var(--ink);
+}
+
+.exam-schedule-main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.exam-schedule-title {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.exam-schedule-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+}
+.exam-schedule-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+.exam-schedule-subject {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+/* تخمین دانش‌آموز از تعداد بازه‌ی لازم برای این امتحان/پرسش.
+   با رنگ متفاوت از چیپ درس تا در فهرستِ مشاور سریع به چشم بیاید. */
+.exam-schedule-sessions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sage) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sage) 45%, transparent);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.exam-schedule-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.exam-schedule-countdown {
+  grid-area: countdown;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: var(--indigo-soft);
+  color: var(--indigo-deep);
+}
+.exam-schedule-countdown.tone-soon {
+  background: var(--amber);
+  color: #fff;
+}
+.exam-schedule-countdown.tone-past {
+  background: var(--paper);
+  color: var(--ink-soft);
+}
+
+.exam-schedule-actions {
+  grid-area: actions;
+  display: flex;
+  gap: 6px;
+  justify-self: end;
+}
+.exam-schedule-actions .btn-ghost {
+  min-height: 38px;
+  min-width: 38px;
+  padding: 6px 10px;
+}
+
+.exam-kind-toggle {
+  display: flex;
+  gap: 8px;
+}
+.exam-kind-btn {
+  flex: 1 1 0;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--hairline);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.exam-kind-btn.active {
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: #fff;
+}
+
+@media (max-width: 520px) {
+  .stat-card.exam-schedule-card {
+    padding: 14px 12px;
+  }
+
+  /* سرصفحه در موبایل تک‌ستونه می‌شود (قاعده‌ی کلی .section-head)؛ ولی
+     align-items پیش‌فرض آن center است و دکمه‌ی «مورد جدید» وسط‌چین زیر
+     عنوانِ راست‌چین می‌افتد. اینجا هر دو را به لبه‌ی راست (شروع خط) می‌چسبانیم. */
+  .exam-schedule-card > .section-head {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .exam-schedule-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'kind countdown'
+      'main main'
+      'actions actions';
+  }
+
+  /* چیپ «امتحان/پرسش» ستون 1fr را پر می‌کرد و به شکل یک قرص خالی بزرگ
+     کشیده می‌شد؛ حالا فقط به اندازه‌ی محتوایش است. */
+  .exam-schedule-kind {
+    justify-self: start;
+  }
+  .exam-schedule-countdown {
+    justify-self: end;
+  }
+
+  .exam-schedule-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* راهنمای حالت ویرایش — در گوشی فرم زیرِ فهرست باز می‌شود و این خط،
+   اتصال فرم به ردیفی که کاربر روی آن «ویرایش» زده را روشن می‌کند. */
+.exam-schedule-editing-hint {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/* ---------- ۱٫۹) راهنمای تصویریِ درون‌بخشی ---------- */
+.section-guide {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  margin-bottom: var(--gap-md, 16px);
+  border: 1.5px solid var(--indigo-soft);
+  border-radius: var(--radius-xl, 22px);
+  background: linear-gradient(180deg, var(--indigo-soft), transparent 92%);
+  animation: guide-step-in 0.22s ease;
+}
+.section-guide.tone-sage {
+  border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--sage) 16%, transparent),
+    transparent 92%
+  );
+}
+.section-guide.tone-amber {
+  border-color: color-mix(in srgb, var(--amber) 45%, transparent);
+  background: linear-gradient(180deg, var(--amber-soft), transparent 92%);
+}
+
+.section-guide-visual {
+  flex-shrink: 0;
+}
+.section-guide-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  font-size: 22px;
+}
+.section-guide-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.section-guide-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.section-guide-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  min-width: 0;
+}
+.section-guide-badge {
+  display: inline-flex;
+  color: var(--indigo);
+  font-size: 18px;
+}
+.section-guide-close {
+  flex-shrink: 0;
+  min-height: 32px;
+  min-width: 32px;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.section-guide-close:hover {
+  background: var(--sheet);
+  color: var(--ink);
+}
+
+.section-guide-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.section-guide-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.9;
+}
+.section-guide-list .ti {
+  color: var(--indigo);
+  font-size: 16px;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.section-guide-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.section-guide-foot .btn-secondary {
+  min-height: 40px;
+}
+.section-guide-hideall {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+.section-guide-hideall:hover {
+  background: var(--sheet);
+  color: var(--ink);
+}
+
+@media (max-width: 520px) {
+  .section-guide {
+    gap: 10px;
+    padding: 12px;
+  }
+  .section-guide-emoji {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-guide {
+    animation: none;
+  }
+}
+
+/* ---------- ۲) راهنمای شروع کار ---------- */
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: flex-end; /* گوشی: ورق پایین‌صفحه */
+  justify-content: center;
+  background: rgba(20, 18, 50, 0.55);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding: var(--safe-t, 0px) 0 0;
+  animation: guide-fade 0.2s ease;
+}
+
+.guide-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  max-height: 92vh;
+  max-height: 92dvh;
+  background: var(--sheet);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  box-shadow: var(--shadow-lg);
+  padding: 14px 18px calc(16px + var(--safe-b, 0px));
+  animation: guide-rise 0.28s var(--ease, ease);
+  overflow: hidden;
+}
+
+.guide-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 36px;
+}
+.guide-count {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.guide-skip {
+  min-height: 36px;
+  padding: 4px 12px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: var(--ink-soft);
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  border-radius: 999px;
+}
+.guide-skip:hover {
+  background: var(--paper);
+  color: var(--ink);
+  transform: none;
+  box-shadow: none;
+}
+
+.guide-progress {
+  display: flex;
+  gap: 6px;
+  padding: 6px 0 12px;
+}
+.guide-dot {
+  flex: 1 1 0;
+  height: 6px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--hairline);
+  box-shadow: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+}
+/* ناحیه‌ی لمس بزرگ‌تر از خود نوار باریک */
+.guide-dot::after {
+  content: '';
+  position: absolute;
+  inset: -10px -2px;
+}
+.guide-dot.done {
+  background: color-mix(in srgb, var(--indigo) 45%, var(--hairline));
+}
+.guide-dot.active {
+  background: var(--indigo);
+}
+.guide-dot:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.guide-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 2px 8px;
+}
+.guide-step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  animation: guide-step-in 0.22s ease;
+}
+.guide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.guide-title {
+  margin: 4px 0 0;
+  font-size: clamp(1.15rem, 1.02rem + 0.7vw, 1.45rem);
+  line-height: 1.5;
+}
+.guide-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 2;
+  color: var(--ink-soft);
+}
+.guide-points {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.guide-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  font-size: 14px;
+  line-height: 1.9;
+}
+.guide-points .ti {
+  color: var(--sage);
+  font-size: 18px;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.guide-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+.guide-actions .btn-primary {
+  flex: 1 1 auto;
+  min-height: 48px;
+}
+.guide-actions .btn-secondary {
+  flex: 0 0 auto;
+  min-width: 96px;
+  min-height: 48px;
+}
+
+.guide-footnote {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+}
+.guide-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+}
+.guide-link:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* تبلت و لپ‌تاپ: پنجره‌ی وسط صفحه */
+@media (min-width: 640px) {
+  .guide-overlay {
+    align-items: center;
+    padding: 24px;
+  }
+  .guide-dialog {
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-xl);
+    padding: 20px 28px 22px;
+    max-height: min(86vh, 720px);
+    max-height: min(86dvh, 720px);
+    animation-name: guide-pop;
+  }
+  .guide-text {
+    font-size: 15.5px;
+  }
+  .guide-actions .btn-primary {
+    flex: 0 1 220px;
+    margin-inline-start: auto;
+  }
+}
+
+/* گوشی افقی و صفحه‌های کوتاه */
+@media (max-height: 520px) {
+  .guide-dialog {
+    max-height: 100vh;
+    max-height: 100dvh;
+    border-radius: 0;
+    padding-top: 8px;
+    padding-bottom: calc(10px + var(--safe-b, 0px));
+  }
+  .guide-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+    border-radius: 12px;
+  }
+  .guide-progress {
+    padding-bottom: 6px;
+  }
+  .guide-text {
+    line-height: 1.8;
+  }
+  .guide-actions .btn-primary,
+  .guide-actions .btn-secondary {
+    min-height: 42px;
+  }
+}
+
+/* برنامه‌ی نصب‌شده: نوار وضعیت گوشی را جدا حساب می‌کنیم (پایین هم safe-b دارد) */
+@media (display-mode: standalone) {
+  .guide-overlay {
+    padding-top: calc(var(--safe-t, 0px) + 8px);
+  }
+}
+
+@keyframes guide-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes guide-rise {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes guide-pop {
+  from {
+    transform: translateY(10px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes guide-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-overlay,
+  .guide-dialog,
+  .guide-step {
+    animation: none;
+  }
+  .guide-dot {
+    transition: none;
+  }
+}
+
+/* ===================================================================
+   منوی همبرگری پنل‌ها — هر بخش یک صفحه‌ی جدا
+   =================================================================== */
+.hamburger-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  flex: none;
+}
+.hamburger-btn:hover {
+  background: var(--indigo-soft);
+}
+.hamburger-lines {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hamburger-lines span {
+  display: block;
+  width: 20px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.hamburger-current {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hamburger-dot {
+  position: absolute;
+  top: 6px;
+  inset-inline-start: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 2px solid var(--sheet);
+}
+@media (max-width: 480px) {
+  .hamburger-current {
+    display: none;
+  }
+}
+
+.panel-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(20, 23, 43, 0.45);
+  display: flex;
+  justify-content: flex-start; /* در راست‌به‌چپ یعنی لبه‌ی راست */
+  animation: guide-fade 0.15s ease;
+}
+.panel-drawer {
+  width: min(86vw, 340px);
+  height: 100%;
+  background: var(--sheet);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-t, 0px);
+  padding-bottom: var(--safe-b, 0px);
+  animation: drawer-in 0.2s ease;
+}
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+.panel-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 16px;
+}
+.panel-drawer-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+.panel-drawer-close:hover {
+  background: var(--indigo-soft);
+}
+.panel-drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.panel-drawer-divider {
+  height: 1px;
+  background: var(--hairline);
+  margin: 8px 6px;
+}
+.panel-drawer-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: start;
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+.panel-drawer-item:hover:not(:disabled) {
+  background: var(--indigo-soft);
+}
+.panel-drawer-item.active {
+  background: var(--indigo);
+  color: #fff;
+}
+[data-theme='dark'] .panel-drawer-item.active {
+  color: #12102b;
+}
+.panel-drawer-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.panel-drawer-icon {
+  flex: none;
+  width: 28px;
+  text-align: center;
+  font-size: 20px;
+}
+.panel-drawer-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+}
+.panel-drawer-label small {
+  font-weight: 500;
+  font-size: 12px;
+  opacity: 0.75;
+}
+.panel-drawer-badge {
+  flex: none;
+  min-width: 24px;
+  padding: 0 8px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 12px;
+  background: var(--amber);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel-drawer,
+  .panel-drawer-overlay {
+    animation: none;
+  }
+}
+
+/* ---------- انتخاب دانش‌آموز (پنل مشاور) ---------- */
+.student-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.student-picker-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  text-align: start;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  min-height: 60px;
+}
+.student-picker-item:hover {
+  border-color: var(--indigo);
+}
+.student-picker-item.active {
+  border-color: var(--amber);
+  background: var(--amber-soft);
+}
+.student-picker-avatar {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--indigo-soft);
+  font-weight: 900;
+}
+.student-picker-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.student-picker-info small {
+  color: var(--ink-soft);
+}
+.student-picker-check {
+  color: var(--amber);
+  font-size: 20px;
+}
+.selected-student-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-bottom: var(--gap-md);
+  border-radius: var(--radius-md);
+  background: var(--indigo-soft);
+  font-weight: 800;
+}
+
+/* ---------- نام درس / فصل / بخش در سازنده‌ی برنامه ---------- */
+.item-head-title {
+  flex: 1;
+  font-weight: 800;
+}
+.item-topic-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.item-topic-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 0;
+}
+.item-topic-field input {
+  width: 100%;
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .item-topic-row {
+    grid-template-columns: 1fr;
+  }
+}
+.task-topic {
+  display: block;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.cal-event-topic {
+  font-size: 10px;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- خلاصه‌ی بازه‌های هر درس (پایین سازنده‌ی برنامه) ---------- */
+.lesson-summary {
+  margin: var(--gap-md) 0;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px dashed var(--hairline);
+  background: var(--paper);
+}
+.lesson-summary-title {
+  margin: 0 0 10px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lesson-summary-table {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-x: auto;
+}
+.lesson-summary-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 2fr) 1fr 1.2fr 2fr;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--sheet);
+  font-size: 13.5px;
+  min-width: 460px;
+}
+.lesson-summary-row.is-head {
+  background: transparent;
+  font-weight: 800;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+.ls-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ls-name small {
+  color: var(--ink-soft);
+  font-size: 11.5px;
+}
+.ls-count {
+  font-weight: 800;
+  color: var(--amber);
+}
+.lesson-summary-total {
+  margin: 10px 0 0;
+  font-weight: 800;
+  font-size: 13.5px;
+}
+
+/* ---------- آمار فصل/بخش داخل هر درس در گزارش‌ها ---------- */
+.subject-topic-list {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.subject-topic-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+.subject-topic-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+  font-size: 13px;
+}
+.subject-topic-name {
+  font-weight: 700;
+  flex: 1 1 140px;
+}
+.subject-topic-meta {
+  color: var(--ink-soft);
+}
+
+/* ===================================================================
+   اصلاحات منوی همبرگری و هدر موبایل
+   =================================================================== */
+/* کشو با پورتال روی همه چیز می‌نشیند (هدر با backdrop-filter کشوی fixed را درون خودش حبس می‌کرد) */
+.panel-drawer-overlay {
+  z-index: 2000;
+}
+
+.panel-drawer-item.is-danger {
+  color: var(--brick);
+}
+.panel-drawer-item.is-danger:hover {
+  background: var(--brick-soft);
+}
+.hamburger-btn.only-mobile {
+  display: none;
+}
+
+/* موبایل و تبلت کوچک: دکمه‌های حساب کاربری از هدر به منوی همبرگری می‌روند */
+@media (max-width: 720px) {
+  .header-actions {
+    display: none !important;
+  }
+  .hamburger-btn.only-mobile {
+    display: inline-flex;
+  }
+  .hamburger-btn {
+    padding: 0;
+    width: 44px;
+    justify-content: center;
+  }
+}
+@media (min-width: 721px) {
+  .hamburger-btn {
+    padding: 0 14px;
+  }
+}
+
+/* ---------- نمای کلی دانش‌آموزان/مشاوران (پنل مدیریت): بیرون‌زدگی در گوشی ---------- */
+.overview-row {
+  min-width: 0;
+}
+.overview-head,
+.overview-advisor {
+  min-width: 0;
+}
+.overview-advisor > div:last-child {
+  min-width: 0;
+}
+.overview-detail {
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+.overview-detail > * {
+  min-width: 0;
+}
+.overview-bio-row {
+  flex-wrap: wrap;
+  row-gap: 6px;
+  min-width: 0;
+  align-items: center;
+}
+.overview-bio-row > span:first-child {
+  flex: none;
+}
+.overview-bio-row a,
+.overview-bio-row > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.overview-bio-row .btn-xs {
+  flex: none;
+}
+.overview-admin-actions {
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .overview-head {
+    align-items: stretch;
+  }
+  .overview-contacts {
+    flex-wrap: wrap;
+  }
+  .overview-bio-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .overview-bio-row .btn-xs {
+    align-self: stretch;
+    text-align: center;
+    min-height: 40px;
+  }
+  .overview-admin-actions .btn-sm {
+    min-height: 44px;
+  }
+}
+
+/* ===================================================================
+   هدر موبایل: همبرگر بخش‌ها | آواتار و نام | تم + منوی حساب
+   =================================================================== */
+.header-mobile-actions {
+  display: none;
+}
+.account-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex: none;
+  border: 1.5px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+}
+.account-menu-btn:hover {
+  background: var(--indigo-soft);
+}
+.account-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(20, 23, 43, 0.35);
+  animation: guide-fade 0.12s ease;
+}
+.account-menu {
+  position: absolute;
+  inset-inline-end: 12px; /* در راست‌به‌چپ: لبه‌ی چپ */
+  top: calc(var(--safe-t, 0px) + 62px);
+  width: min(calc(100vw - 24px), 300px);
+  background: var(--sheet);
+  color: var(--ink);
+  border: 1.5px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.account-menu-extra:empty {
+  display: none;
+}
+.account-menu-extra {
+  padding: 4px 4px 8px;
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: 4px;
+}
+.account-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: start;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+.account-menu-item:hover {
+  background: var(--indigo-soft);
+}
+.account-menu-item.is-danger {
+  color: var(--brick);
+}
+.account-menu-item.is-danger:hover {
+  background: var(--brick-soft);
+}
+.account-menu-icon {
+  flex: none;
+  width: 26px;
+  text-align: center;
+  font-size: 19px;
+}
+
+@media (max-width: 720px) {
+  .header-actions {
+    display: none !important;
+  }
+  .header-mobile-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+  }
+  .header-mobile-actions .theme-toggle {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .hamburger-btn {
+    padding: 0;
+    width: 44px;
+    justify-content: center;
+  }
+  .hamburger-current {
+    display: none;
+  }
+
+  .header-content {
+    padding: 10px 12px;
+    gap: 8px;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+  }
+  .header-left {
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 8px;
+    align-items: center;
+  }
+  .header-left > div {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .header-left .user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 17px;
+  }
+  /* نام نباید با «…» نصفه بماند: تا دو خط می‌شکند */
+  .greeting {
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: clip;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 15px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  .header-date {
+    font-size: 11.5px;
+  }
+}
+/* گوشی‌های خیلی باریک: دانش آموز فرضی تار حذف می‌شود تا نام جا بگیرد (پروفایل در منوی حساب است) */
+@media (max-width: 400px) {
+  .header-left .user-avatar {
+    display: none;
+  }
+}
+@media (min-width: 721px) {
+  .hamburger-btn {
+    padding: 0 14px;
+  }
+}
+
+/* =====================================================================
+   تور راهنما (نقطه‌نمایی روی خودِ صفحه)
+   لایه‌ی تیره + هاله‌ی روشن دور یک بخش واقعی + حباب توضیح + شخصیت اشاره‌کننده
+   ===================================================================== */
+.tour-root {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+}
+.tour-dim {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+}
+.tour-dim:not(.has-spot) {
+  background: rgba(14, 18, 44, 0.64);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.tour-spot {
+  position: fixed;
+  border-radius: 18px;
+  pointer-events: none;
+  box-shadow: 0 0 0 200vmax rgba(14, 18, 44, 0.64);
+  outline: 3px solid rgba(255, 255, 255, 0.92);
+  outline-offset: -1px;
+  transition:
+    top 0.28s ease,
+    left 0.28s ease,
+    width 0.28s ease,
+    height 0.28s ease;
+}
+.tour-bubble {
+  position: fixed;
+  z-index: 2;
+  box-sizing: border-box;
+  background: var(--sheet);
+  color: var(--ink);
+  border-radius: 28px;
+  padding: 18px 22px 18px;
+  box-shadow: 0 18px 50px -12px rgba(8, 10, 30, 0.55);
+  transition:
+    top 0.28s ease,
+    left 0.28s ease;
+}
+.tour-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.tour-dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+  cursor: pointer;
+  transition:
+    width 0.2s ease,
+    background 0.2s ease;
+}
+.tour-dot.active {
+  width: 34px;
+  background: #3b73e8;
+}
+.tour-dots.compact {
+  gap: 4px;
+}
+.tour-dots.compact .tour-dot {
+  width: 7px;
+  height: 7px;
+}
+.tour-dots.compact .tour-dot.active {
+  width: 22px;
+}
+.tour-title {
+  margin: 0 0 6px;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+.tour-text {
+  margin: 0 0 16px;
+  font-size: 15.5px;
+  line-height: 1.95;
+  color: var(--ink-soft);
+}
+.tour-actions {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tour-next {
+  border: 0;
+  border-radius: 999px;
+  background: #3b73e8;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 13px 38px;
+  min-height: 48px;
+  box-shadow: 0 8px 18px -8px rgba(59, 115, 232, 0.8);
+}
+.tour-next:hover {
+  background: #2f63d2;
+}
+.tour-next:focus-visible,
+.tour-skip:focus-visible,
+.tour-dot:focus-visible {
+  outline: 3px solid #9db9f5;
+  outline-offset: 2px;
+}
+.tour-skip {
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 10px 6px;
+}
+.tour-skip:hover {
+  color: var(--ink);
+}
+.tour-foot {
+  margin-top: 10px;
+  text-align: center;
+}
+.tour-link {
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .tour-title {
+    font-size: 18px;
+  }
+  .tour-text {
+    font-size: 14.5px;
+    line-height: 1.85;
+    margin-bottom: 12px;
+  }
+  .tour-bubble {
+    padding: 14px 18px 14px;
+    border-radius: 24px;
+    max-height: 52vh;
+    overflow-y: auto;
+  }
+  .tour-dots {
+    margin-bottom: 10px;
+  }
+  .tour-next {
+    padding: 11px 32px;
+    min-height: 44px;
+    font-size: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour-spot,
+  .tour-bubble {
+    transition: none;
+  }
+}
+
+/* =====================================================================
+   لینک دعوت، یادداشت‌ها، پیش‌نویس برنامه، پنجره‌ی بازه‌ی امتحان، تخفیف دعوت
+   ===================================================================== */
+.invite-banner {
+  margin: 12px 0 4px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--indigo-soft);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: start;
+}
+.invite-banner.ok {
+  border: 1.5px solid var(--indigo);
+}
+.invite-banner.bad {
+  background: var(--amber-soft);
+  border: 1.5px solid var(--amber);
+}
+.invite-banner-bonus {
+  font-weight: 700;
+}
+
+.invite-card .invite-link-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.invite-card .invite-link-row input {
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
+.invite-card .invite-link-row.is-off input {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+.invite-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.invite-meta .is-warn {
+  color: var(--amber);
+  font-weight: 700;
+}
+.invite-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.switch-row,
+label.switch-row {
+  /* label عمومی ستونی است؛ اینجا باید ردیفی باشد تا تیک کنار متن بنشیند (نه زیر آن) */
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.switch-row > span {
+  flex: 1;
+  min-width: 0;
+}
+.switch-row input {
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.switch-row small {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+
+.discount-meter {
+  margin: 12px 0;
+}
+.discount-meter-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.referral-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.referral-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--indigo-soft);
+  font-size: 13.5px;
+}
+.referral-item.st-active {
+  border-inline-start: 4px solid #2e9e6b;
+}
+.referral-item.st-pending {
+  border-inline-start: 4px solid var(--amber);
+}
+.referral-item.st-expired {
+  opacity: 0.6;
+}
+.referral-state {
+  color: var(--ink-soft);
+}
+
+.notes-card .notes-privacy {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.notes-form textarea,
+.note-item textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1.5px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+.notes-form-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 6px 0 14px;
+}
+.notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.note-item {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--indigo-soft);
+}
+.note-text {
+  margin: 0 0 8px;
+  white-space: pre-wrap;
+  line-height: 1.9;
+}
+.note-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+.note-actions {
+  display: inline-flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.school-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.draft-pill {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: var(--amber-soft);
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 800;
+  vertical-align: middle;
+}
+.draft-banner {
+  margin: 8px 0 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--amber-soft);
+  border: 1.5px dashed var(--amber);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.dz-modal {
+  background: var(--sheet);
+  color: var(--ink);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: min(560px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 18px 20px;
+  box-sizing: border-box;
+}
+.dz-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.dz-modal-head h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.dz-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.erm-dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0;
+}
+@media (max-width: 520px) {
+  .erm-dates {
+    grid-template-columns: 1fr;
+  }
+}
+.erm-list ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 230px;
+  overflow-y: auto;
+}
+.erm-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--indigo-soft);
+  cursor: pointer;
+}
+.erm-item input {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.erm-item-main {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+.erm-item-main small {
+  color: var(--ink-soft);
+}
+.erm-minutes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+.erm-minutes select {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+}
+
+.monthly-price-old {
+  opacity: 0.55;
+  margin-inline-end: 6px;
+}
+.discount-chip {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #e3f6ec;
+  color: #17794f;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.overview-grid {
+  margin-bottom: var(--gap-md, 16px);
+}
+
+/* دکمه‌ی بازگشت صفحه‌ی واریز — در همه‌ی اندازه‌ها دیده می‌شود */
+.deposit-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1.5px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 14px;
+}
+.deposit-back-btn:hover {
+  background: var(--indigo-soft);
+}
+.deposit-page .header-left {
+  gap: 12px;
+  align-items: center;
+}
+@media (min-width: 721px) {
+  .deposit-back-btn {
+    display: none;
+  }
+}
+
+/* ---------- دانش‌آموزهای غیرفعال (پنل مشاور) ---------- */
+.student-picker-inactive {
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--hairline);
+}
+.student-picker-inactive-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.student-picker-item.is-inactive,
+.student-picker-item.is-inactive:hover {
+  opacity: 0.55;
+  cursor: not-allowed;
+  border-style: dashed;
+  border-color: var(--hairline);
+  background: transparent;
+  pointer-events: none;
+}
+.student-picker-badge {
+  flex: none;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--brick-soft);
+  color: var(--brick);
+}
+.student-picker-count { margin-inline-start: 6px; font-weight: 700; }
+
+/* ---------- بنر درخواست جدید (صفحه‌ی اول مشاور) ---------- */
+.requests-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  margin-bottom: var(--gap-md);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--amber);
+  background: var(--amber-soft);
+  color: var(--ink);
+}
+.requests-notice-text { flex: 1; min-width: 200px; font-weight: 700; }
+
+/* ---------- تقویم هفتگی: برچسب اولین/آخرین ساعت نباید نصفه بریده شود ---------- */
+.cal-time-list { overflow: visible; }
+
+/* ---------- مطالعه‌ی آزاد ---------- */
+.free-study-form { margin: 14px 0 18px; display: flex; flex-direction: column; gap: 12px; }
+.free-study-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+.free-study-note { grid-column: 1 / -1; }
+.free-study-mode { display: flex; gap: 8px; flex-wrap: wrap; }
+.free-study-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.free-study-list { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+.free-study-day-head {
+  display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  padding-bottom: 4px; margin-bottom: 6px; border-bottom: 1px solid var(--hairline);
+}
+.free-study-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  padding: 8px 0; border-bottom: 1px dashed var(--hairline-soft);
+}
+.free-study-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+/* ---------- پیشروی دروس ---------- */
+.day-progress {
+  margin-top: 14px; padding: 12px; border-radius: var(--radius-md);
+  border: 1.5px dashed var(--hairline); background: var(--sheet);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.day-progress-title { font-weight: 800; }
+.day-progress-row { display: flex; align-items: center; gap: 10px; flex-direction: row; }
+.day-progress-subject { flex: none; min-width: 90px; font-weight: 700; }
+.day-progress-row input { flex: 1; min-width: 0; }
+.progress-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.progress-list li { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.progress-pos { color: var(--indigo); font-weight: 700; }
+.progress-overview.is-compact {
+  margin-bottom: 12px; padding: 10px 14px; border-radius: var(--radius-md);
+  border: 1.5px solid var(--hairline); background: var(--sheet);
+}
+.progress-overview-title { margin: 0; font-size: 15px; }
+.progress-history { margin-top: 10px; }
+
+/* ---------- یادآور یادداشت‌ها هنگام ساخت برنامه ---------- */
+.notes-reminder {
+  margin-bottom: 12px; padding: 10px 14px; border-radius: var(--radius-md);
+  border: 1.5px solid var(--amber); background: var(--amber-soft);
+}
+.notes-reminder-head {
+  display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 8px;
+  background: transparent; color: var(--ink); padding: 4px 0; font-weight: 800; box-shadow: none;
+}
+.notes-reminder-list { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.notes-reminder-list p { margin: 0; white-space: pre-wrap; }
+.plan-updated-chip { margin-inline-start: 8px; font-size: 11px; }
+
+/* ---------- دراپ‌داون اختصاصی (CustomSelect) ---------- */
+.custom-select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 2px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--sheet);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 14.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  text-align: right;
+  box-shadow: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+
+.custom-select-wrap.is-open .custom-select-trigger,
+.custom-select-trigger:focus {
+  border-color: var(--indigo);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--indigo) 18%, transparent);
+}
+
+.custom-select-label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-select-label.is-placeholder {
+  color: var(--ink-muted);
+}
+
+.custom-select-chevron {
+  font-size: 15px;
+  color: var(--ink-soft);
+  transition: transform 0.2s ease;
+  flex: none;
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  left: 0;
+  z-index: 100;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--sheet);
+  border: 2px solid var(--hairline);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  backdrop-filter: blur(12px);
+  animation: selectMenuFade 0.15s ease;
+}
+
+@keyframes selectMenuFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-select-option {
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.custom-select-option:hover {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+}
+
+.custom-select-option.is-selected {
+  background: color-mix(in srgb, var(--indigo) 14%, transparent);
+  font-weight: 700;
+  color: var(--indigo);
+}
+
+.custom-select-check {
+  font-size: 16px;
+  color: var(--indigo);
+  flex: none;
+}
+
+/* ---------- بنر دسترسی سریع به مطالعه‌ی آزاد در بخش برنامه ---------- */
+.free-study-cta-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--indigo) 12%, var(--sheet)), var(--sheet));
+  border: 1.5px solid color-mix(in srgb, var(--indigo) 22%, var(--hairline));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.free-study-cta-card:hover {
+  border-color: var(--indigo);
+}
+
+.free-study-cta-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.free-study-cta-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--indigo) 16%, transparent);
+  color: var(--indigo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex: none;
+}
+
+.free-study-cta-text {
+  min-width: 0;
+}
+
+.free-study-cta-text strong {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.free-study-cta-text p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.free-study-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  flex: none;
+}
+
+@media (max-width: 640px) {
+  .free-study-cta-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+  .free-study-cta-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+

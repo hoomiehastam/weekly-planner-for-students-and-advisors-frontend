@@ -1,0 +1,1279 @@
+/* ===== Landing Page (صفحه‌ی اصلی دانش‌آموزینو) ===== */
+
+/* اسکرول نرم سراسری و فاصله از هدر شناور */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+}
+section[id] {
+  scroll-margin-top: 90px;
+}
+
+/* کانتینر اصلی */
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  background: var(--paper);
+}
+
+/* هاله‌های نوری شناور پس‌زمینه (Aurora Mesh Effect) */
+.aurora-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.65;
+}
+.glow-top {
+  top: -150px;
+  right: 15%;
+  width: 600px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 120, 50, 0.2) 0%, rgba(130, 80, 240, 0.25) 50%, transparent 75%);
+}
+.glow-middle {
+  top: 950px;
+  left: 5%;
+  width: 650px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(60, 130, 250, 0.16) 0%, rgba(160, 80, 240, 0.18) 50%, transparent 75%);
+}
+
+.landing-container {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   ۱. هدر کپسولی شناور شیشه‌ای (Floating Island Header)
+   ============================================================ */
+.landing-header {
+  position: sticky;
+  top: 14px;
+  z-index: 90;
+  padding: 0 16px;
+  margin-bottom: 10px;
+}
+
+.landing-nav {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 20px;
+  background: color-mix(in srgb, var(--sheet) 82%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in srgb, var(--hairline) 70%, rgba(255, 255, 255, 0.12));
+  border-radius: 999px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.landing-nav .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.landing-nav .brand h2 {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--indigo-deep);
+  margin: 0;
+}
+[data-theme='dark'] .landing-nav .brand h2 {
+  color: #f1f3ff;
+}
+
+.landing-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.landing-nav-links a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.landing-nav-links a:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--paper) 80%, transparent);
+}
+
+.landing-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.landing-auth-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.landing-login-btn {
+  padding: 7px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+}
+.landing-login-btn:hover {
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+}
+.landing-cta-sm {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ff7e33 0%, #ff521a 100%);
+  color: #ffffff !important;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(255, 106, 40, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+}
+.landing-cta-sm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(255, 106, 40, 0.5);
+}
+
+/* ============================================================
+   ۲. بخش هیرو (Hero Section)
+   ============================================================ */
+.landing-hero {
+  padding-top: clamp(30px, 6vw, 70px);
+  padding-bottom: clamp(40px, 7vw, 90px);
+  text-align: center;
+  position: relative;
+}
+
+.hero-center {
+  max-width: 820px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-kicker-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--amber) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber) 35%, transparent);
+  color: var(--amber);
+  font-size: 13px;
+  font-weight: 700;
+  margin: 16px 0 14px;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--amber) 15%, transparent);
+}
+.badge-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 10px var(--amber);
+  animation: pulseGlow 2s infinite;
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.landing-title {
+  font-size: clamp(30px, 5.2vw, 52px);
+  font-weight: 900;
+  line-height: 1.28;
+  color: var(--ink);
+  margin: 8px 0 16px;
+  letter-spacing: -0.5px;
+}
+.gradient-highlight {
+  background: linear-gradient(135deg, #ff8a3d 0%, #a855f7 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.landing-subtitle {
+  font-size: clamp(15.5px, 2vw, 18px);
+  color: var(--ink-soft);
+  max-width: 660px;
+  line-height: 1.85;
+  margin: 0 auto;
+}
+
+.landing-hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 26px;
+  flex-wrap: wrap;
+}
+
+.cta-button {
+  padding: 13px 28px;
+  font-size: 15.5px;
+  font-weight: 800;
+  text-decoration: none;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cta-student-glow {
+  background: linear-gradient(135deg, #ff7e33 0%, #ff521a 100%);
+  color: #ffffff !important;
+  box-shadow: 0 8px 25px rgba(255, 106, 40, 0.4);
+}
+.cta-student-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(255, 106, 40, 0.55);
+}
+.cta-arrow {
+  transition: transform 0.2s ease;
+}
+.cta-student-glow:hover .cta-arrow {
+  transform: translateX(-4px);
+}
+
+.landing-btn-advisor {
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sheet) 85%, transparent);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+.landing-btn-advisor:hover {
+  border-color: var(--indigo);
+  background: var(--sheet);
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   ۳. ماک‌آپ سه‌بعدی و تعاملی پنل دانش‌آموز (Hero Mockup)
+   ============================================================ */
+.hero-mockup-wrapper {
+  position: relative;
+  max-width: 820px;
+  margin: 46px auto 36px;
+  text-align: start;
+}
+
+.mockup-float-badge {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--sheet) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--hairline) 80%, rgba(255, 255, 255, 0.15));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+  animation: floatAnim 4s ease-in-out infinite;
+}
+.badge-top-right {
+  top: -18px;
+  right: -24px;
+  animation-delay: 0s;
+}
+.badge-bottom-left {
+  bottom: -18px;
+  left: -24px;
+  animation-delay: 2s;
+}
+@keyframes floatAnim {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+.mockup-float-badge .float-icon {
+  font-size: 22px;
+}
+.mockup-float-badge strong {
+  display: block;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+.mockup-float-badge small {
+  display: block;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+.hero-preview-card {
+  background: var(--sheet);
+  border: 1px solid color-mix(in srgb, var(--hairline) 85%, rgba(255, 255, 255, 0.1));
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.mockup-window-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+  border-bottom: 1px solid var(--hairline);
+}
+.window-dots {
+  display: flex;
+  gap: 6px;
+}
+.window-dots .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot-red { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #27c93f; }
+
+.window-tab-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.window-progress-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sage) 18%, transparent);
+  color: var(--sage);
+  font-size: 12px;
+}
+
+.hero-preview-content {
+  padding: 18px 22px 24px;
+}
+.preview-tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.interactive-hint {
+  color: var(--indigo);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.hero-preview-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hero-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--paper) 60%, transparent);
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-preview-row:hover {
+  border-color: var(--indigo);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  transform: translateX(-3px);
+}
+.hero-preview-row.is-done {
+  opacity: 0.8;
+}
+
+.hp-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--hairline-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.hp-checkbox.checked {
+  background: var(--sage);
+  border-color: var(--sage);
+}
+
+.hp-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hp-subject {
+  font-size: 14px;
+  color: var(--ink);
+}
+.hp-topic {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.is-done .hp-subject,
+.is-done .hp-topic {
+  text-decoration: line-through;
+  color: var(--ink-muted);
+}
+
+.hp-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hp-time {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   ۴. درگاه‌های ورود دوگانه (Hero Gates)
+   ============================================================ */
+.hero-gates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  max-width: 860px;
+  margin: 36px auto 0;
+}
+
+.gate {
+  position: relative;
+  overflow: hidden;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  padding: 24px;
+  text-decoration: none;
+  text-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gate:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+}
+.gate-student:hover {
+  border-color: var(--amber);
+}
+.gate-advisor:hover {
+  border-color: var(--indigo);
+}
+
+.gate-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.gate-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.gate-mark-advisor {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.gate-desc {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+}
+
+.gate-points {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink);
+}
+.gate-points span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gate-points i {
+  color: var(--sage);
+  font-size: 14px;
+}
+
+.gate-cta {
+  margin-top: auto;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.gate-cta.student {
+  color: var(--amber);
+}
+.gate-cta.advisor {
+  color: var(--indigo);
+}
+
+/* ============================================================
+   ۵. نوار آمار و اعتبار (Metrics Bar)
+   ============================================================ */
+.landing-metrics-bar {
+  padding: 36px 0;
+  margin: 30px 0 60px;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--sheet) 50%, transparent);
+}
+.metrics-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.metric-item {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.metric-num {
+  font-size: clamp(28px, 3.8vw, 38px);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--ink) 0%, var(--indigo) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.metric-label {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.metric-divider {
+  width: 1px;
+  height: 42px;
+  background: var(--hairline);
+}
+
+/* ============================================================
+   ۶. بخش امکانات بنتو (Bento Grid)
+   ============================================================ */
+.landing-section {
+  padding: 60px 0;
+}
+.landing-section-tinted {
+  background: color-mix(in srgb, var(--paper) 94%, var(--indigo-soft));
+}
+
+.section-head-center {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 38px;
+}
+.section-pill {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--indigo);
+  background: color-mix(in srgb, var(--indigo) 12%, transparent);
+  margin-bottom: 12px;
+}
+.landing-section-title {
+  font-size: clamp(24px, 3.6vw, 36px);
+  font-weight: 900;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.landing-section-title em {
+  font-style: normal;
+  background: linear-gradient(135deg, #ff8a3d 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.landing-section-sub {
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 36px;
+}
+.bento-card {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  padding: 26px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bento-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
+  border-color: var(--indigo);
+}
+.bento-card-wide {
+  grid-column: span 2;
+}
+.bento-card-full {
+  grid-column: 1 / -1;
+}
+
+.bento-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+.card-indigo .bento-icon { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+.card-amber .bento-icon { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+.card-teal .bento-icon { background: rgba(20, 184, 166, 0.12); color: #14b8a6; }
+.card-pink .bento-icon { background: rgba(236, 72, 153, 0.12); color: #ec4899; }
+.card-purple .bento-icon { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+
+.bento-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+.bento-card p {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.75;
+  margin: 0;
+}
+.bento-mock-pills {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.mock-pill {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+  border: 1px solid var(--hairline);
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   ۷. تایم‌لاین روایی «یک هفته با کیان»
+   ============================================================ */
+.week-narrative-section {
+  position: relative;
+}
+.week-timeline {
+  position: relative;
+  max-width: 820px;
+  margin: 40px auto 0;
+  padding-inline-start: 60px;
+}
+.timeline-rail {
+  position: absolute;
+  top: 10px;
+  bottom: 20px;
+  right: 24px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--indigo) 0%, var(--amber) 50%, var(--sage) 100%);
+  opacity: 0.35;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 30px;
+}
+.timeline-day {
+  position: absolute;
+  right: -60px;
+  top: 16px;
+  width: 48px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--ink);
+  background: var(--paper);
+  padding: 2px 0;
+}
+
+.timeline-card {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s ease;
+}
+.timeline-card:hover {
+  border-color: var(--indigo);
+  transform: translateX(-3px);
+}
+.timeline-card-accent {
+  border-color: color-mix(in srgb, var(--indigo) 40%, transparent);
+}
+
+.timeline-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.timeline-emoji {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper) 80%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.timeline-head h3 {
+  font-size: 16.5px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 6px;
+}
+.timeline-head p {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.timeline-plan {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.plan-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--paper) 60%, transparent);
+  font-size: 13px;
+}
+.plan-time {
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+.plan-tag {
+  margin-inline-start: auto;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.timeline-stats {
+  margin-top: 14px;
+  display: flex;
+  gap: 12px;
+}
+.stat-mini {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper) 60%, transparent);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.stat-mini strong {
+  font-size: 18px;
+  color: var(--ink);
+}
+.stat-mini small {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.stat-mini-done strong {
+  color: var(--sage);
+}
+
+.timeline-exam {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.exam-clock {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--indigo);
+  font-variant-numeric: tabular-nums;
+}
+.exam-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.exam-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.exam-bar-row span {
+  width: 60px;
+  color: var(--ink-soft);
+}
+.exam-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--hairline);
+  overflow: hidden;
+}
+.exam-bar span {
+  display: block;
+  height: 100%;
+  background: var(--indigo);
+  border-radius: 999px;
+}
+
+.timeline-week-report {
+  margin-top: 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  height: 90px;
+  padding-top: 10px;
+}
+.report-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+.report-bar {
+  width: 100%;
+  max-width: 28px;
+  height: var(--h);
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--indigo) 0%, var(--indigo-soft) 100%);
+  transition: height 0.3s ease;
+}
+.report-bar-col small {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   ۸. کارت‌های فیچر (دانش‌آموز و مشاور)
+   ============================================================ */
+.landing-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.landing-feature-card {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.25s ease;
+}
+.landing-feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  border-color: var(--indigo);
+}
+.landing-feature-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+.landing-ico-indigo { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+.landing-ico-amber { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+.landing-ico-teal { background: rgba(20, 184, 166, 0.12); color: #14b8a6; }
+.landing-ico-pink { background: rgba(236, 72, 153, 0.12); color: #ec4899; }
+
+.landing-feature-card h3 {
+  font-size: 16.5px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.landing-feature-card p {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ============================================================
+   ۹. دعوت به عمل نهایی (Final CTA)
+   ============================================================ */
+.landing-final-cta {
+  padding: 70px 0 90px;
+}
+.final-cta-card {
+  position: relative;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 24px;
+  padding: 50px 30px;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.12);
+}
+.cta-glow-effect {
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(255, 120, 50, 0.22) 0%, rgba(99, 102, 241, 0.25) 55%, transparent 80%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+.final-cta-card h2 {
+  font-size: clamp(24px, 3.8vw, 36px);
+  font-weight: 900;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.final-cta-card p {
+  font-size: 15.5px;
+  color: var(--ink-soft);
+  margin: 0 0 26px;
+}
+
+/* ============================================================
+   ۱۰. فوتر و دکمه بازگشت به بالا
+   ============================================================ */
+.landing-footer {
+  border-top: 1px solid var(--hairline);
+  padding: 30px 0 40px;
+  background: color-mix(in srgb, var(--sheet) 40%, transparent);
+}
+.landing-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.landing-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.landing-footer-brand strong {
+  display: block;
+  font-size: 15px;
+  color: var(--ink);
+}
+.landing-footer-brand small {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.landing-footer-copy {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 80;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.back-to-top:hover {
+  background: var(--indigo);
+  color: #fff;
+  border-color: var(--indigo);
+}
+
+/* ============================================================
+   ۱۱. تطبیق ریسپانسیو (Responsive Adjustments)
+   ============================================================ */
+@media (max-width: 900px) {
+  .hero-gates {
+    grid-template-columns: 1fr;
+  }
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .bento-card-wide,
+  .bento-card-full {
+    grid-column: span 1;
+  }
+  .landing-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-nav-links {
+    display: none;
+  }
+  .landing-header {
+    top: 8px;
+    padding: 0 10px;
+  }
+  .landing-nav {
+    padding: 8px 14px;
+  }
+  .mockup-float-badge {
+    position: static;
+    margin: 8px 0;
+    width: 100%;
+    animation: none;
+  }
+  .hero-mockup-wrapper {
+    margin: 30px auto;
+  }
+  .week-timeline {
+    padding-inline-start: 40px;
+  }
+  .timeline-day {
+    right: -42px;
+    font-size: 12px;
+  }
+  .timeline-rail {
+    right: 14px;
+  }
+}
+
+/* ============================================================
+   ۱۲. اصلاح کامل نمایش در گوشی‌ها (موبایل بدون تداخل و بیرون‌زدگی)
+   ============================================================ */
+@media (max-width: 640px) {
+  .landing-container {
+    padding: 0 16px;
+  }
+  .landing-nav {
+    padding: 6px 12px;
+    gap: 8px;
+  }
+  .landing-nav .brand h2 {
+    font-size: 13.5px;
+  }
+  .landing-nav-actions {
+    gap: 6px;
+  }
+  .landing-auth-group {
+    gap: 6px;
+  }
+  .landing-login-btn {
+    padding: 5px 10px;
+    font-size: 12.5px;
+  }
+  .landing-cta-sm {
+    padding: 6px 12px;
+    font-size: 12.5px;
+  }
+  .landing-title {
+    font-size: clamp(24px, 7vw, 34px);
+    line-height: 1.35;
+    margin: 8px 0 12px;
+  }
+  .landing-subtitle {
+    font-size: 14.5px;
+    line-height: 1.75;
+  }
+  .landing-hero-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .cta-button,
+  .landing-btn-advisor {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 12px 20px;
+    font-size: 14.5px;
+  }
+  .mockup-float-badge {
+    display: none !important;
+  }
+  .hero-mockup-wrapper {
+    margin: 20px auto;
+    width: 100%;
+  }
+  .hero-preview-content {
+    padding: 12px 14px 16px;
+  }
+  .hero-preview-row {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .metrics-row {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .metric-divider {
+    display: none !important;
+  }
+  .metric-item {
+    background: color-mix(in srgb, var(--sheet) 75%, transparent);
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--hairline);
+  }
+  .metric-num {
+    font-size: 28px;
+  }
+  .landing-section {
+    padding: 40px 0;
+  }
+  .landing-section-title {
+    font-size: clamp(20px, 5.5vw, 26px);
+  }
+  .landing-section-sub {
+    font-size: 13.5px;
+  }
+  .bento-grid {
+    gap: 14px;
+    margin-top: 22px;
+  }
+  .bento-card {
+    padding: 20px 16px;
+  }
+  .bento-mock-pills {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .week-timeline {
+    padding-inline-start: 16px;
+  }
+  .timeline-day {
+    position: static;
+    margin-bottom: 8px;
+    display: inline-block;
+    right: 0;
+  }
+  .timeline-rail {
+    display: none !important;
+  }
+  .timeline-card {
+    padding: 16px 14px;
+  }
+  .timeline-head-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .landing-final-cta {
+    padding: 30px 16px;
+    border-radius: 20px;
+  }
+  .landing-final-cta-btns {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+  .landing-final-cta-btns .cta-button {
+    width: 100%;
+    justify-content: center;
+  }
+  .landing-footer-grid {
+    flex-direction: column;
+    gap: 20px;
+  }
+}

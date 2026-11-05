@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { setItemTagLog } from '../api/client';
 import FaNumberInput from './FaNumberInput';
 import { toFaDigits } from '../utils/jalali';
+import Ico from './Ico';
 
 // کامپوننت ورودی‌های per-tag برای یک آیتم درسی.
 // درون هر task-row نمایش داده می‌شود و به دانش‌آموز اجازه می‌دهد برای هر تگ
@@ -116,7 +117,7 @@ export default function PerTagInputs({ item, onChange }) {
   return (
     <div className="per-tag-inputs">
       <div className="per-tag-label">
-        📝 ثبت زمان و تست برای این درس
+        <Ico e="📝" /> ثبت زمان و تست برای این درس
       </div>
       <div className="per-tag-rows">
         {tags.map(({ tag }) => {
@@ -127,7 +128,7 @@ export default function PerTagInputs({ item, onChange }) {
               <span className="per-tag-name">{tag.name}</span>
               <div className="per-tag-fields">
                 <label className="per-tag-field">
-                  <span>⏱ دقیقه</span>
+                  <span><Ico e="⏱" /> دقیقه</span>
                   <FaNumberInput
                     value={input.minutes}
                     onChange={(v) => updateInput(key, 'minutes', v)}
@@ -136,7 +137,7 @@ export default function PerTagInputs({ item, onChange }) {
                   />
                 </label>
                 <label className="per-tag-field">
-                  <span>✎ تست</span>
+                  <span><Ico e="✎" /> تست</span>
                   <FaNumberInput
                     value={input.tests}
                     onChange={(v) => updateInput(key, 'tests', v)}
@@ -151,7 +152,7 @@ export default function PerTagInputs({ item, onChange }) {
                   disabled={savingKey === key}
                   title="ثبت زمان و تست این تگ"
                 >
-                  {savingKey === key ? '…' : savedKey === key ? '✓ ثبت شد' : 'ثبت'}
+                  {savingKey === key ? '…' : savedKey === key ? <><Ico e="✓" /> ثبت شد</> : 'ثبت'}
                 </button>
               </div>
             </div>
@@ -160,10 +161,10 @@ export default function PerTagInputs({ item, onChange }) {
 
         {/* ردیف «سایر کارها» برای این درس */}
         <div className="per-tag-row per-tag-other" key="other">
-          <span className="per-tag-name">📌 سایر</span>
+          <span className="per-tag-name"><Ico e="📌" /> سایر</span>
           <div className="per-tag-fields">
             <label className="per-tag-field">
-              <span>⏱ دقیقه</span>
+              <span><Ico e="⏱" /> دقیقه</span>
               <FaNumberInput
                 value={(logs.other || {}).minutes || ''}
                 onChange={(v) => updateInput('other', 'minutes', v)}
@@ -172,7 +173,7 @@ export default function PerTagInputs({ item, onChange }) {
               />
             </label>
             <label className="per-tag-field">
-              <span>✎ تست</span>
+              <span><Ico e="✎" /> تست</span>
               <FaNumberInput
                 value={(logs.other || {}).tests || ''}
                 onChange={(v) => updateInput('other', 'tests', v)}
@@ -181,7 +182,7 @@ export default function PerTagInputs({ item, onChange }) {
               />
             </label>
             <label className="per-tag-field per-tag-field-note">
-              <span>✎ توضیح</span>
+              <span><Ico e="✎" /> توضیح</span>
               <input
                 type="text"
                 value={(logs.other || {}).note || ''}
@@ -198,7 +199,7 @@ export default function PerTagInputs({ item, onChange }) {
               disabled={savingKey === 'other'}
               title="ثبت سایر کارهای این درس"
             >
-              {savingKey === 'other' ? '…' : savedKey === 'other' ? '✓ ثبت شد' : 'ثبت'}
+              {savingKey === 'other' ? '…' : savedKey === 'other' ? <><Ico e="✓" /> ثبت شد</> : 'ثبت'}
             </button>
           </div>
         </div>
@@ -209,7 +210,7 @@ export default function PerTagInputs({ item, onChange }) {
         <div className="per-tag-summary">
           {(item.itemLogs || []).map((log) => (
             <span key={log.id} className="per-tag-summary-chip">
-              {log.tag ? log.tag.name : '📌 سایر'}
+              {log.tag ? log.tag.name : <><Ico e="📌" /> سایر</>}
               {log.minutes ? ` · ${toFaDigits(log.minutes)} دقیقه` : ''}
               {log.testsTaken ? ` · ${toFaDigits(log.testsTaken)} تست` : ''}
             </span>
@@ -217,7 +218,7 @@ export default function PerTagInputs({ item, onChange }) {
         </div>
       )}
 
-      {error && <p className="per-tag-error">⚠ {error}</p>}
+      {error && <p className="per-tag-error"><Ico e="⚠" /> {error}</p>}
     </div>
   );
 }

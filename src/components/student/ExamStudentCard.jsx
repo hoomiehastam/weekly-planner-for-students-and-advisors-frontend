@@ -1,4 +1,5 @@
 import { toFaDigits, formatJalaliDateTime } from '../../utils/jalali';
+import Ico from '../Ico';
 
 // کارت آزمون در داشبورد دانش‌آموز.
 // props:
@@ -34,18 +35,18 @@ export default function ExamStudentCard({ exam, onStart, onReview }) {
           <h4 className="exam-title">{exam.title}</h4>
           {exam.description && <p className="muted-text">{exam.description}</p>}
           <div className="exam-meta">
-            <span>⏱ مدت: {toFaDigits(exam.durationMinutes)} دقیقه</span>
-            <span>📝 {toFaDigits(questions.length)} سؤال</span>
+            <span><Ico e="⏱" /> مدت: {toFaDigits(exam.durationMinutes)} دقیقه</span>
+            <span><Ico e="📝" /> {toFaDigits(questions.length)} سؤال</span>
           </div>
           <div className="exam-time-info">
             <span className="exam-time-row">
-              <span className="exam-time-label">🟢 شروع آزمون:</span>
+              <span className="exam-time-label"><Ico e="🟢" /> شروع آزمون:</span>
               <span className="exam-time-value">
                 {startedAt ? formatJalaliDateTime(startedAt) : formatJalaliDateTime(exam.scheduledAt)}
               </span>
             </span>
             <span className="exam-time-row">
-              <span className="exam-time-label">🔴 پایان:</span>
+              <span className="exam-time-label"><Ico e="🔴" /> پایان:</span>
               <span className="exam-time-value">{formatJalaliDateTime(deadline)}</span>
             </span>
           </div>
@@ -57,7 +58,7 @@ export default function ExamStudentCard({ exam, onStart, onReview }) {
               {submission.feedback && <p className="exam-feedback">{submission.feedback}</p>}
               {onReview && (
                 <button className="btn-secondary btn-sm" onClick={() => onReview(exam)}>
-                  🔍 مشاهده پاسخ‌ها
+                  <Ico e="🔍" /> مشاهده پاسخ‌ها
                 </button>
               )}
             </div>
@@ -68,23 +69,23 @@ export default function ExamStudentCard({ exam, onStart, onReview }) {
                 <p className="exam-feedback">سؤالات تشریحی در انتظار نمره‌دهی مشاور است</p>
                 {onReview && (
                   <button className="btn-secondary btn-sm" onClick={() => onReview(exam)}>
-                    🔍 مشاهده پاسخ‌ها
+                    <Ico e="🔍" /> مشاهده پاسخ‌ها
                   </button>
                 )}
               </div>
             ) : (
               <div className="exam-submitted-badge">
-                ✅ ارسال شده — در انتظار نمره
+                <Ico e="✅" /> ارسال شده — در انتظار نمره
                 {onReview && (
                   <button className="btn-secondary btn-sm" onClick={() => onReview(exam)}>
-                    🔍 مشاهده پاسخ‌ها
+                    <Ico e="🔍" /> مشاهده پاسخ‌ها
                   </button>
                 )}
               </div>
             )
           ) : (
             <button className="btn-primary" onClick={() => onStart(exam)}>
-              📝 شروع آزمون
+              <Ico e="📝" /> شروع آزمون
             </button>
           )}
         </div>

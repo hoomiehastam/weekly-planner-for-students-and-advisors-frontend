@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { login as loginRequest, requestPasswordReset, requestOtpCode } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from '../components/ThemeToggle';
 import Logo from '../components/Logo';
+import Ico from '../components/Ico';
+import AuthAside from '../components/AuthAside';
 
 // صفحه‌ی ورود — اکنون سه حالت دارد:
-//   1) ورود با ایمیل و رمز عبور (حالت پیش‌فرض)
+//   1) ورود با «ایمیل یا شماره تماس» + رمز عبور (حالت پیش‌فرض)
 //   2) بازیابی رمز عبور — کاربر ایمیل را وارد می‌کند و لینک بازنشانی به او ایمیل می‌شود
 //   3) ورود با کد یک‌بارمصرف ایمیلی — کد ۶ رقمی به ایمیل می‌آید و جای رمز عبور می‌نشیند
+// نکته: والدین در ثبت‌نام یک‌مرحله‌ای فقط شماره می‌دهند؛ پس ورود با شماره تماس برایشان ضروری است.
 // نکته‌ی مهم: ایمیل، کلید بازیابی رمز عبور است؛ این هشدار زیر فیلد ایمیل یادآوری می‌شود.
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -24,6 +27,26 @@ export default function LoginPage() {
   const [mode, setMode] = useState('login');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // مقصد اولیه — اگر کاربر مستقیماً مسیر داشبورد را زد ولی لاگین نبود، ProtectedRoute
+  // او را اینجا می‌آورد و ما بعد از ورود موفق به همان مسیر برمی‌گردیم.
+  const fromPath = (location.state?.from && typeof location.state.from === 'string'
+    ? location.state.from : null) || null;
+
+  function navigateAfterLogin(data) {
+    if (data.user?.mustChangePassword) {
+      navigate('/change-password', { replace: true });
+      return;
+    }
+    if (fromPath && fromPath.startsWith('/')) {
+      navigate(fromPath, { replace: true });
+      return;
+    }
+    if (data.user.role === 'STUDENT') navigate('/student');
+    else if (data.user.role === 'INSTITUTE_MANAGER') navigate('/institute');
+    else if (data.user.role === 'PARENT') navigate('/parent');
+    else navigate('/advisor');
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -46,31 +69,11 @@ export default function LoginPage() {
         // مرحله‌ی دوم: ورود با ایمیل + کد (کد سمت سرور جای رمز عبور بررسی می‌شود)
         const data = await loginRequest(email, otpCode.trim().toUpperCase());
         login(data);
-
-        if (data.user?.mustChangePassword) {
-          navigate('/change-password', { replace: true });
-          return;
-        }
-
-        if (data.user.role === 'STUDENT') navigate('/student');
-        else if (data.user.role === 'INSTITUTE_MANAGER') navigate('/institute');
-        else if (data.user.role === 'PARENT') navigate('/parent');
-        else navigate('/advisor');
+        navigateAfterLogin(data);
       } else {
         const data = await loginRequest(email, password);
         login(data);
-
-        // اگر کاربر با OTP وارد شده و mustChangePassword=true باشد،
-        // به صفحه‌ی تغییر رمز اجباری هدایت می‌شود — نه به داشبورد.
-        if (data.user?.mustChangePassword) {
-          navigate('/change-password', { replace: true });
-          return;
-        }
-
-        if (data.user.role === 'STUDENT') navigate('/student');
-        else if (data.user.role === 'INSTITUTE_MANAGER') navigate('/institute');
-        else if (data.user.role === 'PARENT') navigate('/parent');
-        else navigate('/advisor');
+        navigateAfterLogin(data);
       }
     } catch (err) {
       setError(err.message);
@@ -99,27 +102,7 @@ export default function LoginPage() {
 
       {/* چیدمان دورسته‌ای: پنل معرفی سرمه‌ای + کارت فرم — مطابق کانسپت login_register */}
       <div className="auth-split">
-        <aside className="auth-split-aside">
-          <div className="asa-brand">
-            <span className="asa-mark" aria-hidden>د</span>
-            <span>دانش‌آموزینو</span>
-          </div>
-          <div className="asa-lead">
-            <p className="asa-title">
-              هر روز، یک قدم
-              <br />
-              نزدیک‌تر به هدف
-            </p>
-            <p className="asa-sub">
-              بیش از هزار داوطلب کنکور همین حالا برنامه‌شان را اینجا دنبال می‌کنند.
-            </p>
-          </div>
-          <div className="asa-dots" aria-hidden>
-            <span className="on" />
-            <span />
-            <span />
-          </div>
-        </aside>
+        <AuthAside />
 
         <div className="auth-split-form">
           <div className="auth-brand-min">
@@ -145,15 +128,22 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit}>
 
           <label className="field-label">
-            ایمیل
+            {mode === 'login' ? 'شماره موبایل یا ایمیل' : 'ایمیل'}
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@email.com"
+              placeholder={mode === 'login' ? 'شماره موبایل یا ایمیلت را بنویس' : 'ایمیلت را بنویس'}
               required
-              dir="ltr"
+              dir="auto"
+              autoComplete="username"
+              inputMode={mode === 'login' ? 'text' : 'email'}
             />
+            {mode === 'login' && (
+              <span className="field-hint">
+                با همان شماره یا ایمیلی که ثبت‌نام کرده‌ای وارد شو.
+              </span>
+            )}
           </label>
 
           {mode === 'login' && (
@@ -173,7 +163,7 @@ export default function LoginPage() {
                   onClick={() => setShowPassword((s) => !s)}
                   aria-label="نمایش رمز"
                 >
-                  {showPassword ? '🙈' : '👁'}
+                  <Ico e={showPassword ? '🙈' : '👁'} />
                 </button>
               </div>
               <button
@@ -209,11 +199,11 @@ export default function LoginPage() {
                 className="otp-input"
               />
               <span className="field-hint">
-                💡 کد تا ۱۰ دقیقه معتبر است و فقط یک‌بار قابل استفاده است. سراغ پوشه‌ی اسپم هم سر بزن.
+                <Ico e="💡" /> کد تا ۱۰ دقیقه معتبر است و فقط یک‌بار قابل استفاده است. سراغ پوشه‌ی اسپم هم سر بزن.
               </span>
               {devOtp && (
                 <div className="alert alert-info" style={{ marginTop: 8 }}>
-                  <span>🛠</span>
+                  <span><Ico e="🛠" /></span>
                   <div>
                     حالت توسعه (بدون SMTP) — کد ارسال‌شده: <strong dir="ltr">{devOtp}</strong>
                   </div>
@@ -224,12 +214,12 @@ export default function LoginPage() {
 
           {error && (
             <div className="alert alert-error">
-              <span>⚠</span> {error}
+              <span><Ico e="⚠" /></span> {error}
             </div>
           )}
           {info && (
             <div className="alert alert-success">
-              <span>✓</span> {info}
+              <span><Ico e="✓" /></span> {info}
             </div>
           )}
 
@@ -272,7 +262,7 @@ export default function LoginPage() {
                   }
                 }}
               >
-                📩 ارسال دوباره‌ی کد
+                <Ico e="📩" /> ارسال دوباره‌ی کد
               </button>
             )}
           </div>
@@ -282,7 +272,7 @@ export default function LoginPage() {
         <div className="auth-min-footer">
           حساب نداری؟
           <Link to="/register?role=STUDENT">ثبت‌نام دانش‌آموز</Link>
-          <Link to="/register?role=ADVISOR">ثبت‌نام مشاور</Link>
+          <Link to="/register?role=PARENT">ثبت‌نام والد</Link>
         </div>
         </div>
       </div>

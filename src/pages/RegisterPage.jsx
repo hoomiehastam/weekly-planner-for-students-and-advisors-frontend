@@ -1,62 +1,55 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import {
-  register as registerRequest,
-  fetchActiveAdvisors,
-  fetchPublicInstitutes,
-} from '../api/client';
+import { register as registerRequest, lookupInvite } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { toFaDigits } from '../utils/jalali';
 import ThemeToggle from '../components/ThemeToggle';
 import Logo from '../components/Logo';
+import Ico from '../components/Ico';
+import AuthAside from '../components/AuthAside';
 
-// صفحه‌ی ثبت‌نام — سه‌مرحله‌ای (نقش با سوییچ بالای کارت انتخاب می‌شود، نه تب جدا):
-//   مرحله ۱: اطلاعات حساب + رشته‌ی تحصیلی/تخصص
-//   مرحله ۲: آموزشگاه (مستقل یا عضویت)
-//   مرحله ۳: تماس و توضیحات + انتخاب مشاور (فقط دانش‌آموز)
+// صفحه‌ی ثبت‌نام مینیمال — فقط شماره تماس + رمز عبور (+ کد دعوت والد، اختیاری).
+// نقش با سوییچ بالای کارت انتخاب می‌شود، نه تب جدا.
 //
-// نکته‌ی مهم: وقتی دانش‌آموز ثبت‌نام می‌کند، link با مشاور با status=PENDING ساخته می‌شود.
-// مشاور در پنلش درخواست را می‌بیند و تصمیم می‌گیرد. تا تأیید، دانش‌آموز به برنامه‌ی هفتگی دسترسی ندارد.
-
-const FIELDS = [
-  { value: 'HUMANITIES', label: 'علوم انسانی', emoji: '📚', color: 'amber' },
-  { value: 'MATH_PHYSICS', label: 'ریاضی و فیزیک', emoji: '📐', color: 'indigo' },
-  { value: 'EXPERIMENTAL', label: 'علوم تجربی', emoji: '🧪', color: 'sage' },
-];
-
-const STEPS = [
-  { key: 'account', label: 'حساب' },
-  { key: 'institute', label: 'آموزشگاه' },
-  { key: 'profile', label: 'پروفایل' },
-];
+// بقیه‌ی مشخصات (نام، رشته، مؤسسه، انتخاب مشاور/تخصص) بلافاصله بعد از ورود
+// داخل پنل با مودال «تکمیل ثبت‌نام» پر می‌شود؛ اینجا فقط دو فیلد داریم تا روی
+// موبایل فرم بدون اسکرول و بدون پرشِ چندمرحله‌ای دیده شود.
+// والد: نام و ایمیلش خودبخود از فرزندِ کد دعوت ساخته می‌شود و با همان شماره
+// وارد پنل والدین می‌شود.
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role');
   const initialRole = ['STUDENT', 'ADVISOR', 'PARENT'].includes(roleParam) ? roleParam : 'STUDENT';
 
-  // با ?role=ADVISOR مستقیم وارد مرحله ۱ می‌شویم — تب «نقش» نداریم
-  const [step, setStep] = useState(1);
-
-  // فیلدهای فرم
+  // فیلدهای فرم — عمداً کوتاه: فقط شماره + رمز
   const [role, setRole] = useState(initialRole);
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [field, setField] = useState(''); // رشته‌ی تحصیلی دانش‌آموز (تکی)
-  const [advisorFields, setAdvisorFields] = useState([]); // رشته‌های تخصص مشاور (چندتا)
-  const [phone, setPhone] = useState('');
-  const [bio, setBio] = useState('');
-  const [advisorId, setAdvisorId] = useState('');
-  const [instituteId, setInstituteId] = useState(''); // '' یعنی مستقل
   // کد دعوت والد — از لینک ?invite=CODE یا تایپ دستی؛ اختیاری (بعداً هم قابل اتصال است)
   const [inviteCode, setInviteCode] = useState((searchParams.get('invite') || '').toUpperCase());
 
-  // داده‌های fetch شده
-  const [institutes, setInstitutes] = useState([]);
-  const [advisors, setAdvisors] = useState([]);
-  const [advisorsFetchedFor, setAdvisorsFetchedFor] = useState(null);
+  // لینک دعوت مشاور/دوست (?ref=CODE): دانش‌آموز مستقیم و بدون تأیید به همان مشاور وصل می‌شود
+  const refCode = (searchParams.get('ref') || '').trim().toUpperCase();
+  const [refInfo, setRefInfo] = useState(null); // اطلاعات دعوت‌کننده
+  const [refState, setRefState] = useState(refCode ? 'loading' : 'none'); // none | loading | valid | invalid
+
+  useEffect(() => {
+    if (!refCode) return undefined;
+    let cancelled = false;
+    lookupInvite(refCode)
+      .then((info) => {
+        if (cancelled) return;
+        setRefInfo(info);
+        setRefState('valid');
+        setRole('STUDENT'); // لینک دعوت فقط برای دانش‌آموز است
+      })
+      .catch(() => {
+        if (!cancelled) setRefState('invalid');
+      });
+    return () => { cancelled = true; };
+  }, [refCode]);
+  const usingRef = refState === 'valid';
 
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -65,123 +58,46 @@ export default function RegisterPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // بارگذاری لیست مؤسسه‌های فعال در mount
-  useEffect(() => {
-    fetchPublicInstitutes()
-      .then((data) => setInstitutes(data.institutes || []))
-      .catch(() => setInstitutes([]));
-  }, []);
-
-  // وقتی وارد مرحله‌ی ۳ می‌شویم، مشاوران را fetch می‌کنیم
-  // فیلتر: instituteId (ممکن است '' یعنی مستقل) + field
-  // نکته: advisorsLoading مشتق از advisorsFetchedFor است (نه state جدا) تا
-  // فراخوانی setState همگام در بدنه‌ی افکت لازم نشود.
-  const advisorsCacheKey = `${instituteId || 'independent'}|${field}`;
-  const advisorsLoading =
-    role === 'STUDENT' && step === 3 && !!field && advisorsFetchedFor !== advisorsCacheKey;
-
-  useEffect(() => {
-    if (role !== 'STUDENT') return;
-    if (step !== 3) return;
-    if (!field) return; // باید رشته انتخاب شده باشد
-
-    // کلید cache: instituteId|field
-    const cacheKey = `${instituteId || 'independent'}|${field}`;
-    if (advisorsFetchedFor === cacheKey) return;
-
-    let cancelled = false;
-    fetchActiveAdvisors({
-      instituteId: instituteId || undefined, // undefined یعنی مستقل
-      field,
-    })
-      .then((data) => {
-        if (cancelled) return;
-        setAdvisors(data.advisors || []);
-        setAdvisorsFetchedFor(cacheKey);
-        // اگر قبلاً advisor انتخاب شده ولی دیگر در فهرست نیست، پاک کن
-        if (advisorId && !(data.advisors || []).some((a) => a.id === advisorId)) {
-          setAdvisorId('');
-        }
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        setError(err.message || 'خطا در بارگذاری مشاوران');
-        setAdvisors([]);
-        // حتی در خطا هم cacheKey را علامت بزن تا حلقه‌ی بی‌پایان fetch نشود؛
-        // با تغییر رشته/مؤسسه دوباره تلاش می‌شود.
-        setAdvisorsFetchedFor(cacheKey);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, step, instituteId, field]);
-
-  function nextStep() {
-    setError('');
-    if (step === 1) {
-      if (!fullName.trim() || fullName.trim().length < 2) {
-        setError('نام کامل باید حداقل ۲ کاراکتر باشد');
-        return;
-      }
-      if (!email.trim()) {
-        setError('ایمیل الزامی است');
-        return;
-      }
-      if (password.length < 8) {
-        setError('رمز عبور باید حداقل ۸ کاراکتر باشد');
-        return;
-      }
-      // اعتبارسنجی رشته‌ی تحصیلی
-      if (role === 'STUDENT') {
-        if (!field) {
-          setError('انتخاب رشته‌ی تحصیلی الزامی است');
-          return;
-        }
-      } else if (role === 'ADVISOR') {
-        // ADVISOR — باید حداقل یک رشته‌ی تخصص انتخاب کند
-        if (advisorFields.length === 0) {
-          setError('انتخاب حداقل یک رشته‌ی تخصص الزامی است');
-          return;
-        }
-      }
-    }
-    setStep((s) => Math.min(s + 1, STEPS.length + 1));
-  }
-
-  function prevStep() {
-    setError('');
-    setStep((s) => Math.max(s - 1, 0));
+  // اعتبارسنجی سمت کلاینت — همان قواعد سرور تا خطای شبکه کمتر شود
+  function validate() {
+    if (!phone.trim()) return 'شماره تماس الزامی است';
+    if (password.length < 8) return 'رمز عبور باید حداقل ۸ کاراکتر باشد';
+    if (!/[A-Za-z\u0600-\u06FF]/.test(password)) return 'رمز عبور باید شامل یک حرف باشد';
+    if (!/\d/.test(password)) return 'رمز عبور باید شامل یک عدد باشد';
+    return '';
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
-    setLoading(true);
 
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
     try {
-      const payload = { fullName, email, password, role };
-      if (phone.trim()) payload.phone = phone.trim();
-      if (bio.trim()) payload.bio = bio.trim();
-      if (role === 'STUDENT') {
-        payload.advisorId = advisorId;
-        payload.field = field; // رشته‌ی تکی دانش‌آموز
-      } else if (role === 'ADVISOR') {
-        payload.fields = advisorFields; // آرایه‌ی رشته‌های تخصص مشاور
-      }
+      // ثبت‌نام مینیمال: فقط شماره + رمز + نقش (والد: کد دعوت اختیاری)
+      const payload = { phone: phone.trim(), password, role };
       if (role === 'PARENT' && inviteCode.trim()) {
         payload.parentInviteCode = inviteCode.trim().toUpperCase();
       }
-      if (instituteId && role !== 'PARENT') payload.instituteId = instituteId;
+      if (usingRef && role === 'STUDENT') {
+        payload.inviteCode = refCode;
+      }
 
       const data = await registerRequest(payload);
 
       if (data.user) {
-        login(data);
-        // پیام موفقیت به کاربر نمایش داده می‌شود، سپس هدایت
+        // registrationComplete: false یعنی مودال «تکمیل ثبت‌نام» در پنل باز شود
+        login({
+          ...data,
+          user: { ...data.user, registrationComplete: data.registrationComplete === true },
+        });
         if (role === 'STUDENT') {
-          // دانش‌آموز را به داشبوردش می‌فرستیم؛ آنجا پیام «در انتظار تأیید مشاور» را می‌بیند
           navigate('/student', { replace: true });
         } else if (role === 'PARENT') {
           navigate('/parent', { replace: true });
@@ -189,6 +105,7 @@ export default function RegisterPage() {
           navigate('/advisor', { replace: true });
         }
       } else {
+        // ثبت‌نام PENDING (مؤسسه/تأیید سوپرادمین) — کاربر لاگین نمی‌شود
         setSuccessMessage(data.message);
       }
     } catch (err) {
@@ -197,9 +114,6 @@ export default function RegisterPage() {
       setLoading(false);
     }
   }
-
-  const fieldLabel = (val) => FIELDS.find((f) => f.value === val)?.label || '';
-  const fieldEmoji = (val) => FIELDS.find((f) => f.value === val)?.emoji || '';
 
   return (
     <div className="auth-page auth-min">
@@ -210,442 +124,178 @@ export default function RegisterPage() {
         </Link>
       </div>
 
-      {/* چیدمان دورسته‌ای: پنل معرفی سرمه‌ای + فرم — مطابق کانسپت register_page */}
-      <div className="auth-split">
-        <aside className="auth-split-aside">
-          <div className="asa-brand">
-            <span className="asa-mark" aria-hidden>د</span>
-            <span>دانش‌آموزینو</span>
-          </div>
-          <div className="asa-lead">
-            <p className="asa-title">
-              همین حالا شروع کن،
-              <br />
-              رایگان و بدون نیاز به نصب
-            </p>
-            <p className="asa-sub">ثبت‌نام کمتر از یک دقیقه طول می‌کشد.</p>
-          </div>
-          <div className="asa-dots" aria-hidden>
-            <span />
-            <span className="on" />
-            <span />
-          </div>
-        </aside>
-
-        <div className="auth-split-form auth-split-form-wide">
+      {/* کارت مینیمال وسط صفحه — دو فیلد، بدون اسکرول روی موبایل */}
+      <div className="auth-split auth-split-wide">
+        <AuthAside focus={role === 'ADVISOR' ? 2 : role === 'PARENT' ? 0 : 1} />
+        <div className="auth-split-form auth-split-form-wide register-min">
+        {/* برند بالای کارت */}
         <div className="auth-brand-min">
           <Logo size={40} title="دانش‌آموزینو" />
           <h1>ساخت حساب کاربری</h1>
           <p>
             {role === 'STUDENT'
-              ? 'در سه قدم حساب می‌سازی و برنامه‌ی هفته‌ات را از مشاورت می‌گیری.'
+              ? 'فقط شماره و رمز — بقیه‌ی مشخصات را بعد از ورود در یک قدم کوتاه پر می‌کنی.'
               : role === 'PARENT'
-                ? 'در یک قدم پنل والدین آماده می‌شود — آمار هفتگی فرزندت را می‌بینی.'
-                : 'در سه قدم پنل مشاوری‌ات آماده می‌شود.'}
+                ? 'فقط شماره و رمز — بقیه‌اش با کد فرزندت خودکار تکمیل می‌شود.'
+                : 'فقط شماره و رمز — تخصص و توضیحاتت را بعد از ورود اضافه می‌کنی.'}
           </p>
-          {/* سوییچ نقش — جایگزین تب «نقش» */}
+          {/* بنر لینک دعوت */}
+          {refState === 'loading' && (
+            <div className="invite-banner" role="status">در حال بررسی لینک دعوت…</div>
+          )}
+          {usingRef && refInfo && (
+            <div className="invite-banner ok" role="status">
+              <strong>
+                <Ico e="🎓" /> {refInfo.kind === 'FRIEND'
+                  ? `${refInfo.inviterName} تو را دعوت کرده`
+                  : `${refInfo.advisorName} تو را دعوت کرده`}
+              </strong>
+              <span>
+                با ثبت‌نام، مستقیم به مشاور «{refInfo.advisorName}»
+                {refInfo.instituteName ? ` (${refInfo.instituteName})` : ''} وصل می‌شوی؛
+                نیازی به تأیید یا انتخاب مشاور نیست.
+              </span>
+              {refInfo.kind === 'FRIEND' && refInfo.referral && (
+                <span className="invite-banner-bonus">
+                  <Ico e="🎁" /> بعد از اولین پرداخت شهریه، هر دوی شما بین ۵ تا ۱۵ درصد تخفیف شهریه‌ی ماهانه (به مدت یک سال) می‌گیرید.
+                </span>
+              )}
+            </div>
+          )}
+          {refState === 'invalid' && (
+            <div className="invite-banner bad" role="alert">
+              این لینک دعوت معتبر نیست یا غیرفعال شده. می‌توانی عادی ثبت‌نام کنی و مشاورت را بعداً انتخاب کنی؛
+              یا از مشاورت لینک تازه بخواه.
+            </div>
+          )}
+          {/* سوییچ نقش — با تغییر نقش فرم پاک نمی‌شود (با لینک دعوت فقط دانش‌آموز) */}
+          {!usingRef && (
           <div className="role-switch">
             <button
               type="button"
               className={role === 'STUDENT' ? 'active' : ''}
-              onClick={() => setRole('STUDENT')}
+              onClick={() => { setRole('STUDENT'); setError(''); }}
             >
-              🎒 دانش‌آموز
+              <Ico e="🎒" /> دانش‌آموز
             </button>
             <button
               type="button"
               className={role === 'ADVISOR' ? 'active' : ''}
-              onClick={() => setRole('ADVISOR')}
+              onClick={() => { setRole('ADVISOR'); setError(''); }}
             >
-              🎓 مشاور
+              <Ico e="🎓" /> مشاور
             </button>
             <button
               type="button"
               className={role === 'PARENT' ? 'active' : ''}
-              onClick={() => setRole('PARENT')}
+              onClick={() => { setRole('PARENT'); setError(''); }}
             >
-              👨‍👩‍👦 والد
+              <Ico e="👨‍👩‍👦" /> والد
             </button>
           </div>
+          )}
         </div>
 
-        <form className="auth-card" onSubmit={handleSubmit}>
-          {/* نوار پیشرفت مراحل — والد تک‌مرحله‌ای است */}
-          {role !== 'PARENT' && (
-          <ol className="step-progress">
-            {STEPS.map((s, idx) => (
-              <li
-                key={s.key}
-                className={`step-progress-item ${
-                  idx < step ? 'done' : idx === step ? 'active' : ''
-                }`}
+      <form className="auth-card" onSubmit={handleSubmit}>
+        <div className="step-panel">
+          <label className="field-label">
+            شماره تماس
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="مثلاً ۰۹۱۲۳۴۵۶۷۸۹"
+              dir="ltr"
+              inputMode="tel"
+              autoComplete="tel"
+              required
+              autoFocus
+            />
+            <span className="field-hint">
+              {role === 'PARENT'
+                ? 'با همین شماره وارد پنل والدین می‌شوی.'
+                : 'با همین شماره وارد پنلت می‌شوی و مشاور/مؤسسه با آن با تو در ارتباط است.'}
+            </span>
+          </label>
+
+          <label className="field-label">
+            رمز عبور
+            <div className="password-wrap">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="حداقل ۸ کاراکتر، شامل حرف و عدد"
+                required
+                minLength={8}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((s) => !s)}
+                aria-label="نمایش رمز"
               >
-                <span className="step-progress-num">
-                  {idx < step ? '✓' : String(idx + 1)}
-                </span>
-                <span className="step-progress-label">{s.label}</span>
-              </li>
-            ))}
-          </ol>
+                <Ico e={showPassword ? '🙈' : '👁'} />
+              </button>
+            </div>
+          </label>
+
+          {/* والد: کد دعوت فرزند — اختیاری، تنها فیلد اضافه‌ی والد */}
+          {role === 'PARENT' && (
+            <label className="field-label span-2">
+              کد دعوت فرزند <span className="field-optional">(اختیاری)</span>
+              <input
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                placeholder="مثلاً AB2CD3EF"
+                dir="ltr"
+                maxLength={8}
+              />
+              <span className="field-hint">
+                فرزندت در «پنل دانش‌آموز» این کد را می‌سازد. با واردکردنش حسابت خودبخود به او وصل می‌شود؛
+                بدون کد هم می‌توانی ثبت‌نام کنی و بعداً از پنل والدین اتصال بدهی.
+              </span>
+            </label>
           )}
 
-          {/* مرحله ۱: اطلاعات حساب + انتخاب رشته */}
-          {step === 1 && (
-            <div className="step-panel">
-              <label className="field-label">
-                نام کامل
-                <input
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="مثلاً علی رضایی"
-                  required
-                  autoFocus
-                />
-              </label>
+          <div className="step-actions span-2">
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? 'در حال ثبت‌نام…' : <><Ico e="✓" /> ثبت‌نام</>}
+            </button>
+          </div>
 
-              <label className="field-label">
-                ایمیل
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="example@email.com"
-                  required
-                  dir="ltr"
-                />
-              </label>
-
-              <label className="field-label">
-                رمز عبور
-                <div className="password-wrap">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="حداقل ۸ کاراکتر، شامل حرف و عدد"
-                    required
-                    minLength={8}
-                  />
-                  <button
-                    type="button"
-                    className="password-toggle"
-                    onClick={() => setShowPassword((s) => !s)}
-                    aria-label="نمایش رمز"
-                  >
-                    {showPassword ? '🙈' : '👁'}
-                  </button>
-                </div>
-              </label>
-
-              {/* انتخاب رشته‌ی تحصیلی — والد رشته ندارد */}
-              {role !== 'PARENT' && (
-              <div className="field-label">
-                {role === 'STUDENT' ? 'رشته‌ی تحصیلی شما' : 'رشته‌های تخصص شما (می‌توانید چندتا انتخاب کنید)'}
-                {role === 'STUDENT' ? (
-                  // دانش‌آموز: انتخاب تکی (رادیویی)
-                  <div className="field-picker">
-                    {FIELDS.map((f) => (
-                      <button
-                        key={f.value}
-                        type="button"
-                        className={`field-card field-card-${f.color} ${field === f.value ? 'active' : ''}`}
-                        onClick={() => setField(f.value)}
-                      >
-                        <span className="field-emoji" aria-hidden>{f.emoji}</span>
-                        <span className="field-name">{f.label}</span>
-                        {field === f.value && <span className="field-check" aria-hidden>✓</span>}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  // مشاور: انتخاب چندتا (چک‌باکس)
-                  <div className="field-picker">
-                    {FIELDS.map((f) => {
-                      const isSelected = advisorFields.includes(f.value);
-                      return (
-                        <button
-                          key={f.value}
-                          type="button"
-                          className={`field-card field-card-${f.color} ${isSelected ? 'active' : ''}`}
-                          onClick={() => {
-                            setAdvisorFields((prev) =>
-                              isSelected
-                                ? prev.filter((v) => v !== f.value)
-                                : [...prev, f.value]
-                            );
-                          }}
-                        >
-                          <span className="field-emoji" aria-hidden>{f.emoji}</span>
-                          <span className="field-name">{f.label}</span>
-                          {isSelected && <span className="field-check" aria-hidden>✓</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-                <span className="field-hint">
-                  {role === 'STUDENT'
-                    ? '🎓 در مرحله‌ی بعد فقط مشاوران همین رشته به تو نشان داده می‌شوند.'
-                    : advisorFields.length === 0
-                      ? '🎓 حداقل یک رشته باید انتخاب کنی. دانش‌آموزان فقط رشته‌های تو را می‌بینند.'
-                      : `✓ ${toFaDigits(advisorFields.length)} رشته انتخاب شده: ${advisorFields.map((f) => fieldLabel(f)).join('، ')}`}
-                </span>
-              </div>
-              )}
-
-              {/* والد: ثبت‌نام تک‌مرحله‌ای — تماس الزامی + کد دعوت اختیاری */}
-              {role === 'PARENT' && (
-                <>
-                  <label className="field-label">
-                    شماره تماس
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="مثلاً ۰۹۱۲۳۴۵۶۷۸۹"
-                      dir="ltr"
-                      required
-                    />
-                    <span className="field-hint">
-                      الزامی — در صورت نیاز پشتیبانی با این شماره با تو در ارتباط است.
-                    </span>
-                  </label>
-                  <label className="field-label">
-                    کد دعوت فرزند (اختیاری)
-                    <input
-                      value={inviteCode}
-                      onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                      placeholder="مثلاً AB2CD3EF"
-                      dir="ltr"
-                      maxLength={8}
-                    />
-                    <span className="field-hint">
-                      فرزندت در «پنل دانش‌آموز» این کد را می‌سازد. با واردکردنش همین حالا به او وصل می‌شوی؛
-                      بدون کد هم می‌توانی ثبت‌نام کنی و بعداً از پنل والدین اتصال بدهی.
-                    </span>
-                  </label>
-                </>
-              )}
-
-              <div className="step-actions">
-                {step > 1 && (
-                  <button type="button" className="btn-secondary" onClick={prevStep}>
-                    بازگشت
-                  </button>
-                )}
-                {role === 'PARENT' ? (
-                  <button type="submit" className="btn-primary" disabled={loading}>
-                    {loading ? 'در حال ثبت‌نام…' : '✓ ثبت‌نام نهایی'}
-                  </button>
-                ) : (
-                  <button type="button" className="btn-primary" onClick={nextStep}>
-                    مرحله‌ی بعد ←
-                  </button>
-                )}
-              </div>
+          {error && (
+            <div className="alert alert-error span-2">
+              <span><Ico e="⚠" /></span> {error}
+            </div>
+          )}
+          {successMessage && (
+            <div className="alert alert-success span-2">
+              <span><Ico e="✓" /></span> {successMessage}
             </div>
           )}
 
-          {/* مرحله ۲: انتخاب مؤسسه از لیست */}
-          {step === 2 && (
-            <div className="step-panel">
-              <p className="step-intro">
-                {role === 'STUDENT'
-                  ? 'اگر بخشی از یک آموزشگاه هستی، آن را از لیست انتخاب کن. این مهم است چون در مرحله‌ی بعد فقط مشاوران همان آموزشگاه به تو نشان داده می‌شوند. اگر آموزشگاهی در کار نیستی، «مستقل» را انتخاب کن.'
-                  : 'اگر مشاورِ یک آموزشگاه هستی، آن را از لیست انتخاب کن تا حسابت توسط مدیر آموزشگاه تأیید شود. اگر مستقل هستی، «مستقل» را انتخاب کن تا توسط سوپرادمین تأیید شوی.'}
-              </p>
-
-              <div className="field-label">
-                آموزشگاه
-                <div className="institute-picker">
-                  <button
-                    type="button"
-                    className={`institute-card ${instituteId === '' ? 'active' : ''}`}
-                    onClick={() => setInstituteId('')}
-                  >
-                    <span className="institute-emoji" aria-hidden>👤</span>
-                    <div className="institute-info">
-                      <strong>مستقل</strong>
-                      <small>بدون آموزشگاه — تأیید توسط سوپرادمین</small>
-                    </div>
-                    {instituteId === '' && <span className="field-check" aria-hidden>✓</span>}
-                  </button>
-                  {institutes.map((inst) => (
-                    <button
-                      key={inst.id}
-                      type="button"
-                      className={`institute-card ${instituteId === inst.id ? 'active' : ''}`}
-                      onClick={() => setInstituteId(inst.id)}
-                    >
-                      <span className="institute-emoji" aria-hidden>🏫</span>
-                      <div className="institute-info">
-                        <strong>{inst.name}</strong>
-                        <small>{toFaDigits(inst.activeAdvisorCount)} مشاور فعال</small>
-                      </div>
-                      {instituteId === inst.id && <span className="field-check" aria-hidden>✓</span>}
-                    </button>
-                  ))}
-                  {institutes.length === 0 && (
-                    <p className="muted-text" style={{ fontSize: 12 }}>
-                      فعلاً آموزشگاه فعالی ثبت نشده. می‌توانی «مستقل» را انتخاب کنی.
-                    </p>
-                  )}
-                </div>
-                <span className="field-hint">
-                  {instituteId
-                    ? `🏫 در مرحله‌ی بعد فقط مشاوران «${institutes.find((i) => i.id === instituteId)?.name || ''}» نمایش داده می‌شوند.`
-                    : '👤 فقط مشاوران مستقل نمایش داده می‌شوند.'}
-                </span>
-              </div>
-
-              <div className="step-actions">
-                <button type="button" className="btn-secondary" onClick={prevStep}>
-                  بازگشت
-                </button>
-                <button type="button" className="btn-primary" onClick={nextStep}>
-                  مرحله‌ی بعد ←
-                </button>
-              </div>
-            </div>
+          {role !== 'PARENT' && (
+            <p className="field-hint span-2" style={{ textAlign: 'center' }}>
+              <Ico e="✨" /> بعد از ورود، نام و رشته/تخصصت را در یک کارت کوچک تکمیل می‌کنی — کمتر از ۲ دقیقه.
+            </p>
           )}
+        </div>
+      </form>
 
-          {/* مرحله ۳: اطلاعات پروفایل + انتخاب مشاور (کارت بصری) */}
-          {step === 3 && (
-            <div className="step-panel">
-              <label className="field-label">
-                شماره تماس
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="مثلاً ۰۹۱۲۳۴۵۶۷۸۹"
-                  dir="ltr"
-                  required
-                />
-                <span className="field-hint">
-                  الزامی — مشاور یا مؤسسه با این شماره با تو در ارتباط خواهد بود.
-                  فرمت‌ها: ۰۹۱۲۳۴۵۶۷۸۹، +۹۸۹۱۲۳۴۵۶۷۸۹
-                </span>
-              </label>
-
-              <label className="field-label">
-                {role === 'ADVISOR' ? 'توضیحات درباره‌ی شما' : 'توضیحات (اختیاری)'}
-                <textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder={
-                    role === 'ADVISOR'
-                      ? 'مثلاً: مدرس ریاضی با ۱۰ سال سابقه، فارغ‌التحصیل دانشگاه تهران…'
-                      : 'مثلاً: رشته‌ی تجربی، پایه‌ی دوازدهم، هدف کنکور ۱۴۰۴…'
-                  }
-                  rows={3}
-                  maxLength={500}
-                />
-                <span className="field-hint">
-                  {role === 'ADVISOR'
-                    ? 'این توضیحات برای سوپرادمین/مدیر مؤسسه نمایش داده می‌شود.'
-                    : 'این توضیحات برای مشاورت نمایش داده می‌شود.'}
-                </span>
-              </label>
-
-              {role === 'STUDENT' && (
-                <div className="field-label">
-                  انتخاب مشاور
-                  <span className="field-hint" style={{ marginBottom: 8 }}>
-                    {fieldEmoji(field)} {fieldLabel(field)} · {instituteId ? `🏫 ${institutes.find((i) => i.id === instituteId)?.name || ''}` : '👤 مستقل'}
-                    {' '}— بعد از انتخاب، درخواست برای مشاور ارسال می‌شود.
-                  </span>
-
-                  {advisorsLoading ? (
-                    <div className="muted-text" style={{ padding: '20px 0', textAlign: 'center' }}>
-                      <div className="spinner" style={{ margin: '0 auto 8px' }} />
-                      در حال بارگذاری مشاوران…
-                    </div>
-                  ) : advisors.length === 0 ? (
-                    <div className="empty-card small">
-                      <span className="empty-emoji" aria-hidden>🔍</span>
-                      <p>فعلاً مشاوری برای این فیلتر وجود ندارد.</p>
-                      <p className="muted-text" style={{ fontSize: 12 }}>
-                        می‌توانی به مرحله‌ی قبل برگردی و مؤسسه یا رشته‌ی دیگری انتخاب کنی.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="advisor-card-grid">
-                      {advisors.map((a) => (
-                        <button
-                          key={a.id}
-                          type="button"
-                          className={`advisor-pick-card ${advisorId === a.id ? 'selected' : ''}`}
-                          onClick={() => setAdvisorId(a.id)}
-                        >
-                          <div className="advisor-pick-avatar">
-                            {a.photoUrl ? (
-                              <img src={a.photoUrl} alt="" className="avatar-photo" />
-                            ) : (
-                              (a.fullName || '؟').charAt(0)
-                            )}
-                          </div>
-                          <div className="advisor-pick-body">
-                            <strong className="advisor-pick-name">{a.fullName}</strong>
-                            {/* نمایش همه‌ی رشته‌های تخصص مشاور */}
-                            {a.fields && a.fields.length > 0 && (
-                              <div className="advisor-pick-fields">
-                                {a.fields.map((f) => (
-                                  <span
-                                    key={f}
-                                    className={`advisor-pick-field field-pill-${f.toLowerCase().replace('_', '-')}`}
-                                  >
-                                    {fieldEmoji(f)} {fieldLabel(f)}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                            {a.bio && (
-                              <p className="advisor-pick-bio">{a.bio}</p>
-                            )}
-                            <span className="advisor-pick-stats">
-                              👥 {toFaDigits(a.activeStudentCount)} دانش‌آموز فعال
-                            </span>
-                          </div>
-                          {advisorId === a.id && (
-                            <span className="advisor-pick-check" aria-hidden>✓</span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {error && (
-                <div className="alert alert-error">
-                  <span>⚠</span> {error}
-                </div>
-              )}
-              {successMessage && (
-                <div className="alert alert-success">
-                  <span>✓</span> {successMessage}
-                </div>
-              )}
-
-              <div className="step-actions">
-                <button type="button" className="btn-secondary" onClick={prevStep} disabled={loading}>
-                  بازگشت
-                </button>
-                <button type="submit" className="btn-primary" disabled={loading || (role === 'STUDENT' && !advisorId)}>
-                  {loading ? 'در حال ثبت‌نام…' : '✓ ثبت‌نام نهایی'}
-                </button>
-              </div>
-            </div>
-          )}
-
-        </form>
+        <div className="auth-institute-entry">
+          <span>مدیر آموزشگاه یا مدرسه هستید؟</span>{' '}
+          <Link to="/register/institute">
+            درخواست ثبت آموزشگاه <span aria-hidden="true">←</span>
+          </Link>
+        </div>
 
         <div className="auth-min-footer">
           از قبل حساب داری؟ <Link to="/login">وارد شو</Link>
         </div>
-        </div>
       </div>
     </div>
+      </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { toFaDigits } from '../utils/jalali';
+import Ico from './Ico';
 
 const STEP = 0.25;
 
@@ -59,7 +60,7 @@ export default function Zoomable({ children, className, minZoom = 0.5, maxZoom =
       const ref = pinchRef.current;
       if (ref.d0 > 0) {
         const ratio = d / ref.d0;
-        setZoom((z) => clamp(ref.z0 * ratio));
+        setZoom(() => clamp(ref.z0 * ratio));
       }
     }
   }
@@ -84,7 +85,7 @@ export default function Zoomable({ children, className, minZoom = 0.5, maxZoom =
   return (
     <div className={`zoom-wrap ${className || ''}`}>
       <div className="zoom-toolbar">
-        <span className="zoom-label">🔍</span>
+        <span className="zoom-label"><Ico e="🔍" /></span>
         <button type="button" className="zoom-btn" onClick={() => setZoom(clamp(zoom - step))} aria-label="کوچک‌تر">−</button>
         <span className="zoom-value">{toFaDigits(Math.round(effectiveZoom * 100))}٪</span>
         <button type="button" className="zoom-btn" onClick={() => setZoom(clamp(zoom + step))} aria-label="بزرگ‌تر">+</button>

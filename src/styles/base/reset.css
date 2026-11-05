@@ -1,0 +1,80 @@
+/* ===== Reset & Base ===== */
+
+/* ===================================================================
+   پلتفرم برنامه‌ریزی مطالعاتی کنکور — نسخه‌ی ۳
+   طراحی جوان‌پسند برای سنین ۱۵ تا ۱۸ سال
+   =================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+
+/* ===================================================================
+   دکمه‌ی نصب در صفحه‌ی معرفی، راهنمای نصب، و فلش ساعت
+   =================================================================== */
+.landing-install-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  background: transparent;
+  color: var(--indigo-deep);
+  border: 2px solid var(--indigo);
+  cursor: pointer;
+  box-shadow: none;
+  white-space: nowrap;
+}
+.landing-install-btn:hover {
+  background: var(--indigo-soft);
+  transform: none;
+  box-shadow: none;
+}
+@media (max-width: 420px) {
+  .landing-install-btn {
+    padding: 7px 11px;
+    font-size: 12.5px;
+  }
+  .landing-install-btn .btn-label {
+    display: none;
+  } /* در عرض خیلی کم فقط نشانه */
+}
+
+.install-help-modal {
+  max-width: 400px;
+  text-align: right;
+}
+.install-help-title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--indigo-deep);
+  text-align: center;
+}
+.install-help-steps {
+  margin: 0 0 16px;
+  padding-inline-start: 22px;
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--ink);
+}
+
+.time-pill-arrow {
+  font-size: 13px;
+  font-weight: 800;
+  margin-inline: 2px;
+}

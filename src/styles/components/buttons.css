@@ -1,0 +1,170 @@
+/* ===== Buttons ===== */
+
+/* ----- دکمه‌ها ----- */
+button {
+  padding: 11px 18px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--indigo);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+  box-shadow: 0 2px 8px rgba(27, 31, 59, 0.15);
+}
+
+/* قانون hover فقط برای دکمه‌های اصلی و ثانویه — دکمه‌های شفاف و اختصاصی hover خودشان را دارند */
+button.btn-primary:hover:not(:disabled),
+button:hover:not(:disabled).btn-primary {
+  background: var(--indigo-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(27, 31, 59, 0.25);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: var(--indigo);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: var(--sheet);
+  color: var(--indigo);
+  border: 1px solid var(--hairline);
+  box-shadow: none;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--indigo-soft);
+  border-color: var(--indigo);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--hairline);
+  box-shadow: none;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--paper);
+  color: var(--brick);
+  border-color: var(--brick);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-icon {
+  background: var(--sheet);
+  color: var(--ink-soft);
+  border: 1px solid var(--hairline);
+  padding: 8px 12px;
+  box-shadow: none;
+  font-size: 16px;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  border-color: var(--indigo);
+}
+
+.btn-icon.danger:hover:not(:disabled) {
+  background: var(--brick-soft);
+  color: var(--brick);
+  border-color: var(--brick);
+}
+
+.btn-icon-only {
+  background: transparent;
+  border: none;
+  color: var(--ink-muted);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  box-shadow: none;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.btn-icon-only:hover {
+  background: var(--brick-soft);
+  color: var(--brick);
+}
+
+
+/* --- ردیف دکمه‌های فرم احراز هویت --- */
+.auth-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-form-actions .btn-secondary {
+  flex: 0 0 auto;
+}
+.auth-form-actions .btn-primary {
+  flex: 1;
+}
+
+/* لینک‌هایی (Link/anchor) که کلاس دکمه دارند — چون قاعده‌ی پایه‌ی دکمه فقط
+   روی elementهای button اعمال می‌شود، این کلاس همان ظاهر را به anchor می‌دهد.
+   بدون این، «بازگشت به ورود» به‌صورت متن لخت و بدون padding رندر می‌شد. */
+a.auth-btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+a.auth-btn-link.btn-primary {
+  background: var(--indigo);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(27, 31, 59, 0.15);
+}
+
+a.auth-btn-link.btn-primary:hover {
+  background: var(--indigo-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(27, 31, 59, 0.25);
+}
+
+/* در موبایل دکمه‌های فرم احراز هویت تمام‌عرض شوند */
+@media (max-width: 600px) {
+  .auth-form-actions {
+    flex-direction: column-reverse;
+  }
+  .auth-form-actions .btn-primary,
+  .auth-form-actions .btn-secondary,
+  .auth-form-actions a.auth-btn-link {
+    width: 100%;
+  }
+}

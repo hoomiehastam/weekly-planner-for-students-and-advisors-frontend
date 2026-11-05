@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /student
+Disallow: /advisor
+Disallow: /institute
+Disallow: /parent
+Disallow: /deposit
+Disallow: /reset-password
+Disallow: /change-password
+
+Sitemap: https://daneshamoozino.ir/sitemap.xml

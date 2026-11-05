@@ -3,6 +3,7 @@ import { startExam, saveExamAnswer, submitExam } from '../api/client';
 import { useToast } from '../context/ToastContext';
 import { toFaDigits } from '../utils/jalali';
 import ConfirmModal from './ConfirmModal';
+import Ico from './Ico';
 
 // فرمت «mm:ss» یا «hh:mm:ss» با ارقام فارسی
 function formatCountdown(ms) {
@@ -307,7 +308,7 @@ export default function ExamTaker({ exam, onClose, onReview }) {
       <div className="modal-overlay" onClick={onClose}>
         <div className="exam-taker-modal" onClick={(e) => e.stopPropagation()}>
           <div className="exam-result">
-            <div className="exam-result-emoji">{isAutoGraded ? '🎉' : '✅'}</div>
+            <div className="exam-result-emoji"><Ico e={isAutoGraded ? '🎉' : '✅'} /></div>
             <h3>آزمون ارسال شد!</h3>
             {submitResult.maxScore !== undefined && (
               <p className="exam-result-score">
@@ -332,7 +333,7 @@ export default function ExamTaker({ exam, onClose, onReview }) {
                     onReview(exam.id);
                   }}
                 >
-                  🔍 مشاهده پاسخ‌ها
+                  <Ico e="🔍" /> مشاهده پاسخ‌ها
                 </button>
               )}
             </div>
@@ -347,7 +348,7 @@ export default function ExamTaker({ exam, onClose, onReview }) {
       <div className="modal-overlay" onClick={onClose}>
         <div className="exam-taker-modal" onClick={(e) => e.stopPropagation()}>
           <div className="alert alert-error">
-            <span>⚠</span> {error}
+            <span><Ico e="⚠" /></span> {error}
           </div>
           <button className="btn-primary" onClick={onClose}>بستن</button>
         </div>
@@ -387,8 +388,8 @@ export default function ExamTaker({ exam, onClose, onReview }) {
             <h3>{fullExam.title}</h3>
             {fullExam.description && <p className="muted-text">{fullExam.description}</p>}
             <div className="exam-meta">
-              <span>📝 {toFaDigits(questions.length)} سؤال</span>
-              <span>✍️ {toFaDigits(answeredCount)} پاسخ داده‌شده</span>
+              <span><Ico e="📝" /> {toFaDigits(questions.length)} سؤال</span>
+              <span><Ico e="✍" /> {toFaDigits(answeredCount)} پاسخ داده‌شده</span>
             </div>
           </div>
           <div className="exam-timer-wrap">
@@ -406,7 +407,7 @@ export default function ExamTaker({ exam, onClose, onReview }) {
             )}
           </div>
           <button className="btn-icon-only" onClick={onClose} aria-label="بستن">
-            ✕
+            <Ico e="✕" />
           </button>
         </div>
 
@@ -523,7 +524,7 @@ export default function ExamTaker({ exam, onClose, onReview }) {
         {/* ردیف نهایی: ذخیره و خروج + ارسال */}
         <div className="exam-taker-actions">
           <button className="btn-primary" onClick={handleSubmit} disabled={submitting || late}>
-            {submitting ? 'در حال ارسال…' : '📤 ارسال نهایی'}
+            {submitting ? 'در حال ارسال…' : <><Ico e="📤" /> ارسال نهایی</>}
           </button>
           <button className="btn-secondary" onClick={onClose}>
             ذخیره و بستن
@@ -533,7 +534,7 @@ export default function ExamTaker({ exam, onClose, onReview }) {
         {showSubmitConfirm && (
           <ConfirmModal
             message="آیا از ارسال نهایی آزمون مطمئنی؟ بعد از ارسال قابل تغییر نیست."
-            confirmText="📤 بله، ارسال کن"
+            confirmText="ارسال کن"
             danger={false}
             onConfirm={confirmSubmit}
             onCancel={() => setShowSubmitConfirm(false)}
@@ -561,7 +562,7 @@ export default function ExamTaker({ exam, onClose, onReview }) {
               {unansweredIdx.length > 0 ? (
                 <>
                   <p className="exam-finalcall-title">
-                    ⏳ {toFaDigits(unansweredIdx.length)} سؤال بی‌پاسخ مانده
+                    <Ico e="⏳" /> {toFaDigits(unansweredIdx.length)} سؤال بی‌پاسخ مانده
                   </p>
                   <div className="exam-finalcall-chips">
                     {unansweredIdx.map((i) => (
@@ -581,7 +582,7 @@ export default function ExamTaker({ exam, onClose, onReview }) {
                   </p>
                 </>
               ) : (
-                <p className="exam-finalcall-title">به همه‌ی سؤال‌ها پاسخ دادی! 🎯</p>
+                <p className="exam-finalcall-title">به همه‌ی سؤال‌ها پاسخ دادی! <Ico e="🎯" /></p>
               )}
 
               <p className="exam-finalcall-note">
@@ -589,7 +590,7 @@ export default function ExamTaker({ exam, onClose, onReview }) {
               </p>
               <div className="confirm-modal-actions">
                 <button className="btn-primary" onClick={confirmSubmit}>
-                  📤 همان حالا ارسال کن
+                  <Ico e="📤" /> همان حالا ارسال کن
                 </button>
                 <button
                   className="btn-secondary"

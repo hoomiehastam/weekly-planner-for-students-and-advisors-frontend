@@ -1,0 +1,1005 @@
+/* ===== Deposit & Subscriptions ===== */
+
+/* ============================================================
+   صفحه‌ی واریز / تمدید اشتراک (DepositPage)
+   ============================================================ */
+.deposit-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deposit-panel {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.deposit-panel h2 {
+  font-size: 16px;
+  margin: 0;
+  color: var(--ink);
+}
+
+.subscription-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  border: 1px solid var(--hairline);
+}
+
+.subscription-chip.ok {
+  background: var(--sage-soft);
+  border-color: transparent;
+}
+.subscription-chip.expired {
+  background: var(--brick-soft);
+  border-color: transparent;
+}
+
+.subscription-chip .chip-label {
+  font-weight: 600;
+}
+.subscription-chip .chip-date {
+  color: var(--ink-soft);
+}
+
+.expired-banner {
+  background: var(--brick-soft);
+  color: var(--brick);
+  border: 1px solid var(--brick);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.expired-banner.warn {
+  background: var(--amber-soft);
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+.card-number-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--indigo), #332a8f);
+  color: #fff;
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.card-number {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  text-align: center;
+}
+
+.card-holder {
+  font-size: 13px;
+  opacity: 0.9;
+  text-align: center;
+}
+.card-number-box .muted-text {
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+}
+
+.deposit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.receipt-preview img,
+.receipt-full {
+  max-width: 100%;
+  max-height: 260px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  object-fit: contain;
+}
+
+.deposit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deposit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  flex-wrap: wrap;
+}
+
+.deposit-item.status-approved {
+  border-color: var(--sage);
+}
+.deposit-item.status-rejected {
+  border-color: var(--brick);
+}
+
+.deposit-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.deposit-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.deposit-payer {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.deposit-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.deposit-actions .btn-danger {
+  background: var(--brick);
+  border-color: var(--brick);
+  color: #fff;
+}
+
+.status-pill.rejected {
+  background: var(--brick-soft);
+  color: var(--brick);
+}
+
+/* موبایل: کارت‌ها تمام‌عرض */
+@media (max-width: 640px) {
+  .deposit-item {
+    flex-direction: column;
+  }
+  .deposit-thumb {
+    width: 100%;
+    height: 160px;
+    object-fit: contain;
+  }
+}
+
+
+/* ============================================================
+   کارت بانکی واریز — ویژوال بهبودیافته
+   ============================================================ */
+.bank-card {
+  position: relative;
+  border-radius: 18px;
+  padding: 20px 22px;
+  color: #fff;
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.18) 0%, transparent 55%),
+    linear-gradient(135deg, var(--indigo) 0%, #37299a 55%, #241a6b 100%);
+  box-shadow: 0 12px 28px -14px rgba(35, 25, 105, 0.55);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bank-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.08) 45%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.bank-card-own {
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.16) 0%, transparent 55%),
+    linear-gradient(135deg, #1d6d4c 0%, #155c3f 60%, #0f4a31 100%);
+  box-shadow: 0 12px 28px -14px rgba(15, 74, 49, 0.5);
+}
+
+.bank-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bank-card-chip {
+  width: 38px;
+  height: 28px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #f5d67b 0%, #d9a93f 60%, #b8862b 100%);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.bank-card-chip::after {
+  content: '';
+  position: absolute;
+  inset: 5px 7px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 3px;
+}
+
+.bank-card-kind {
+  font-size: 12px;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.bank-card-number {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.bank-card-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bank-card-holder {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.bank-card-holder small {
+  font-size: 10.5px;
+  opacity: 0.7;
+}
+
+.bank-card-holder span {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.bank-card-copy {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease;
+  font-family: inherit;
+}
+
+.bank-card-copy:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.bank-card-copy:active {
+  transform: scale(0.97);
+}
+.bank-card-copy.copied {
+  background: rgba(122, 220, 175, 0.35);
+  border-color: transparent;
+}
+.bank-card-copy-main {
+  align-self: center;
+}
+
+.bank-card-shaba {
+  font-size: 12px;
+  letter-spacing: 1px;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  border-top: 1px dashed rgba(255, 255, 255, 0.25);
+  padding-top: 8px;
+}
+
+.deposit-target-hint {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--ink-soft);
+  background: var(--indigo-soft, rgba(74, 63, 190, 0.08));
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+/* --- دراپ‌زون انتخاب عکس رسید --- */
+.receipt-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 28px 16px;
+  border: 2px dashed var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--canvas, transparent);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.receipt-dropzone:hover {
+  border-color: var(--indigo);
+  background: rgba(74, 63, 190, 0.05);
+}
+
+.receipt-dropzone .dropzone-emoji {
+  font-size: 34px;
+  line-height: 1;
+}
+.receipt-dropzone strong {
+  font-size: 14.5px;
+  color: var(--ink);
+}
+.receipt-dropzone small {
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+.receipt-dropzone .dropzone-hint {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.receipt-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.receipt-preview img {
+  max-height: 300px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.25);
+}
+
+.receipt-preview-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* موبایل: کارت بانکی جمع‌وجورتر */
+@media (max-width: 640px) {
+  .bank-card-number {
+    font-size: 19px;
+    letter-spacing: 2px;
+  }
+  .bank-card {
+    padding: 16px 18px;
+  }
+}
+
+
+/* ============================================================
+   مبلغ ماهانه در صفحه‌ی واریز و مودال تأیید
+   ============================================================ */
+
+.monthly-price-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--sage-soft, rgba(61, 139, 95, 0.1));
+  border: 1px solid var(--sage, #3d8b5f);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 14px;
+}
+
+.monthly-price-label {
+  color: var(--ink-muted);
+  font-size: 12.5px;
+}
+
+.auto-days-box {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 10px 14px;
+  background: var(--indigo-soft, rgba(74, 63, 190, 0.08));
+  border: 1px solid var(--indigo);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 13.5px;
+}
+
+.auto-days-box .field-hint {
+  width: 100%;
+  font-size: 11px;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--ink-muted);
+}
+
+
+/* ===================================================================
+   صفحه‌های جانبی: واریز، ۴۰۴، خطا، لودینگ تمام‌صفحه، تغییر/بازیابی رمز
+   =================================================================== */
+/* --- لودینگ تمام‌صفحه --- */
+.fullscreen-loading {
+  background: var(--paper);
+  gap: 14px;
+}
+.fullscreen-loading .loading-logo {
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.22);
+  border-radius: 18px;
+  animation: floaty 2.4s var(--ease) infinite;
+}
+.fullscreen-loading .loading-title {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+.fullscreen-loading .loading-sub {
+  color: var(--ink-soft);
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.spinner {
+  border-color: var(--hairline);
+  border-top-color: var(--indigo);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fullscreen-loading .loading-logo {
+    animation: none;
+  }
+}
+
+/* --- ۴۰۴ و خطا --- */
+.not-found-page,
+.error-boundary {
+  background: transparent;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.not-found-card,
+.error-boundary-card {
+  position: relative;
+  max-width: 520px;
+  width: 100%;
+  padding: 40px 32px;
+  text-align: center;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 28px;
+  box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.08);
+}
+.not-found-emoji,
+.error-emoji {
+  width: 68px;
+  height: 68px;
+  margin: -68px auto 16px;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--indigo), #818cf8);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+}
+.not-found-card h1 {
+  font-size: clamp(3.5rem, 2.8rem + 5vw, 6rem);
+  line-height: 1;
+  margin: 12px 0 8px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--indigo), #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.not-found-card h2,
+.error-boundary-card h2 {
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+.not-found-card p,
+.error-boundary-card p {
+  color: var(--ink-soft);
+  margin: 0 0 22px;
+}
+.not-found-card .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 26px;
+  text-decoration: none;
+  border-radius: 999px;
+}
+.error-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.error-actions > * {
+  border-radius: 999px;
+}
+.error-details {
+  margin-top: 18px;
+  text-align: start;
+}
+.error-details pre {
+  overflow-x: auto;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--paper);
+  border: 1.5px solid var(--hairline);
+  font-size: 12px;
+  direction: ltr;
+}
+
+/* --- تغییر و بازیابی رمز: همان کارت ورود --- */
+.auth-shell {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 84px 16px 32px;
+}
+.auth-shell .auth-card {
+  max-width: 460px;
+  width: 100%;
+  padding: 32px 28px;
+  border-radius: 28px;
+  border: 1px solid var(--hairline);
+  box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.08);
+}
+.auth-card-head h1 {
+  font-size: clamp(1.4rem, 1.2rem + 1vw, 1.9rem);
+  font-weight: 900;
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.auth-card-head p {
+  color: var(--ink-soft);
+}
+.auth-theme-toggle {
+  top: calc(16px + var(--safe-t));
+}
+.alert {
+  border-radius: 14px;
+  border: 2px solid currentColor;
+  font-weight: 700;
+}
+.alert-error {
+  background: var(--amber-soft);
+  color: var(--amber-ink);
+}
+.alert-success {
+  background: var(--sage-soft);
+  color: var(--sage-ink);
+}
+.alert-info {
+  background: var(--sky-soft);
+  color: var(--sky-ink);
+}
+.alert > span,
+.alert .ico {
+  color: inherit;
+}
+
+/* --- واریز --- */
+.deposit-page {
+  min-height: 100dvh;
+}
+.deposit-main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px calc(40px + var(--safe-b));
+  display: grid;
+  gap: 20px;
+}
+.deposit-panel {
+  padding: 22px;
+  background: var(--sheet);
+  border: 2px solid var(--hairline);
+  border-radius: 22px;
+  display: grid;
+  gap: 14px;
+}
+.deposit-panel > h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 900;
+  padding-bottom: 12px;
+  border-bottom: 2px dashed var(--hairline);
+}
+.deposit-list {
+  display: grid;
+  gap: 12px;
+}
+.deposit-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--paper);
+  border: 2px solid var(--hairline);
+  border-inline-start: 6px solid var(--amber);
+}
+.deposit-item.status-approved {
+  border-inline-start-color: var(--sage);
+}
+.deposit-item.status-rejected {
+  border-inline-start-color: #d64545;
+}
+.deposit-thumb {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 2px solid var(--indigo);
+  box-shadow: var(--pop-sm);
+  background: var(--sheet);
+}
+.deposit-info {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.deposit-payer {
+  font-weight: 900;
+}
+.deposit-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: none;
+}
+.btn-danger {
+  background: var(--sheet);
+  color: #d64545;
+  border: 2px solid #d64545;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  min-height: 42px;
+  padding: 0 16px;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #d64545;
+  color: #fff;
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 #7a1f1f;
+}
+
+/* کارت بانکی: شبیه کارت واقعی با گرادیان برند لوکس ۲۰۲۶ */
+.bank-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 220px;
+  padding: 24px 26px;
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(135deg, #1e1b4b 0%, #2e287a 45%, #17153b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 45px -10px rgba(30, 27, 75, 0.45), 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.bank-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 25px 50px -12px rgba(30, 27, 75, 0.55);
+}
+.bank-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(115deg, transparent 25%, rgba(255, 255, 255, 0.1) 45%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.05) 55%, transparent 75%);
+  pointer-events: none;
+}
+.bank-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(circle at 85% 15%, rgba(99, 102, 241, 0.4), transparent 50%),
+              radial-gradient(circle at 15% 85%, rgba(245, 158, 11, 0.2), transparent 50%);
+  pointer-events: none;
+}
+.bank-card-own {
+  background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #064e3b 100%);
+  border-color: rgba(52, 211, 153, 0.3);
+  box-shadow: 0 20px 45px -10px rgba(6, 78, 59, 0.45);
+}
+.bank-card-own::before {
+  background: radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.4), transparent 50%),
+              radial-gradient(circle at 15% 85%, rgba(6, 182, 212, 0.25), transparent 50%);
+}
+.bank-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+.bank-card-chip {
+  width: 44px;
+  height: 32px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 2px 6px rgba(0, 0, 0, 0.2);
+  position: relative;
+  flex-shrink: 0;
+}
+.bank-card-chip::before {
+  content: '';
+  position: absolute;
+  inset: 5px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+.bank-card-chip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.2);
+}
+.bank-card-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.12);
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+}
+.bank-card-number {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-weight: 800;
+  font-size: clamp(1.25rem, 1rem + 1.2vw, 1.65rem);
+  letter-spacing: 0.14em;
+  direction: ltr;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  font-variant-numeric: tabular-nums;
+  margin: 10px 0;
+  position: relative;
+  z-index: 2;
+}
+.bank-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+.bank-card-holder small {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.bank-card-holder span {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.bank-card-shaba {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  direction: ltr;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.18);
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  position: relative;
+  z-index: 2;
+  word-break: break-all;
+}
+.bank-card-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bank-card-copy:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+.bank-card-copy:active {
+  transform: scale(0.97);
+}
+.bank-card-copy.copied {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+.bank-card-copy-main {
+  width: 100%;
+  min-height: 44px;
+  font-size: 13.5px;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.12));
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+.bank-card-copy-main:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.18));
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.monthly-price-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  margin: 14px 0;
+}
+.monthly-price-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.monthly-price-box strong {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--indigo);
+}
+.deposit-target-hint {
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: var(--indigo-soft);
+  color: var(--indigo-deep);
+  font-size: 13.5px;
+  line-height: 1.8;
+  border: 1px solid color-mix(in srgb, var(--indigo) 20%, transparent);
+}
+
+@media (max-width: 600px) {
+  .deposit-panel {
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .deposit-item {
+    flex-wrap: wrap;
+  }
+  .deposit-actions {
+    flex-direction: row;
+    width: 100%;
+  }
+  .deposit-actions > * {
+    flex: 1;
+  }
+  .bank-card {
+    padding: 18px;
+    box-shadow: 4px 4px 0 #ff8a3d;
+  }
+  .not-found-card,
+  .error-boundary-card {
+    padding: 36px 20px 28px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  }
+  .auth-shell .auth-card {
+    padding: 24px 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  }
+}
+
+
+/* ===================================================================
+   کارت شماره‌ی واریز پلتفرم — هماهنگی رنگ در حالت روشن
+   علت: زمینه‌ی کارت در این پوسته لاوندر روشن است ولی رنگ نوشته‌ها از طراحی قبلی سفید مانده بود.
+   =================================================================== */
+.card-number-box {
+  color: var(--ink);
+}
+.card-number-box .card-number {
+  color: var(--indigo-deep);
+}
+.card-number-box .card-holder,
+.card-number-box .muted-text {
+  color: var(--ink-soft);
+  opacity: 1;
+  font-weight: 700;
+}

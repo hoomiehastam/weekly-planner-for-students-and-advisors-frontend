@@ -3,6 +3,7 @@ import { updateMyProfile, updateMyPhoto, changeMyPassword } from '../api/client'
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { toFaDigits } from '../utils/jalali';
+import Ico from './Ico';
 
 // مودال ویرایش پروفایل کاربر
 // محدودیت‌ها:
@@ -98,7 +99,7 @@ export default function ProfileModal({ onClose }) {
         updateUser(data.user);
       }
 
-      setSuccess('پروفایل به‌روزرسانی شد ✓');
+      setSuccess('پروفایل به‌روزرسانی شد');
 
       // بستن مودال پس از ۱.۵ ثانیه
       setTimeout(() => {
@@ -171,7 +172,7 @@ export default function ProfileModal({ onClose }) {
       const payload = { newPassword };
       if (!auth.mustChangePassword) payload.currentPassword = currentPassword;
       const res = await changeMyPassword(payload);
-      setPwSuccess(res.message || 'رمز عبور تغییر کرد ✓');
+      setPwSuccess(res.message || 'رمز عبور تغییر کرد');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -187,15 +188,15 @@ export default function ProfileModal({ onClose }) {
       <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
         <div className="profile-modal-head">
           <h3>
-            <span aria-hidden>👤</span> ویرایش پروفایل
+            <span aria-hidden><Ico e="👤" /></span> ویرایش پروفایل
           </h3>
           <button className="btn-icon-only" onClick={onClose} aria-label="بستن">
-            ✕
+            <Ico e="✕" />
           </button>
         </div>
 
         {/* --- عکس پروفایل --- */}
-        <div className="profile-photo-block">
+        <div className="profile-photo-block" data-tour="pf-photo">
           <div className="profile-photo-wrap">
             {photoUrl ? (
               <img src={photoUrl} alt="عکس پروفایل" className="profile-photo-img" />
@@ -213,7 +214,7 @@ export default function ProfileModal({ onClose }) {
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingPhoto}
             >
-              📷 {photoUrl ? 'تغییر عکس' : 'انتخاب عکس'}
+              <Ico e="📷" /> {photoUrl ? 'تغییر عکس' : 'انتخاب عکس'}
             </button>
             {photoUrl && (
               <button
@@ -222,7 +223,7 @@ export default function ProfileModal({ onClose }) {
                 onClick={handlePhotoRemove}
                 disabled={uploadingPhoto}
               >
-                🗑 حذف عکس
+                <Ico e="🗑" /> حذف عکس
               </button>
             )}
             <input
@@ -239,7 +240,7 @@ export default function ProfileModal({ onClose }) {
 
         <form onSubmit={handleSubmit} className="profile-form">
           {/* نام کامل — برای دانش‌آموز قفل است */}
-          <label className="field-label">
+          <label className="field-label" data-tour="pf-name">
             نام کامل
             <input
               type="text"
@@ -251,13 +252,13 @@ export default function ProfileModal({ onClose }) {
             />
             {isStudent && (
               <span className="field-hint warning-hint">
-                🔒 تغییر نام برای دانش‌آموز غیرفعال است. در صورت نیاز با مشاور یا سوپرادمین تماس بگیرید.
+                <Ico e="🔒" /> تغییر نام برای دانش‌آموز غیرفعال است. در صورت نیاز با مشاور یا سوپرادمین تماس بگیرید.
               </span>
             )}
           </label>
 
           {/* ایمیل — فقط خواندنی */}
-          <label className="field-label">
+          <label className="field-label" data-tour="pf-email">
             ایمیل
             <input
               type="email"
@@ -269,7 +270,7 @@ export default function ProfileModal({ onClose }) {
           </label>
 
           {/* شماره تماس */}
-          <label className="field-label">
+          <label className="field-label" data-tour="pf-phone">
             شماره تماس
             <input
               type="tel"
@@ -284,7 +285,7 @@ export default function ProfileModal({ onClose }) {
           </label>
 
           {/* توضیحات */}
-          <label className="field-label">
+          <label className="field-label" data-tour="pf-bio">
             {isStudent ? 'توضیحات (اختیاری)' : 'توضیحات درباره‌ی شما'}
             <textarea
               value={bio}
@@ -304,18 +305,18 @@ export default function ProfileModal({ onClose }) {
 
           {error && (
             <div className="alert alert-error">
-              <span>⚠</span> {error}
+              <span><Ico e="⚠" /></span> {error}
             </div>
           )}
           {success && (
             <div className="alert alert-success">
-              <span>✓</span> {success}
+              <span><Ico e="✓" /></span> {success}
             </div>
           )}
 
-          <div className="profile-form-actions">
+          <div className="profile-form-actions" data-tour="pf-actions">
             <button type="submit" className="btn-primary" disabled={saving}>
-              {saving ? 'در حال ذخیره…' : '💾 ذخیره تغییرات'}
+              {saving ? 'در حال ذخیره…' : <><Ico e="💾" /> ذخیره تغییرات</>}
             </button>
             <button type="button" className="btn-secondary" onClick={onClose}>
               انصراف
@@ -324,26 +325,26 @@ export default function ProfileModal({ onClose }) {
         </form>
 
         {/* --- تغییر رمز عبور --- */}
-        <div className="profile-password-section">
+        <div className="profile-password-section" data-tour="pf-password">
           {!showPasswordForm ? (
             <button
               type="button"
               className="btn-secondary btn-block"
               onClick={() => setShowPasswordForm(true)}
             >
-              🔑 تغییر رمز عبور
+              <Ico e="🔑" /> تغییر رمز عبور
             </button>
           ) : (
             <form onSubmit={handlePasswordSubmit} className="profile-form">
               <div className="profile-password-head">
-                <strong>🔑 تغییر رمز عبور</strong>
+                <strong><Ico e="🔑" /> تغییر رمز عبور</strong>
                 <button
                   type="button"
                   className="btn-icon-only"
                   onClick={() => { setShowPasswordForm(false); setPwError(''); setPwSuccess(''); }}
                   aria-label="بستن بخش تغییر رمز"
                 >
-                  ✕
+                  <Ico e="✕" />
                 </button>
               </div>
 
@@ -388,17 +389,17 @@ export default function ProfileModal({ onClose }) {
 
               {pwError && (
                 <div className="alert alert-error">
-                  <span>⚠</span> {pwError}
+                  <span><Ico e="⚠" /></span> {pwError}
                 </div>
               )}
               {pwSuccess && (
                 <div className="alert alert-success">
-                  <span>✓</span> {pwSuccess}
+                  <span><Ico e="✓" /></span> {pwSuccess}
                 </div>
               )}
 
               <button type="submit" className="btn-primary btn-block" disabled={savingPw}>
-                {savingPw ? 'در حال ذخیره…' : '✓ ذخیره‌ی رمز جدید'}
+                {savingPw ? 'در حال ذخیره…' : <><Ico e="✓" /> ذخیره‌ی رمز جدید</>}
               </button>
             </form>
           )}

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import Ico from '../components/Ico';
 
 const ToastContext = createContext(null);
 
@@ -36,13 +37,13 @@ export function ToastProvider({ children }) {
             onClick={() => dismiss(t.id)}
           >
             <span className="toast-icon">
-              {t.type === 'success' && '✅'}
-              {t.type === 'error' && '⚠'}
-              {t.type === 'info' && 'ℹ'}
-              {t.type === 'warning' && '⚠️'}
+              {t.type === 'success' && <Ico e="✅" />}
+              {t.type === 'error' && <Ico e="⚠" />}
+              {t.type === 'info' && <Ico e="ℹ" />}
+              {t.type === 'warning' && <Ico e="⚠️" />}
             </span>
             <span className="toast-message">{t.message}</span>
-            <button className="toast-close" onClick={() => dismiss(t.id)}>✕</button>
+            <button className="toast-close" onClick={() => dismiss(t.id)}><Ico e="✕" /></button>
           </div>
         ))}
       </div>

@@ -1,0 +1,713 @@
+/* ===== Inputs & Form Elements ===== */
+
+/* ----- ورودی‌ها ----- */
+input,
+select,
+textarea {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--hairline);
+  background: var(--paper);
+  font-family: inherit;
+  font-size: 14.5px;
+  color: var(--ink);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  width: 100%;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 4px rgba(74, 63, 190, 0.12);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-muted);
+}
+
+/* ----- فوکوس کیبورد: حلقه‌ی یکنواخت برای کاربران صفحه‌کلید -----
+   (ماوس‌کاربران حلقه نمی‌بینند — فقط پیمایش با Tab این را نشان می‌دهد) */
+:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+[data-theme='dark'] :focus-visible {
+  outline-color: var(--sky);
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-ghost:focus-visible {
+  outline-offset: 3px;
+}
+
+
+/* ============================================================
+   نسخه‌ی ۱۲ — شماره تماس و توضیحات کاربر
+   ============================================================ */
+
+/* --- فیلدهای ثبت‌نام --- */
+.field-hint {
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* --- کارت اطلاعات تماس مشاور در پنل دانش‌آموز ---
+   نکته‌ی دارک‌مود: متغیرهای --indigo در تم تیره به رنگ‌های روشن تغییر می‌کنند؛
+   اگر کارت از آن‌ها استفاده کند، متن سفید روی زمینه‌ی روشن گم می‌شود. برای همین
+   رنگ‌های کارت ثابت و سرمه‌ای‌اند (مثل کانسپت) و در هر دو تم یکسان می‌مانند. */
+.advisor-contact-card {
+  background: linear-gradient(135deg, #1b1f3b 0%, #14172b 100%);
+  color: #fff;
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .advisor-contact-card {
+  background: linear-gradient(135deg, #262a47 0%, #1a1d36 100%);
+  border: 0.5px solid #3e4266;
+}
+
+.advisor-contact-card::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(255, 138, 61, 0.25), transparent 70%);
+  pointer-events: none;
+}
+
+.advisor-contact-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.advisor-contact-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #fbe7d6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: #b8501e;
+  box-shadow: 0 4px 12px rgba(232, 100, 60, 0.35);
+  flex-shrink: 0;
+}
+
+.advisor-contact-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+}
+
+.advisor-contact-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+[data-theme='dark'] .advisor-contact-sub {
+  color: #a9adc7 !important;
+}
+
+.advisor-contact-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.advisor-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  transition: background 0.15s;
+  backdrop-filter: blur(4px);
+}
+
+.advisor-contact-row:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.advisor-contact-row.phone-row {
+  background: rgba(255, 138, 61, 0.2);
+}
+
+.advisor-contact-row.phone-row:hover {
+  background: rgba(255, 138, 61, 0.35);
+}
+
+.contact-icon {
+  font-size: 14px;
+}
+
+.advisor-contact-bio {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  border-right: 3px solid var(--amber);
+  position: relative;
+}
+
+.advisor-contact-bio .bio-label {
+  font-size: 11.5px;
+  color: #f2a93b;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.advisor-contact-bio .bio-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* دارک‌مود: روی زمینه‌ی سرمه‌ای کارت، متنی کمی گرم‌تر و روشن‌تر */
+[data-theme='dark'] .advisor-contact-bio .bio-label {
+  color: #f5c97b;
+}
+
+[data-theme='dark'] .advisor-contact-row {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f2f1ea;
+}
+
+[data-theme='dark'] .advisor-contact-row:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme='dark'] .advisor-contact-row.phone-row {
+  background: rgba(242, 169, 59, 0.18);
+}
+
+[data-theme='dark'] .advisor-contact-row.phone-row:hover {
+  background: rgba(242, 169, 59, 0.3);
+}
+
+[data-theme='dark'] .advisor-contact-bio .bio-text {
+  color: #e8e9f5;
+}
+
+/* --- کارت اطلاعات دانش‌آموز در پنل مشاور --- */
+.student-contact-card {
+  border-right: 4px solid var(--sage);
+}
+
+.student-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.contact-item-label {
+  color: var(--ink-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.contact-item-value {
+  color: var(--ink);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+
+a.contact-item-value:hover {
+  color: var(--indigo);
+  text-decoration: underline;
+}
+
+.phone-link {
+  font-weight: 600;
+}
+
+.student-bio {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--sage-soft);
+  border-radius: var(--radius-sm);
+  border-right: 3px solid var(--sage);
+}
+
+.student-bio .bio-label {
+  font-size: 11.5px;
+  color: var(--sage);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.student-bio .bio-text {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* --- پنل ادمین: کارت مشاور در انتظار --- */
+.admin-panel-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-section {
+  padding: 20px 22px;
+}
+
+.admin-section .card-title {
+  margin-bottom: 14px;
+}
+
+.empty-card.small {
+  padding: 20px 12px;
+}
+
+.empty-card.small .empty-emoji {
+  font-size: 28px;
+}
+
+.pending-advisor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pending-advisor-card {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-right: 4px solid var(--amber);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.pending-advisor-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pending-advisor-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.pending-advisor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pending-advisor-name {
+  font-size: 15px;
+  color: var(--indigo-deep);
+}
+
+.pending-advisor-date {
+  font-size: 11.5px;
+  color: var(--ink-muted);
+}
+
+.pending-advisor-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.contact-label {
+  color: var(--ink-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+  min-width: 70px;
+}
+
+.contact-value {
+  color: var(--indigo);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+
+a.contact-value:hover {
+  text-decoration: underline;
+}
+
+.pending-advisor-bio {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: var(--amber-soft);
+  border-radius: var(--radius-sm);
+  border-right: 3px solid var(--amber);
+}
+
+.bio-label {
+  font-size: 11.5px;
+  color: var(--amber);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.bio-text {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.pending-advisor-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* --- پنل ادمین: نمای کلی مشاوران فعال --- */
+.overview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.overview-row {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.overview-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.overview-head:hover {
+  background: var(--sheet);
+}
+
+.overview-advisor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.overview-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--indigo), var(--pink));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+}
+
+.overview-count {
+  font-size: 11.5px;
+  margin-top: 2px;
+}
+
+.overview-contacts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--sage-soft);
+  color: #1d6d4c;
+  border-radius: 999px;
+  font-size: 12px;
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.contact-pill:hover {
+  background: var(--sage);
+  color: #fff;
+}
+
+.overview-detail {
+  padding: 12px 14px;
+  background: var(--sheet);
+  border-top: 1px solid var(--hairline);
+}
+
+.overview-bio-row {
+  display: flex;
+  gap: 8px;
+  font-size: 12.5px;
+  margin-bottom: 6px;
+  align-items: baseline;
+}
+
+.overview-bio-row a {
+  color: var(--indigo);
+  text-decoration: none;
+}
+
+.overview-bio-row a:hover {
+  text-decoration: underline;
+}
+
+.overview-students {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--hairline);
+}
+
+.overview-students-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.overview-student {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.student-bullet {
+  color: var(--ink-muted);
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.student-info strong {
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.student-contacts {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+}
+
+.student-contacts a {
+  color: var(--indigo);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.student-contacts a:hover {
+  text-decoration: underline;
+}
+
+/* --- ریسپانسیو --- */
+@media (max-width: 720px) {
+  .student-contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .pending-advisor-actions {
+    flex-direction: column;
+  }
+  .pending-advisor-actions button {
+    width: 100%;
+  }
+  .overview-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .overview-contacts {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .student-contacts {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+
+/* ===== CustomSelect Dropdown ===== */
+
+/* ---------- دراپ‌داون اختصاصی (CustomSelect) ---------- */
+.custom-select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 2px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--sheet);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 14.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  text-align: right;
+  box-shadow: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+
+.custom-select-wrap.is-open .custom-select-trigger,
+.custom-select-trigger:focus {
+  border-color: var(--indigo);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--indigo) 18%, transparent);
+}
+
+.custom-select-label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-select-label.is-placeholder {
+  color: var(--ink-muted);
+}
+
+.custom-select-chevron {
+  font-size: 15px;
+  color: var(--ink-soft);
+  transition: transform 0.2s ease;
+  flex: none;
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  left: 0;
+  z-index: 100;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--sheet);
+  border: 2px solid var(--hairline);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  backdrop-filter: blur(12px);
+  animation: selectMenuFade 0.15s ease;
+}
+
+@keyframes selectMenuFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-select-option {
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.custom-select-option:hover {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+}
+
+.custom-select-option.is-selected {
+  background: color-mix(in srgb, var(--indigo) 14%, transparent);
+  font-weight: 700;
+  color: var(--indigo);
+}
+
+.custom-select-check {
+  font-size: 16px;
+  color: var(--indigo);
+  flex: none;
+}

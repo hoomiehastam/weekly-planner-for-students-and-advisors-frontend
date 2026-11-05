@@ -4,8 +4,9 @@ import AppHeader from '../components/AppHeader';
 import ConfirmModal from '../components/ConfirmModal';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { fetchInstituteMe, fetchInstituteAdvisors, fetchInstituteStudents, approveMember, rejectMember, removeInstituteMember, assignStudentAdvisor } from '../api/client';
+import { fetchInstituteMe, fetchInstituteAdvisors, fetchInstituteStudents, approveMember, rejectMember, removeInstituteMember, assignStudentAdvisor, setMyInstituteReferral } from '../api/client';
 import { formatJalaliDate, toFaDigits } from '../utils/jalali';
+import Ico from '../components/Ico';
 
 // پنل مدیریت مؤسسه — «مؤسسه‌ی من»
 // مدیر فقط داده‌های مؤسسه‌ی خودش را می‌بیند (اسکوپ سمت سرور از JWT می‌آید):
@@ -129,7 +130,7 @@ export default function InstituteDashboard() {
       <main className="page-body">
         {error && (
           <div className="alert alert-error" onClick={() => setError('')}>
-            <span>⚠</span> {error}
+            <span><Ico e="⚠" /></span> {error}
           </div>
         )}
 
@@ -144,7 +145,7 @@ export default function InstituteDashboard() {
             <section>
               <div className="section-head">
                 <h3 className="section-title">
-                  <span className="section-emoji">🏫</span>
+                  <span className="section-emoji"><Ico e="🏫" /></span>
                   {institute.name}
                 </h3>
                 {pending > 0 && (
@@ -154,28 +155,28 @@ export default function InstituteDashboard() {
 
               <div className="stats-grid">
                 <div className="stat-card stat-indigo">
-                  <span className="stat-icon">🎓</span>
+                  <span className="stat-icon"><Ico e="🎓" /></span>
                   <div>
                     <div className="stat-value">{toFaDigits(institute.advisorCount)}</div>
                     <div className="stat-label">مشاور</div>
                   </div>
                 </div>
                 <div className="stat-card stat-sage">
-                  <span className="stat-icon">🎒</span>
+                  <span className="stat-icon"><Ico e="🎒" /></span>
                   <div>
                     <div className="stat-value">{toFaDigits(institute.studentCount)}</div>
                     <div className="stat-label">دانش‌آموز</div>
                   </div>
                 </div>
                 <div className="stat-card stat-amber">
-                  <span className="stat-icon">⏳</span>
+                  <span className="stat-icon"><Ico e="⏳" /></span>
                   <div>
                     <div className="stat-value">{toFaDigits(pending)}</div>
                     <div className="stat-label">در انتظار تأیید</div>
                   </div>
                 </div>
                 <div className={`stat-card ${institute.subscription?.status === 'ACTIVE' || institute.subscription?.status === 'TRIAL' ? 'stat-sage' : 'stat-pink'}`}>
-                  <span className="stat-icon">{institute.subscription?.status === 'ACTIVE' || institute.subscription?.status === 'TRIAL' ? '✅' : '⚠️'}</span>
+                  <span className="stat-icon"><Ico e={institute.subscription?.status === 'ACTIVE' || institute.subscription?.status === 'TRIAL' ? '✅' : '⚠'} /></span>
                   <div>
                     <div className="stat-value">
                       {institute.subscription
@@ -200,7 +201,7 @@ export default function InstituteDashboard() {
               {/* هشدار ظرفیت — وقتی سقف اعضا تعیین شده و نزدیک/تکمیل است */}
               {institute.limits && (institute.limits.maxAdvisors != null || institute.limits.maxStudents != null) && (
                 <div className="alert alert-error" style={{ marginTop: 'var(--gap-md)', cursor: 'default' }}>
-                  <span>🚧</span>
+                  <span><Ico e="🚧" /></span>
                   <div>
                     {institute.limits.maxAdvisors != null && (
                       <div>
@@ -219,6 +220,34 @@ export default function InstituteDashboard() {
                 </div>
               )}
 
+              {/* تخفیف دعوت دوستان: هزینه‌اش از شهریه‌ای است که به کارت مؤسسه می‌رسد */}
+              <div className="card" style={{ marginTop: 'var(--gap-md)' }}>
+                <label className="switch-row">
+                  <input
+                    type="checkbox"
+                    checked={institute.referralEnabled !== false}
+                    onChange={async (e) => {
+                      const next = e.target.checked;
+                      try {
+                        await setMyInstituteReferral(next);
+                        setInstitute((prev) => ({ ...prev, referralEnabled: next }));
+                        toast.success(next ? 'تخفیف دعوت دوستان روشن شد' : 'تخفیف دعوت دوستان خاموش شد');
+                      } catch (err) {
+                        toast.error(err.message);
+                      }
+                    }}
+                  />
+                  <span>
+                    <strong>تخفیف دعوت دوستان برای دانش‌آموزان مؤسسه</strong>
+                    <small>
+                      وقتی روشن است، دانش‌آموزی که دوستش را دعوت کند و دوستش اولین شهریه را بپردازد، هر دو بین ۵ تا ۱۵ درصد
+                      (حداکثر مجموع ۱۵ درصد) از شهریه‌ی ماهانه‌ی خود را برای یک سال تخفیف می‌گیرند؛ این مبلغ از شهریه‌ی
+                      واریزی به کارت مؤسسه کم می‌شود.
+                    </small>
+                  </span>
+                </label>
+              </div>
+
               <div className="card" style={{ marginTop: 'var(--gap-md)' }}>
                 <strong>کد دعوت مؤسسه</strong>
                 <p className="muted-text" style={{ marginTop: 6 }}>
@@ -233,7 +262,7 @@ export default function InstituteDashboard() {
                   onClick={() => navigate('/deposit')}
                   title="واریز و تمدید اشتراک مؤسسه"
                 >
-                  💳 واریز و تمدید اشتراک مؤسسه
+                  <Ico e="💳" /> واریز و تمدید اشتراک مؤسسه
                 </button>
               </div>
             </section>
@@ -243,7 +272,7 @@ export default function InstituteDashboard() {
               <section>
                 <div className="section-head">
                   <h3 className="section-title">
-                    <span className="section-emoji">⏳</span>
+                    <span className="section-emoji"><Ico e="⏳" /></span>
                     درخواست‌های عضویت
                   </h3>
                 </div>
@@ -265,7 +294,7 @@ export default function InstituteDashboard() {
             <section>
               <div className="section-head">
                 <h3 className="section-title">
-                  <span className="section-emoji">🎒</span>
+                  <span className="section-emoji"><Ico e="🎒" /></span>
                   دانش‌آموزان مؤسسه
                 </h3>
               </div>
@@ -288,14 +317,14 @@ export default function InstituteDashboard() {
                         <div className="institute-advisor-info">
                           <strong>{s.fullName}</strong>
                           <small dir="ltr">{s.email}</small>
-                          {s.phone && <small dir="ltr">📞 {toFaDigits(s.phone)}</small>}
+                          {s.phone && <small dir="ltr"><Ico e="📞" /> {toFaDigits(s.phone)}</small>}
                           {s.bio && <small className="muted-text">{s.bio.slice(0, 80)}{s.bio.length > 80 ? '…' : ''}</small>}
                         </div>
                         <div className="institute-student-advisor">
                           {s.advisor ? (
-                            <span className="muted-text">🎓 {s.advisor.fullName}</span>
+                            <span className="muted-text"><Ico e="🎓" /> {s.advisor.fullName}</span>
                           ) : s.pendingAdvisor ? (
-                            <span className="muted-text" title="مشاوری که خود دانش‌آموز هنگام ثبت‌نام انتخاب کرده — با تأیید عضو، این اتصال فعال می‌شود">⏳ درخواست به {s.pendingAdvisor.fullName}</span>
+                            <span className="muted-text" title="مشاوری که خود دانش‌آموز هنگام ثبت‌نام انتخاب کرده — با تأیید عضو، این اتصال فعال می‌شود"><Ico e="⏳" /> درخواست به {s.pendingAdvisor.fullName}</span>
                           ) : (
                             <span className="muted-text">بدون مشاور</span>
                           )}
@@ -320,14 +349,14 @@ export default function InstituteDashboard() {
                           onClick={() => setAdvisorPicker({ student: s, advisorId: s.advisor?.id || '' })}
                           title={s.advisor ? 'تغییر مشاور این دانش‌آموز' : 'تعیین مشاور برای این دانش‌آموز'}
                         >
-                          🎓 {s.advisor ? 'تغییر مشاور' : 'تعیین مشاور'}
+                          <Ico e="🎓" /> {s.advisor ? 'تغییر مشاور' : 'تعیین مشاور'}
                         </button>
                         <button
                           className="btn-secondary btn-sm btn-danger"
                           onClick={() => requestRemoveMember(s)}
                           title="حذف از مؤسسه (به مستقل تبدیل می‌شود)"
                         >
-                          🗑
+                          <Ico e="🗑" />
                         </button>
                       </div>
                     </div>
@@ -340,7 +369,7 @@ export default function InstituteDashboard() {
             <section>
               <div className="section-head">
                 <h3 className="section-title">
-                  <span className="section-emoji">👥</span>
+                  <span className="section-emoji"><Ico e="👥" /></span>
                   مشاوران و دانش‌آموزان
                 </h3>
               </div>
@@ -406,7 +435,7 @@ export default function InstituteDashboard() {
                 ? `درخواست عضویت «${confirmState.member.fullName}» رد شود؟ (بعداً قابل تأیید مجدد است)`
                 : `«${confirmState.member.fullName}» از مؤسسه حذف شود؟ او به حساب مستقل تبدیل می‌شود ولی حسابش پاک نمی‌شود.`
           }
-          confirmText={confirmState.action === 'approve' ? '✓ تأیید' : confirmState.action === 'reject' ? '✗ رد' : '🗑 حذف از مؤسسه'}
+          confirmText={confirmState.action === 'approve' ? 'تأیید' : confirmState.action === 'reject' ? 'رد' : 'حذف از مؤسسه'}
           danger={confirmState.action !== 'approve'}
           onConfirm={confirmState.action === 'remove' ? handleRemoveMember : handleDecision}
           onCancel={() => setConfirmState(null)}
@@ -418,8 +447,8 @@ export default function InstituteDashboard() {
         <div className="modal-overlay" onClick={() => setAdvisorPicker(null)}>
           <div className="profile-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
             <div className="profile-modal-head">
-              <h3>🎓 مشاور «{advisorPicker.student.fullName}»</h3>
-              <button className="btn-icon-only" onClick={() => setAdvisorPicker(null)} aria-label="بستن">✕</button>
+              <h3><Ico e="🎓" /> مشاور «{advisorPicker.student.fullName}»</h3>
+              <button className="btn-icon-only" onClick={() => setAdvisorPicker(null)} aria-label="بستن"><Ico e="✕" /></button>
             </div>
             <div className="profile-form">
               <p className="muted-text" style={{ margin: '0 0 8px', fontSize: 13 }}>
@@ -443,7 +472,7 @@ export default function InstituteDashboard() {
                 )}
               </label>
               <div className="profile-form-actions">
-                <button className="btn-primary" onClick={handleSaveAdvisor}>✓ ذخیره</button>
+                <button className="btn-primary" onClick={handleSaveAdvisor}><Ico e="✓" /> ذخیره</button>
                 <button className="btn-secondary" onClick={() => setAdvisorPicker(null)}>انصراف</button>
               </div>
             </div>
@@ -463,7 +492,7 @@ function MemberRow({ member, onDecide }) {
       <div className="institute-advisor-info">
         <strong>{member.fullName}</strong>
         <small dir="ltr">{member.email}</small>
-        {member.phone && <small dir="ltr">📞 {member.phone}</small>}
+        {member.phone && <small dir="ltr"><Ico e="📞" /> {member.phone}</small>}
         {member.bio && <small className="muted-text">{member.bio.slice(0, 80)}{member.bio.length > 80 ? '…' : ''}</small>}
       </div>
       <div className="institute-member-actions">

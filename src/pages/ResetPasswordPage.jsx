@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { verifyResetToken, resetPassword } from '../api/client';
 import ThemeToggle from '../components/ThemeToggle';
+import Ico from '../components/Ico';
 
 // صفحه‌ی بازنشانی رمز عبور — کاربر با کلیک روی لینک ایمیلش به اینجا می‌آید.
 // توکن از query string خوانده می‌شود؛ اگر معتبر باشد، فرمِ رمز جدید نمایش داده می‌شود.
@@ -82,14 +83,14 @@ export default function ResetPasswordPage() {
 
           {effectiveValid === null && (
             <div className="alert alert-info">
-              <span>⏳</span> در حال بررسی توکن…
+              <span><Ico e="⏳" /></span> در حال بررسی توکن…
             </div>
           )}
 
           {effectiveValid === false && (
             <>
               <div className="alert alert-error">
-                <span>⚠</span> توکن نامعتبر یا منقضی است. لطفاً دوباره درخواست بازیابی بده.
+                <span><Ico e="⚠" /></span> توکن نامعتبر یا منقضی است. لطفاً دوباره درخواست بازیابی بده.
               </div>
               <Link to="/login" className="btn-primary btn-block auth-btn-link">
                 بازگشت به ورود
@@ -117,7 +118,7 @@ export default function ResetPasswordPage() {
                     onClick={() => setShowPassword((s) => !s)}
                     aria-label="نمایش رمز"
                   >
-                    {showPassword ? '🙈' : '👁'}
+                    <Ico e={showPassword ? '🙈' : '👁'} />
                   </button>
                 </div>
               </label>
@@ -136,12 +137,12 @@ export default function ResetPasswordPage() {
 
               {error && (
                 <div className="alert alert-error">
-                  <span>⚠</span> {error}
+                  <span><Ico e="⚠" /></span> {error}
                 </div>
               )}
               {success && (
                 <div className="alert alert-success">
-                  <span>✓</span> {success}
+                  <span><Ico e="✓" /></span> {success}
                 </div>
               )}
 
@@ -151,7 +152,7 @@ export default function ResetPasswordPage() {
                   بازگشت به ورود
                 </Link>
                 <button type="submit" className="btn-primary" disabled={loading || !!success}>
-                  {loading ? 'در حال ذخیره…' : '✓ ذخیره‌ی رمز جدید'}
+                  {loading ? 'در حال ذخیره…' : <><Ico e="✓" /> ذخیره‌ی رمز جدید</>}
                 </button>
               </div>
             </>

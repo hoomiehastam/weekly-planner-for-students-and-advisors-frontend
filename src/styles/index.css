@@ -1,0 +1,30 @@
+/* ===================================================================
+   سامانه‌ی دانش‌آموزینو — شیت استایل ماژولار
+   =================================================================== */
+
+/* ۱. پایه‌ها و متغیرهای طراحی (Design Tokens & Reset) */
+@import './base/tokens.css';
+@import './base/reset.css';
+
+/* ۲. کامپوننت‌های پایه و مشترک (Shared Components) */
+@import './components/buttons.css';
+@import './components/inputs.css';
+@import './components/cards.css';
+@import './components/modals.css';
+@import './components/pickers.css';
+@import './components/guides.css';
+
+/* ۳. چارچوب و ناوبری (Layout & Navigation) */
+@import './layout/header.css';
+@import './layout/grid.css';
+
+/* ۴. صفحات اختصاصی سامانه (Pages) */
+@import './pages/landing.css';
+@import './pages/auth.css';
+@import './pages/student.css';
+@import './pages/advisor.css';
+@import './pages/plan-builder.css';
+@import './pages/exams.css';
+@import './pages/deposit.css';
+@import './pages/admin.css';
+@import './pages/reports.css';

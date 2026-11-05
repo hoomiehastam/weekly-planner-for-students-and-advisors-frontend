@@ -1,0 +1,533 @@
+/* ===== Header & Navigation ===== */
+
+/* ============================================================
+   هدر اپلیکیشن
+   ============================================================ */
+
+.app-header {
+  background: var(--sheet);
+  border-bottom: 1px solid var(--hairline);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(35, 43, 62, 0.04);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.header-content {
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.user-avatar,
+.student-avatar,
+.advisor-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--amber-soft);
+  color: #b8501e;
+  font-weight: 700;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: none;
+}
+
+.advisor-avatar {
+  background: var(--sage-soft);
+  color: #0f6e56;
+  box-shadow: none;
+}
+
+.greeting {
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--indigo-deep);
+}
+
+.header-date {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+
+/* ============================================================
+   نسخه‌ی ۱۵ — ویرایش پروفایل کاربر
+   ============================================================ */
+
+/* --- هدر: دکمه‌های کنار هم در دسکتاپ و حالت موبایل --- */
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.header-mobile-actions {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .header-actions {
+    display: none !important;
+  }
+  .header-mobile-actions {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+  }
+  .header-brand-chip {
+    display: none !important;
+  }
+  .header-date {
+    display: none !important;
+  }
+}
+
+/* --- آواتار قابل کلیک --- */
+.avatar-button {
+  cursor: pointer;
+  border: none;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(74, 63, 190, 0.25);
+}
+
+.avatar-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(74, 63, 190, 0.35);
+}
+
+/* --- مودال ویرایش پروفایل --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(35, 43, 62, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.profile-modal {
+  background: var(--sheet);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slide-up 0.25s ease;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.profile-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--hairline);
+  background: linear-gradient(135deg, var(--indigo), var(--indigo-deep));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.profile-modal-head h3 {
+  color: #fff;
+  font-size: 16px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-modal-head .btn-icon-only {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.profile-modal-head .btn-icon-only:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.profile-avatar-big {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  margin: 20px auto 8px;
+  box-shadow: 0 6px 20px rgba(255, 138, 61, 0.35);
+}
+
+
+/* ===================================================================
+   منوی کناری مشاور + منوی بالای هدر + بازطراحی بخش‌های پنل دانش‌آموز (کانسپت)
+   =================================================================== */
+/* --- منوی کناری مشاور (داخل سایدبار تیره، بالای لیست دانش‌آموزان) --- */
+.advisor-nav {
+  display: grid;
+  gap: 4px;
+  padding: 4px 0 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.22);
+}
+.advisor-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 12px;
+  box-shadow: none;
+  background: transparent;
+  color: rgba(233, 231, 255, 0.8);
+  font-weight: 700;
+  font-size: 14px;
+  text-align: start;
+}
+.advisor-nav-item .ico {
+  font-size: 18px;
+  vertical-align: 0;
+}
+.advisor-nav-item:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  transform: none;
+}
+.advisor-nav-item.active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  box-shadow: inset 4px 0 0 #ffb25c;
+}
+.advisor-nav-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.advisor-nav-item.push {
+  margin-top: 6px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 0 0 12px 12px;
+  padding-top: 12px;
+}
+.advisor-nav-badge {
+  margin-inline-start: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 99px;
+  background: #ffb25c;
+  color: #1a1640;
+  font-size: 12px;
+  font-weight: 900;
+}
+@media (max-width: 960px) {
+  .advisor-nav {
+    display: none;
+  }
+}
+
+/* --- منوی بخش‌ها در هدر (دانش‌آموز) --- */
+.header-nav {
+  display: none;
+  gap: 4px;
+  padding: 4px;
+  border: 2px solid var(--hairline);
+  border-radius: 999px;
+  background: var(--sheet);
+}
+.header-nav-item {
+  min-height: 36px;
+  padding: 2px 16px;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: none;
+  background: transparent;
+  color: var(--ink-soft);
+  font-weight: 800;
+  font-size: 13.5px;
+}
+.header-nav-item:hover:not(:disabled) {
+  background: var(--indigo-soft);
+  color: var(--ink);
+  transform: none;
+}
+.header-nav-item.active {
+  background: var(--indigo);
+  color: #fff;
+}
+[data-theme='dark'] .header-nav-item.active {
+  color: #12102b;
+}
+@media (min-width: 900px) {
+  .header-nav {
+    display: inline-flex;
+  }
+}
+
+/* --- کارت پیشرفت حلقه‌ای + مقدارهای کوچک‌تر --- */
+.stat-ring-card {
+  background: var(--indigo-deep);
+  color: #fff;
+  border-color: var(--indigo-deep);
+}
+[data-theme='dark'] .stat-ring-card {
+  background: var(--indigo-soft);
+  color: var(--ink);
+  border-color: var(--indigo);
+}
+.stat-ring-card .stat-label {
+  color: rgba(255, 255, 255, 0.75);
+}
+[data-theme='dark'] .stat-ring-card .stat-label {
+  color: var(--ink-soft);
+}
+.stat-ring {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(#ffb25c var(--p), rgba(255, 255, 255, 0.22) 0);
+  position: relative;
+}
+.stat-ring::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: var(--indigo-deep);
+}
+[data-theme='dark'] .stat-ring::before {
+  background: var(--indigo-soft);
+}
+.stat-ring span {
+  position: relative;
+  font-weight: 900;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.stat-value-sm {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+.stat-ring-card .stat-value-sm {
+  font-size: 0.95rem;
+}
+
+
+
+
+/* ===================================================================
+   موبایل: هدر و نوار پایین سبک‌تر و تراز
+   - هدر دیگر شناور/چسبان نیست و همراه صفحه اسکرول می‌شود
+   - دکمه‌های هدر در یک ردیف و هم‌تراز با آواتار و نام
+   - نوار پایین چسبیده به لبه‌ی صفحه، بدون کپسول و سایه‌ی سنگین
+   =================================================================== */
+@media (max-width: 600px) {
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--sheet);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--hairline);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .header-content {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .header-left {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 10px;
+    align-items: center;
+  }
+  .header-left > div {
+    min-width: 0;
+  }
+  .greeting {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.5;
+  }
+  .header-date {
+    line-height: 1.4;
+  }
+  .header-brand-chip,
+  .header-date {
+    display: none !important;
+  }
+  .user-avatar,
+  .student-avatar,
+  .advisor-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+  .header-actions {
+    display: none !important;
+  }
+  .header-mobile-actions {
+    display: flex !important;
+    flex-direction: row;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-actions .header-action,
+  .header-actions .theme-toggle {
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  [id^='section-'] {
+    scroll-margin-top: 16px;
+  }
+
+  .mobile-nav {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    inset-inline: 0;
+    width: auto;
+    border: 0;
+    border-top: 1px solid var(--hairline);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 4px 6px calc(4px + var(--safe-b));
+    background: var(--sheet);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .mobile-nav-item {
+    min-height: 48px;
+    border-radius: 12px;
+    gap: 2px;
+    font-weight: 700;
+  }
+  .mobile-nav-item.active {
+    background: var(--indigo-soft);
+    color: var(--indigo);
+  }
+  [data-theme='dark'] .mobile-nav-item.active {
+    background: var(--indigo-soft);
+    color: var(--indigo);
+  }
+  .page-body {
+    padding-bottom: calc(80px + var(--safe-b));
+  }
+  .toast-container {
+    bottom: calc(68px + var(--safe-b)) !important;
+  }
+}
+
+/* ورودی ایمیل/شماره در صفحه‌ی ورود: متن راهنما راست‌چین، متن تایپ‌شده خودکار جهت می‌گیرد */
+.auth-split-form input[dir='auto'] {
+  text-align: start;
+}
+
+
+/* ===================================================================
+   برنامه‌ی نصب‌شدنی (PWA): نوار نسخه‌ی جدید و دکمه‌ی نصب
+   =================================================================== */
+.pwa-update-banner {
+  position: fixed;
+  z-index: 10000;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: var(--indigo-soft);
+  color: var(--ink);
+  border: 2px solid var(--indigo);
+  box-shadow: var(--pop-sm);
+  font-size: 14px;
+  font-weight: 700;
+}
+.pwa-update-btn {
+  flex: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--indigo);
+  color: #fff;
+  border: none;
+  box-shadow: none;
+}
+[data-theme='dark'] .pwa-update-btn {
+  color: #12102b;
+}
+.install-btn {
+  white-space: nowrap;
+}

@@ -1,0 +1,1503 @@
+/* ===================================================================
+   سامانه‌ی دانش‌آموزینو — پنل مشاور (Advisor Dashboard)
+   زبان طراحی مدرن و مینیمال ۲۰۲۶: گلس‌مورفیسم سبک، حاشیه‌های ظریف،
+   پیل‌های ضد دفرمه شدن، کارت‌های شناور و بدون خطوط خشن یا کارتونی
+   =================================================================== */
+
+/* ---------- ۱. چیدمان و چارچوب اصلی پنل مشاور ---------- */
+.advisor-app {
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+.advisor-body {
+  max-width: 1240px;
+  width: 100%;
+  margin-inline: auto;
+  padding: 24px 20px 80px;
+  box-sizing: border-box;
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+
+.two-column {
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 24px;
+}
+
+.detail-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ---------- ۲. کارت پایه‌ی مدرن پنل مشاور ---------- */
+.card {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  padding: 22px 24px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+  position: relative;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--indigo) 18%, var(--hairline));
+}
+
+.card-title,
+.list-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+/* آیکون دکمه‌ها */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  border: 1px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-icon:hover:not(:disabled) {
+  border-color: var(--indigo);
+  color: var(--indigo);
+  background: color-mix(in srgb, var(--indigo) 6%, var(--sheet));
+  transform: translateY(-1px);
+}
+
+.btn-icon.danger:hover:not(:disabled) {
+  border-color: var(--brick);
+  color: var(--brick);
+  background: var(--brick-soft);
+  transform: translateY(-1px);
+}
+
+/* ---------- ۳. نوار دانش‌آموز انتخاب‌شده (Selected Student Bar) ---------- */
+.selected-student-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--indigo) 10%, var(--sheet)) 0%, color-mix(in srgb, var(--teal) 6%, var(--sheet)) 100%);
+  border: 1px solid color-mix(in srgb, var(--indigo) 22%, var(--hairline));
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.06);
+  margin-bottom: 4px;
+}
+
+.selected-student-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.selected-student-name .ico {
+  font-size: 18px;
+  color: var(--indigo);
+}
+
+/* کارت خالی راهنما برای انتخاب دانش‌آموز */
+.empty-guide {
+  text-align: center;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.empty-guide .empty-emoji {
+  font-size: 40px;
+  opacity: 0.8;
+}
+
+.empty-guide p {
+  color: var(--ink-soft);
+  font-size: 15px;
+  margin: 0;
+}
+
+/* ---------- ۴. فهرست انتخاب دانش‌آموزان (Student Picker Grid) ---------- */
+.student-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.student-picker-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  margin-inline-start: 6px;
+}
+
+.student-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.student-picker-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  text-align: start;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--hairline);
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  min-height: 64px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  position: relative;
+}
+
+.student-picker-item:hover {
+  border-color: color-mix(in srgb, var(--indigo) 35%, var(--hairline));
+  background: color-mix(in srgb, var(--indigo) 3%, var(--sheet));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.student-picker-item.active {
+  border-color: var(--indigo);
+  background: color-mix(in srgb, var(--indigo) 8%, var(--sheet));
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.12);
+}
+
+.student-picker-avatar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.student-picker-item:nth-of-type(4n + 2) .student-picker-avatar {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+}
+.student-picker-item:nth-of-type(4n + 3) .student-picker-avatar {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+.student-picker-item:nth-of-type(4n + 4) .student-picker-avatar {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.student-picker-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.student-picker-info strong {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-picker-info small {
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.student-picker-check {
+  color: var(--indigo);
+  font-size: 18px;
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+
+/* دانش‌آموزهای غیرفعال */
+.student-picker-inactive {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--hairline);
+}
+
+.student-picker-inactive-title {
+  margin: 0 0 6px;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-picker-item.is-inactive {
+  opacity: 0.55;
+  cursor: not-allowed;
+  border-style: dashed;
+  border-color: var(--hairline);
+  background: transparent;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.student-picker-badge {
+  flex: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--brick-soft);
+  color: var(--brick);
+}
+
+/* ---------- ۵. درخواست‌های جدید دانش‌آموزان (Student Requests) ---------- */
+.student-request-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 18px 20px;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-inline-start: 4px solid var(--amber);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.student-request-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.student-request-avatar {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.student-request-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.student-request-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.student-request-name {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.student-request-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  margin: 4px 0;
+}
+
+.student-request-meta span,
+.student-request-meta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.student-request-meta a:hover {
+  color: var(--indigo);
+}
+
+.student-request-email {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+}
+
+.student-request-email:hover {
+  color: var(--indigo);
+}
+
+.student-request-bio {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 6px 0 0;
+  line-height: 1.6;
+  background: var(--paper);
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.student-request-actions {
+  display: flex;
+  gap: 8px;
+  margin-inline-start: auto;
+  flex: none;
+  align-self: center;
+}
+
+.institute-advisor-list {
+  display: grid;
+  gap: 12px;
+}
+
+/* بنر درخواست جدید */
+.requests-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  margin-bottom: var(--gap-md);
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--amber) 40%, var(--hairline));
+  background: var(--amber-soft);
+  color: var(--amber-ink);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.08);
+}
+
+.requests-notice-text {
+  flex: 1;
+  min-width: 200px;
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+/* ---------- ۶. لینک دعوت مشاور (Advisor Invite Card) ---------- */
+.invite-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.invite-card .invite-link-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+
+.invite-card .invite-link-row input {
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+}
+
+.invite-card .invite-link-row input:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--indigo) 15%, transparent);
+}
+
+.invite-card .invite-link-row.is-off input {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.invite-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.invite-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.invite-meta .is-warn {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.invite-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 10px 0 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--paper);
+}
+
+.switch-row,
+label.switch-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.switch-row > span {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.switch-row input[type='checkbox'] {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--indigo);
+  flex: none;
+}
+
+.switch-row small {
+  display: block;
+  font-weight: 400;
+  color: var(--ink-soft);
+  font-size: 12px;
+  margin-top: 2px;
+  line-height: 1.6;
+}
+
+/* ---------- ۷. یادداشت‌های خصوصی مشاور (Student Notes) ---------- */
+.notes-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notes-privacy {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: var(--indigo);
+  background: color-mix(in srgb, var(--indigo) 8%, var(--paper));
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+}
+
+.notes-form textarea,
+.note-item textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.8;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notes-form textarea:focus,
+.note-item textarea:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--indigo) 15%, transparent);
+}
+
+.notes-form-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 6px 0 10px;
+}
+
+.notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.note-item {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  transition: all 0.2s ease;
+}
+
+.note-item:hover {
+  border-color: color-mix(in srgb, var(--indigo) 25%, var(--hairline));
+}
+
+.note-text {
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+  line-height: 1.8;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.note-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.note-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+
+/* یادآور بالای فرم ساخت برنامه (NotesReminder) */
+.notes-reminder {
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--indigo) 6%, var(--sheet));
+  border: 1px solid color-mix(in srgb, var(--indigo) 20%, var(--hairline));
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.notes-reminder-head {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.notes-reminder-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notes-reminder-list li {
+  padding: 8px 12px;
+  background: var(--sheet);
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---------- ۸. اطلاعات تماس و هدف دانش‌آموز (Contact & Goal) ---------- */
+.student-contact-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.student-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.contact-item-label {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.contact-item-value {
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.contact-item-value.phone-link:hover,
+a.contact-item-value:hover {
+  color: var(--indigo);
+}
+
+.student-bio {
+  margin-top: 6px;
+  padding: 10px 14px;
+  background: var(--paper);
+  border-radius: 12px;
+}
+
+.bio-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.bio-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+/* کارت هدف ساعت مطالعه‌ی هفتگی */
+.goal-card {
+  border-radius: 20px;
+}
+
+.goal-display {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.goal-current {
+  font-weight: 800;
+  font-size: 15px;
+  margin: 0;
+}
+
+.goal-edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.goal-input-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.goal-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- ۹. فرم یادآور به دانش‌آموز (Reminder Form) ---------- */
+.reminder-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.reminder-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.8;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.reminder-form textarea:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--indigo) 15%, transparent);
+}
+
+.reminder-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ---------- ۱۰. روزهای برنامه و تسک‌ها در پنل مشاور (AdvisorDayBlock) ---------- */
+.plans-list,
+.days-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.plans-list > *,
+.days-stack > * {
+  min-width: 0;
+}
+
+.day-block {
+  min-width: 0;
+  max-width: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--hairline);
+  background: var(--sheet);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.day-block:hover {
+  border-color: color-mix(in srgb, var(--indigo) 25%, var(--hairline));
+}
+
+.day-block.is-collapsed {
+  padding-block: 0;
+}
+
+.day-header-toggle {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: start;
+  transition: background 0.15s ease;
+}
+
+.day-header-toggle:hover {
+  background: color-mix(in srgb, var(--indigo) 3%, transparent);
+}
+
+.day-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.day-chevron {
+  font-size: 14px;
+  color: var(--ink-soft);
+  transition: transform 0.2s ease;
+}
+
+.day-block-summary {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.day-summary-count {
+  font-weight: 700;
+  color: var(--indigo);
+  background: var(--indigo-soft);
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.day-summary-time {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-summary-names {
+  color: var(--ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.day-count {
+  flex: none;
+  white-space: nowrap;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--paper);
+}
+
+.day-items-wrap {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--hairline);
+  margin-top: 4px;
+  padding-top: 14px;
+}
+
+/* آیتم درس در پنل مشاور */
+.advisor-task {
+  cursor: default;
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+}
+
+.advisor-task .task-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.advisor-task .task-content strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.advisor-task .task-topic {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--indigo);
+  background: color-mix(in srgb, var(--indigo) 10%, var(--sheet));
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  white-space: nowrap;
+}
+
+.advisor-task .task-desc {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.advisor-task .task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* تگ‌های وضعیت در پنل مشاور */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status-pill.done {
+  background: var(--sage-soft);
+  color: var(--sage-ink);
+}
+
+.status-pill.pending {
+  background: var(--hairline-soft);
+  color: var(--ink-soft);
+}
+
+.status-pill.skipped {
+  background: var(--brick-soft);
+  color: var(--brick);
+}
+
+/* لاگ ثبت‌شده‌ی دانش‌آموز برای درس (per-tag) */
+.advisor-pertag-list {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.advisor-pertag-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--indigo);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.advisor-pertag-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.advisor-pertag-name {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.advisor-pertag-min,
+.advisor-pertag-tests {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.advisor-pertag-note {
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+/* بنر پیش‌نویس برنامه */
+.draft-banner {
+  margin: 8px 0 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--amber-soft);
+  border: 1px solid color-mix(in srgb, var(--amber) 30%, transparent);
+  color: var(--amber-ink);
+  font-size: 13.5px;
+  line-height: 1.7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.draft-pill {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--amber-soft);
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+/* تب‌های نمای برنامه (لیست، آمار، مطالعه آزاد) */
+.view-tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  margin-bottom: 14px;
+}
+
+.tab-btn-sm {
+  min-height: 34px;
+  padding: 4px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.tab-btn-sm:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--indigo) 6%, transparent);
+}
+
+.tab-btn-sm.active {
+  background: var(--sheet);
+  color: var(--indigo);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ---------- ۱۱. کارت آزمون‌ها (Exams Section) ---------- */
+.exam-card {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exam-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.exam-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+
+.exam-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.exam-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--indigo-soft);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.exam-meta-tag.desc {
+  background: var(--amber-soft);
+  color: var(--amber-ink);
+}
+
+.exam-actions-col {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.exam-actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.exam-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.exam-status-pill.graded {
+  color: var(--sage-ink);
+  background: var(--sage-soft);
+}
+
+.exam-status-pill.needs-grading {
+  color: var(--amber-ink);
+  background: var(--amber-soft);
+}
+
+.exam-status-pill.progress {
+  color: var(--sky-ink);
+  background: var(--sky-soft);
+}
+
+.exam-status-pill.waiting {
+  color: var(--ink-soft);
+  background: var(--hairline-soft);
+}
+
+/* ---------- ۱۲. پیشروی دروس (Progress Overview) ---------- */
+.progress-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.progress-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--paper);
+  font-size: 13px;
+}
+
+.progress-pos {
+  font-weight: 700;
+  color: var(--indigo);
+  margin-inline-start: auto;
+}
+
+/* ---------- ۱۳. سگمنت کپسولی سوپرادمین و تب‌ها ---------- */
+.tab-row {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: var(--paper);
+  justify-self: start;
+}
+
+.tab-btn {
+  min-height: 38px;
+  padding: 4px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover:not(:disabled) {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--indigo) 6%, transparent);
+}
+
+.tab-btn.active {
+  background: var(--indigo);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+[data-theme='dark'] .tab-btn.active {
+  color: #ffffff;
+}
+
+/* ---------- ۱۴. واکنش‌گرایی در تبلت و موبایل (Responsive) ---------- */
+@media (max-width: 960px) {
+  .two-column {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .advisor-body {
+    padding: 16px 12px 70px;
+    gap: 16px;
+  }
+
+  .card {
+    padding: 16px 18px;
+    border-radius: 16px;
+  }
+
+  .student-picker-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-request-card {
+    flex-direction: column;
+  }
+
+  .student-request-actions {
+    margin: 8px 0 0;
+    width: 100%;
+  }
+
+  .student-request-actions > * {
+    flex: 1;
+  }
+
+  .day-header-toggle {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .day-block-summary {
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .exam-card-head {
+    flex-direction: column;
+  }
+
+  .exam-actions-col {
+    justify-items: stretch;
+    width: 100%;
+  }
+
+  .tab-row {
+    width: 100%;
+  }
+
+  .tab-btn {
+    flex: 1;
+    justify-content: center;
+    padding-inline: 8px;
+  }
+
+  /* تب‌های نمای برنامه در موبایل */
+  .view-tabs {
+    width: 100%;
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    box-sizing: border-box;
+  }
+
+  .view-tabs .tab-btn-sm {
+    flex: 1;
+    justify-content: center;
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  /* کارت برنامه و سرصفحه در موبایل */
+  .plan-card {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .plan-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .plan-card-toggle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 0;
+    text-align: right;
+  }
+
+  .plan-card-title-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .plan-title {
+    font-size: 15px;
+    line-height: 1.4;
+    white-space: normal;
+    word-break: normal;
+  }
+
+  .plan-dates {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  .date-chip {
+    font-size: 11px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    border-radius: 999px;
+  }
+
+  .plan-progress-mini {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-inline-start: 6px;
+  }
+
+  .ring-progress {
+    --size: 42px !important;
+    width: var(--size) !important;
+    height: var(--size) !important;
+    font-size: 11px !important;
+    flex-shrink: 0;
+  }
+
+  .plan-progress-mini .chevron {
+    font-size: 14px;
+    color: var(--ink-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .plan-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    width: 100%;
+    border-top: 1px solid var(--hairline-soft);
+    padding-top: 8px;
+    margin-top: 2px;
+  }
+
+  .plan-actions .btn-icon {
+    min-height: 34px;
+    width: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* کارت‌های درس و متاداده در موبایل */
+  .advisor-task {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .advisor-task .task-content {
+    align-items: flex-start;
+    text-align: right;
+  }
+
+  .advisor-task .task-content strong {
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+
+  .advisor-task .task-topic {
+    font-size: 11.5px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    margin-top: 2px;
+  }
+
+  .advisor-task .task-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    width: 100%;
+  }
+
+  .time-pill {
+    font-size: 11px;
+    padding: 2px 7px;
+  }
+
+  .status-pill {
+    font-size: 10.5px;
+    padding: 2px 7px;
+  }
+
+  .advisor-task .task-meta .tag-pill {
+    font-size: 10.5px;
+    padding: 2px 7px;
+  }
+}

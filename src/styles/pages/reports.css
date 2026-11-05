@@ -1,0 +1,1852 @@
+/* ===== Reports & Statistics ===== */
+
+/* ============================================================
+   تقویم هفتگی (WeeklyCalendarView)
+   ============================================================ */
+
+.calendar-wrap {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.calendar-hint {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  margin: 0 0 12px 0;
+  padding: 8px 12px;
+  background: var(--indigo-soft);
+  border-radius: 8px;
+  color: var(--indigo);
+}
+
+.weekly-calendar {
+  width: 100%;
+  min-width: 720px;
+  direction: rtl;
+}
+
+.weekly-zoom-wrap {
+  width: 100%;
+}
+
+.weekly-zoom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  margin: 0 0 8px 0;
+}
+
+.weekly-zoom-bar .root {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 52px;
+}
+
+.weekly-calendar-frame {
+  overflow: auto;
+  width: 100%;
+  overscroll-behavior: contain;
+}
+
+/* ---------- ظرف زوم برای نمودارها (Zoomable) ---------- */
+.zoom-wrap {
+  width: 100%;
+}
+
+.zoom-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px 0;
+}
+
+.zoom-label {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.zoom-value {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 46px;
+  text-align: center;
+}
+
+.zoom-btn {
+  width: 32px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--sheet); /* --surface تعریف نشده بود؛ دکمه شفاف می‌شد */
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.zoom-btn:hover {
+  background: var(--indigo-soft);
+  border-color: var(--indigo);
+}
+
+.zoom-reset {
+  font-size: 14px;
+}
+
+.zoom-frame {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.zoom-inner {
+  transform-origin: top right;
+}
+
+/* ---------- پیمایش پویای نمودارهای روزانه (کشیدن / دکمه‌های قبل-بعد) ---------- */
+.daily-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.daily-chart-head .report-card-title {
+  margin: 0;
+}
+
+.day-pan {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.day-pan-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  min-width: 120px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-pan-btn {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--sheet); /* --surface تعریف نشده بود */
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.day-pan-btn:hover:not(:disabled) {
+  background: var(--indigo-soft);
+  border-color: var(--indigo);
+}
+
+.day-pan-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.daily-chart-drag {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.daily-chart-drag:active {
+  cursor: grabbing;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-time-col {
+  position: relative;
+}
+
+.cal-day-header-spacer {
+  height: 36px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.cal-time-list {
+  position: relative;
+  overflow: hidden;
+}
+
+.cal-time-label {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+  padding-left: 4px;
+}
+
+.cal-day-col {
+  position: relative;
+  border-right: 1px solid var(--hairline-soft);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cal-day-header {
+  height: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--paper);
+  border-radius: 8px 8px 0 0;
+  margin-right: -1px;
+}
+
+.cal-day-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--indigo-deep);
+}
+
+.cal-day-count {
+  font-size: 10.5px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
+}
+
+.cal-day-body {
+  position: relative;
+}
+
+.cal-hour-line {
+  position: absolute;
+  right: 0;
+  left: 0;
+  border-top: 1px dashed var(--hairline-soft);
+  pointer-events: none;
+}
+
+.cal-event {
+  position: absolute;
+  right: 3px;
+  left: 3px;
+  border: 1.5px solid;
+  border-radius: 8px;
+  padding: 6px 8px;
+  text-align: right;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.1s,
+    box-shadow 0.15s;
+}
+
+.cal-event:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  z-index: 5;
+}
+
+.cal-event.is-done {
+  opacity: 0.65;
+}
+
+.cal-event.is-done .cal-event-title {
+  text-decoration: line-through;
+}
+
+.cal-event-time {
+  font-size: 10.5px;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-event-title {
+  font-weight: 700;
+  font-size: 12.5px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cal-event-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.cal-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.4);
+  font-size: 9.5px;
+  font-weight: 500;
+}
+
+.cal-check {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-size: 12px;
+  background: var(--sage);
+  color: #fff;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.cal-untimed {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 3px 2px;
+  width: auto;
+}
+
+.cal-untimed-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1.5px solid;
+  border-radius: 6px;
+  background: var(--sheet);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11.5px;
+  text-align: right;
+  box-shadow: none;
+}
+
+.cal-untimed-item:hover {
+  transform: translateX(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.cal-untimed-item.is-done {
+  opacity: 0.6;
+}
+
+.cal-untimed-item.is-done .cal-untimed-title {
+  text-decoration: line-through;
+}
+
+.cal-check-small {
+  font-size: 10px;
+  font-weight: 700;
+  width: 14px;
+  height: 14px;
+  background: var(--sage);
+  color: #fff;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cal-untimed-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ============================================================
+   پنل آمار (Reports)
+   ============================================================ */
+
+.reports-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reports-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.report-stat-card {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.rsc-icon {
+  font-size: 22px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--indigo-soft);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.rsc-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--indigo-deep);
+}
+
+.rsc-label {
+  font-size: 11.5px;
+  color: var(--ink-muted);
+}
+
+.report-card {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.report-card-title {
+  font-size: 15px;
+  color: var(--indigo-deep);
+  margin-bottom: 4px;
+}
+
+.report-card-sub {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  margin: 0 0 12px 0;
+}
+
+.goal-chart-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+}
+
+.goal-center-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.goal-percent {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--indigo-deep);
+}
+
+.goal-sub {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.subject-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subject-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 110px;
+  align-items: center;
+  gap: 12px;
+}
+
+.subject-name {
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subject-bar-track {
+  height: 8px;
+  background: var(--hairline-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.subject-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.subject-minutes {
+  font-size: 12px;
+  color: var(--ink-soft);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ============================================================
+   نسخه‌ی ۵ — ثبت دقیقه و تست توسط دانش‌آموز + نمایش در آمار
+   ============================================================ */
+
+/* --- چیدمان جدید task-row برای پشتیبانی از progress inputs --- */
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hairline-soft);
+  position: relative;
+}
+
+.task-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.task-checkbox input[type='checkbox'] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.task-row .checkmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--hairline);
+  border-radius: 7px;
+  background: var(--sheet);
+  color: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.task-checkbox:hover .checkmark {
+  border-color: var(--indigo);
+}
+
+.task-row.is-done .checkmark {
+  background: linear-gradient(135deg, var(--sage), var(--teal));
+  border-color: var(--sage);
+  color: #fff;
+}
+
+/* --- فیلدهای ورودی دقیقه و تست --- */
+.progress-inputs {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  align-items: flex-end;
+}
+
+.progress-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.progress-field-label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.progress-field input {
+  width: 80px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  border-radius: 6px;
+  border: 1.5px solid var(--hairline);
+  background: var(--paper);
+  font-family: inherit;
+  color: var(--ink);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.progress-field input:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(74, 63, 190, 0.12);
+}
+
+.progress-field input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.progress-saving {
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+
+/* --- نمایش progress در پنل مشاور --- */
+.advisor-progress-display {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.progress-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--sage-soft);
+  color: #1d6d4c;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- نمایش progress در تقویم هفتگی --- */
+.cal-event-progress {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+/* --- جدول دروس در Reports --- */
+.subject-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.subject-row {
+  display: grid;
+  grid-template-columns: 1.5fr 2fr 80px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.subject-row.subject-header {
+  font-size: 12px;
+  color: var(--ink-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 6px;
+}
+
+.subject-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subject-bar-wrap .subject-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--hairline-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.subject-tests {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--indigo-deep);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- reports-summary با ۴ کارت --- */
+.reports-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* --- ریسپانسیو نسخه‌ی ۵ --- */
+@media (max-width: 920px) {
+  .reports-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .subject-row {
+    grid-template-columns: 1fr 2fr 60px;
+  }
+}
+
+@media (max-width: 600px) {
+  .progress-inputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .progress-field input {
+    width: 100%;
+  }
+  .subject-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .subject-tests {
+    text-align: right;
+  }
+}
+
+
+/* ============================================================
+   نسخه‌ی ۶ — ثبت زمان بر اساس تگ + نمایش در آمار
+   ============================================================ */
+
+/* --- فرم StudyLogForm --- */
+.study-log-section {
+  margin-top: 4px;
+}
+
+.study-log-form {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+  border-right: 4px solid var(--indigo);
+}
+
+.slf-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.slf-head .card-title {
+  margin: 0;
+  font-size: 15px;
+}
+
+.slf-date-wrap {
+  min-width: 220px;
+}
+
+.slf-date-display {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0 0 14px 0;
+  padding: 6px 12px;
+  background: var(--indigo-soft);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.slf-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.slf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  transition: border-color 0.15s;
+}
+
+.slf-row:hover {
+  border-color: var(--indigo);
+}
+
+.slf-row.slf-other {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+}
+
+.slf-tag-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.slf-tag-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--indigo-deep);
+}
+
+.slf-tag-hint {
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.slf-inputs {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.slf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.slf-field span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.slf-field input {
+  width: 90px;
+  padding: 8px 10px;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  border-radius: 6px;
+  border: 1.5px solid var(--hairline);
+  background: var(--sheet);
+  font-family: inherit;
+  color: var(--ink);
+}
+
+.slf-field input:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(74, 63, 190, 0.12);
+}
+
+.slf-field-note input {
+  width: 180px;
+}
+
+.slf-clear {
+  background: transparent;
+  border: none;
+  color: var(--brick);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 6px;
+  border-radius: 6px;
+  font-family: inherit;
+  box-shadow: none;
+}
+
+.slf-clear:hover {
+  background: var(--brick-soft);
+  transform: none;
+  box-shadow: none;
+}
+
+.slf-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--hairline);
+  padding-top: 12px;
+}
+
+.slf-summary {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+}
+
+.slf-summary h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: var(--indigo-deep);
+}
+
+.slf-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.slf-summary-item {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 12.5px;
+}
+
+.slf-summary-tag {
+  background: var(--indigo-soft);
+  color: var(--indigo);
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.slf-summary-min {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.slf-summary-tests {
+  color: var(--pink);
+  font-variant-numeric: tabular-nums;
+}
+
+.slf-summary-note {
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+.slf-total {
+  font-size: 12.5px !important;
+  font-weight: 600;
+  color: var(--indigo-deep) !important;
+  margin-top: 6px !important;
+}
+
+/* --- جدول تگ‌ها در Reports --- */
+.tag-table {
+  margin-top: 16px;
+  border-top: 1px solid var(--hairline);
+  padding-top: 12px;
+}
+
+.tag-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 80px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hairline-soft);
+  font-size: 13px;
+}
+
+.tag-row.tag-header {
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.tag-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tag-color-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* --- ریسپانسیو نسخه‌ی ۶ --- */
+@media (max-width: 720px) {
+  .slf-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .slf-inputs {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .slf-field input,
+  .slf-field-note input {
+    flex: 1;
+    width: auto;
+  }
+  .tag-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .tag-row.tag-header {
+    display: none;
+  }
+  .tag-row > div:nth-child(3),
+  .tag-row > div:nth-child(4) {
+    font-size: 11.5px;
+  }
+}
+
+
+/* ============================================================
+   نسخه‌ی ۷ — ورودی‌های per-tag درون هر درس
+   ============================================================ */
+
+.per-tag-inputs {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline-soft);
+}
+
+.per-tag-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.per-tag-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.per-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  background: var(--sheet);
+  border-radius: 6px;
+  border: 1px solid var(--hairline-soft);
+}
+
+.per-tag-row.per-tag-other {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+}
+
+.per-tag-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--indigo-deep);
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.per-tag-fields {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.per-tag-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10.5px;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.per-tag-field span {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.per-tag-field input {
+  width: 75px;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  border-radius: 5px;
+  border: 1.5px solid var(--hairline);
+  background: var(--sheet);
+  font-family: inherit;
+  color: var(--ink);
+}
+
+.per-tag-field input:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(74, 63, 190, 0.12);
+}
+
+.per-tag-field input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.per-tag-field-note input {
+  width: 160px;
+}
+
+.per-tag-saving {
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
+}
+
+.per-tag-error {
+  margin: 6px 0 0 0;
+  font-size: 11.5px;
+  color: var(--brick);
+}
+
+/* --- ریسپانسیو --- */
+@media (max-width: 600px) {
+  .per-tag-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .per-tag-name {
+    min-width: 0;
+  }
+  .per-tag-fields {
+    width: 100%;
+  }
+  .per-tag-field input,
+  .per-tag-field-note input {
+    flex: 1;
+    width: auto;
+  }
+}
+
+
+/* ============================================================
+   نسخه‌ی ۹ — اصلاح عدم تطابق‌های آماری
+   ============================================================ */
+
+/* --- جدول تگ‌ها با ستون مجموع و ردیف total --- */
+.tag-table .tag-row {
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 80px;
+}
+
+.tag-row.tag-total {
+  border-top: 2px solid var(--indigo);
+  border-bottom: none;
+  font-weight: 700;
+  color: var(--indigo-deep);
+  background: var(--indigo-soft);
+  border-radius: 6px;
+  padding: 8px 4px;
+  margin-top: 4px;
+}
+
+/* --- کارت‌های آمار همیشه ۴ ستون --- */
+.reports-summary {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 920px) {
+  .reports-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tag-table .tag-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .tag-row.tag-total {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .reports-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+/* ============================================================
+   نسخه‌ی ۱۰ — ساده‌سازی جدول تگ‌ها + نمایش جزئیات per-tag هر درس
+   ============================================================ */
+
+/* --- جدول تگ‌ها ساده‌تر شد: فقط ۳ ستون --- */
+.tag-table .tag-row {
+  grid-template-columns: 1.5fr 1fr 100px;
+}
+
+/* --- کارت جزئیات هر درس با تفکیک per-tag --- */
+.subject-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.subject-detail-card {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.subject-detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.subject-detail-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--indigo-deep);
+  border-right: 3px solid var(--indigo);
+  padding-right: 8px;
+}
+
+.subject-detail-total {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.subject-detail-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subject-detail-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  background: var(--sheet);
+  border-radius: 6px;
+  font-size: 12.5px;
+  border: 1px solid var(--hairline-soft);
+}
+
+.subject-detail-tag.sd-other {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+}
+
+.sd-tag-name {
+  font-weight: 600;
+  color: var(--ink);
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.sd-tag-min {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  margin-right: auto;
+}
+
+.sd-tag-tests {
+  color: var(--pink);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+/* --- توضیحات «سایر کارها» درون هر درس --- */
+.subject-other-notes {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--amber-soft);
+  border-radius: 6px;
+  border-right: 3px solid var(--amber);
+}
+
+.other-note-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.other-note-icon {
+  flex-shrink: 0;
+}
+
+.other-note-text {
+  flex: 1;
+  font-style: italic;
+}
+
+.other-note-time {
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* --- بخش جداگانه‌ی «سایر کارها» با همه‌ی توضیحات --- */
+.other-entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.other-entry-row {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-right: 3px solid var(--amber);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.other-entry-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.other-entry-subject {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--indigo-deep);
+  background: var(--indigo-soft);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.other-entry-time {
+  font-size: 12.5px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.other-entry-tests {
+  font-size: 12px;
+  color: var(--pink);
+  font-variant-numeric: tabular-nums;
+}
+
+.other-entry-note {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.other-entries-total {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--amber-soft);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--indigo-deep);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- نمایش per-tag لاگ‌ها در پنل مشاور --- */
+.advisor-pertag-list {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline-soft);
+}
+
+.advisor-pertag-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+
+.advisor-pertag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  border-radius: 4px;
+  flex-wrap: wrap;
+}
+
+.advisor-pertag-row.is-other {
+  background: var(--amber-soft);
+  padding: 4px 8px;
+}
+
+.advisor-pertag-name {
+  font-weight: 600;
+  color: var(--indigo-deep);
+  background: var(--indigo-soft);
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.advisor-pertag-row.is-other .advisor-pertag-name {
+  background: var(--amber);
+  color: #fff;
+}
+
+.advisor-pertag-min {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.advisor-pertag-tests {
+  color: var(--pink);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+.advisor-pertag-note {
+  color: var(--ink-muted);
+  font-style: italic;
+  font-size: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* --- ریسپانسیو --- */
+@media (max-width: 720px) {
+  .tag-table .tag-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .subject-detail-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .advisor-pertag-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .advisor-pertag-note {
+    width: 100%;
+  }
+}
+
+
+/* ============================================================
+   نسخه‌ی ۱۱ — حالت student برای Reports
+   ============================================================ */
+
+/* --- حالت student برای کارت‌های per-subject --- */
+.subject-detail-list.student-view {
+  gap: 14px;
+}
+
+.subject-detail-card.student-card {
+  background: linear-gradient(180deg, var(--sheet) 0%, var(--paper) 100%);
+  border-right: 4px solid var(--indigo);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.subject-detail-tag.student-tag {
+  background: var(--sheet);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid var(--hairline);
+}
+
+.sd-tag-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sd-tag-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.subject-detail-tag.sd-other.student-tag {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+  border-right: 3px solid var(--amber);
+}
+
+/* --- توضیحات سایر کارها در حالت student --- */
+.subject-other-notes.student-other {
+  background: linear-gradient(135deg, var(--amber-soft), var(--paper));
+  border-right: 3px solid var(--amber);
+  padding: 8px 12px;
+}
+
+.other-notes-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--amber);
+  margin-bottom: 4px;
+}
+
+/* --- کارت «سایر کارهای خارج از برنامه» در حالت student --- */
+.other-entries-card {
+  background: linear-gradient(180deg, var(--sheet) 0%, var(--amber-soft) 200%);
+  border-right: 4px solid var(--amber);
+}
+
+.other-entry-row.student-entry {
+  background: var(--sheet);
+  border-right: 4px solid var(--amber);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.other-entry-row.student-entry:hover {
+  transform: translateX(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.other-entry-row.student-entry .other-entry-subject {
+  background: var(--amber);
+  color: #fff;
+  font-size: 12.5px;
+}
+
+.other-entry-row.student-entry .other-entry-note {
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.7;
+}
+
+.other-entries-total.student-total {
+  background: var(--amber);
+  color: #fff;
+  font-size: 14px;
+  padding: 10px 16px;
+}
+
+/* --- ریسپانسیو --- */
+@media (max-width: 720px) {
+  .subject-detail-card.student-card {
+    padding: 12px 14px;
+  }
+  .other-entry-row.student-entry {
+    padding: 10px 12px;
+  }
+}
+
+
+/* ============================================================
+   پولیش نمودارها و آمار (Reports) — جذاب‌تر و مدرن‌تر
+   ============================================================ */
+
+/* کارت‌های خلاصه‌ی آمار: گرادیان آبیِ ملایم + آیکون در حباب رنگی */
+.report-stat-card {
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.report-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--indigo) 30%, var(--hairline));
+}
+
+.rsc-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--indigo-soft);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.report-stat-card:nth-child(2) .rsc-icon {
+  background: var(--amber-soft);
+}
+.report-stat-card:nth-child(3) .rsc-icon {
+  background: var(--sage-soft);
+}
+.report-stat-card:nth-child(4) .rsc-icon {
+  background: var(--pink-soft);
+}
+
+.rsc-value {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* کارت نمودار: تیتر با آیکون و جداکننده‌ی نرم */
+.report-card {
+  border-radius: var(--radius-lg);
+  transition: box-shadow 0.2s ease;
+}
+
+.report-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* نوارهای نمودار روزانه: گرادیان در میله‌ها (override روی fill ثابت recharts) */
+.daily-chart-drag .recharts-bar-rectangle path {
+  filter: drop-shadow(0 2px 3px rgba(35, 43, 62, 0.12));
+}
+
+/* جدول تگ‌ها: ردیف‌های یک‌درمیان و نقطه‌ی رنگی بزرگ‌تر */
+.tag-row {
+  transition: background 0.15s ease;
+}
+
+.tag-row:not(.tag-header):hover {
+  background: var(--paper);
+}
+
+.tag-color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 15%, transparent);
+}
+
+/* کارت تفکیک درس‌ها: حاشیه‌ی رنگی کامل‌تر و هاور نرم */
+.subject-detail-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.subject-detail-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.sd-tag-dot {
+  border-radius: 4px;
+}
+
+/* حلقه‌ی درصد پیشرفت در هدر برنامه */
+.ring-progress {
+  position: relative;
+}
+
+.ring-progress::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(var(--indigo) var(--p, 0%), transparent 0);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   دکمه‌ی ثبت per-tag و خلاصه‌ی لاگ‌ها
+   ============================================================ */
+
+.per-tag-save-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: var(--indigo);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    transform 0.1s;
+  white-space: nowrap;
+  align-self: flex-end;
+}
+
+.per-tag-save-btn:hover:not(:disabled) {
+  background: var(--indigo-deep, #3a3194);
+}
+
+.per-tag-save-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.per-tag-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.per-tag-save-btn.is-saved {
+  background: var(--sage, #3d8b5f);
+}
+
+.per-tag-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.per-tag-summary-chip {
+  font-size: 10.5px;
+  padding: 3px 10px;
+  background: var(--hairline-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ---------- آمار فصل/بخش داخل هر درس در گزارش‌ها ---------- */
+.subject-topic-list {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.subject-topic-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+.subject-topic-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+  font-size: 13px;
+}
+.subject-topic-name {
+  font-weight: 700;
+  flex: 1 1 140px;
+}
+.subject-topic-meta {
+  color: var(--ink-soft);
+}
+
+/* ===================================================================
+   اصلاحات منوی همبرگری و هدر موبایل
+   =================================================================== */
+/* کشو با پورتال روی همه چیز می‌نشیند (هدر با backdrop-filter کشوی fixed را درون خودش حبس می‌کرد) */
+.panel-drawer-overlay {
+  z-index: 2000;
+}
+
+.panel-drawer-item.is-danger {
+  color: var(--brick);
+}
+.panel-drawer-item.is-danger:hover {
+  background: var(--brick-soft);
+}
+.hamburger-btn.only-mobile {
+  display: none;
+}
+
+/* موبایل و تبلت کوچک: دکمه‌های حساب کاربری از هدر به منوی همبرگری می‌روند */
+@media (max-width: 720px) {
+  .header-actions {
+    display: none !important;
+  }
+  .hamburger-btn.only-mobile {
+    display: inline-flex;
+  }
+  .hamburger-btn {
+    padding: 0;
+    width: 44px;
+    justify-content: center;
+  }
+}
+@media (min-width: 721px) {
+  .hamburger-btn {
+    padding: 0 14px;
+  }
+}
+
+
+/* ---------- تقویم هفتگی: برچسب اولین/آخرین ساعت نباید نصفه بریده شود ---------- */
+.cal-time-list { overflow: visible; }

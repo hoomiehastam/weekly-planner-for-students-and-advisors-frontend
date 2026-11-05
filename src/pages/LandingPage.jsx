@@ -1,29 +1,54 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
+import InstallButton from '../components/InstallButton';
 import Logo from '../components/Logo';
 import KonkurCountdownBanner from '../components/landing/KonkurCountdownBanner';
 import { toFaDigits } from '../utils/jalali';
 import { useAuth } from '../context/AuthContext';
-import { MASTER_BRAND, BRANDS } from '../utils/brand';
+import { MASTER_BRAND } from '../utils/brand';
+import Ico from '../components/Ico';
 
-// صفحه‌ی عمومی (لندینگ) — روایت «یک هفته با آوا»:
-// به‌جای فهرست ویژگی‌های تکراری، بازدیدکننده سفر واقعی یک دانش‌آموز را در طول
-// یک هفته می‌بیند (دریافت برنامه ← انجام ← ثبت ← بازخورد مشاور) و خودش را
-// جای او می‌گذارد. دو دروازه‌ی ورود (دانش‌آموز/مشاور) همیشه در دسترس‌اند.
+// صفحه‌ی لندینگ مدرن و روایی — همراه با «کیان» (دانش‌آموز واقعی همین پنل):
+// بازدیدکننده مسیر شفاف و واقعی مطالعه و تعامل با مشاور را می‌بیند.
 export default function LandingPage() {
   const { auth } = useAuth();
-  // دکمه‌ی بازگشت به بالا — بعد از عبور از hero ظاهر می‌شود
   const [showTop, setShowTop] = useState(false);
 
+  // تسک‌های تعاملی پیش‌نمایش در هیرو
+  const [heroTasks, setHeroTasks] = useState([
+    { id: 1, subject: 'ریاضی', topic: 'کاربرد مشتق و بهینه‌سازی', time: '۸:۰۰ تا ۹:۳۰', tag: 'تمرین', done: true },
+    { id: 2, subject: 'زیست‌شناسی', topic: 'ژنتیک و بیان ژن', time: '۱۰:۰۰ تا ۱۱:۳۰', tag: 'تست', done: true },
+    { id: 3, subject: 'شیمی', topic: 'استوکیومتری و تعادل‌ها', time: '۱۲:۰۰ تا ۱۳:۱۵', tag: 'پیشروی', done: false },
+    { id: 4, subject: 'فیزیک', topic: 'تست‌های دینامیک و اصطکاک', time: '۱۶:۰۰ تا ۱۷:۳۰', tag: 'تست', done: false },
+  ]);
+
+  const toggleHeroTask = (id) => {
+    setHeroTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
+    );
+  };
+
+  const doneCount = heroTasks.filter((t) => t.done).length;
+  const progressPercent = Math.round((doneCount / heroTasks.length) * 100);
+
   useEffect(() => {
-    const onScroll = () => setShowTop(window.scrollY > 480);
+    const onScroll = () => setShowTop(window.scrollY > 420);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // کاربر لاگین‌شده مستقیماً به پنل خودش هدایت می‌شود
+  // اسکرول نرم بدون خراب کردن روت هش در HashRouter
+  const scrollToSection = (e, id) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // هدایت کاربر لاگین‌شده به پنل خودش
   const dashboardPath =
     auth?.user?.role === 'STUDENT'
       ? '/student'
@@ -33,253 +58,368 @@ export default function LandingPage() {
 
   return (
     <div className="landing-page">
-      {/* ---------- هدر ---------- */}
+      {/* هاله‌های نوری شناور پس‌زمینه (Aurora Mesh Effect) */}
+      <div className="aurora-glow glow-top" aria-hidden="true" />
+      <div className="aurora-glow glow-middle" aria-hidden="true" />
+
+      {/* ---------- هدر شناور و مدرن ---------- */}
       <header className="landing-header">
-        <div className="landing-container landing-nav">
+        <div className="landing-nav">
           <div className="brand">
-            <Logo size={40} title="دانش‌آموزینو" />
+            <Logo size={36} title="دانش‌آموزینو" />
             <h2>{MASTER_BRAND}</h2>
           </div>
+
           <nav className="landing-nav-links" aria-label="ناوبری صفحه">
-            <a href="#week">هفته‌ی آوا</a>
-            <a href="#students">برای دانش‌آموز</a>
-            <a href="#advisors">برای مشاور</a>
+            <a href="#features" onClick={(e) => scrollToSection(e, 'features')}>امکانات</a>
+            <a href="#week" onClick={(e) => scrollToSection(e, 'week')}>یک هفته با کیان</a>
+            <a href="#students" onClick={(e) => scrollToSection(e, 'students')}>برای دانش‌آموز</a>
+            <a href="#advisors" onClick={(e) => scrollToSection(e, 'advisors')}>برای مشاور</a>
           </nav>
+
           <div className="landing-nav-actions">
             <ThemeToggle />
+            <InstallButton variant="landing" />
             {auth ? (
               <Link to={dashboardPath} className="btn-primary landing-cta-sm">
                 ورود به پنل
               </Link>
             ) : (
-              <Link to="/login" className="landing-login-btn">
-                ورود
-              </Link>
+              <div className="landing-auth-group">
+                <Link to="/login" className="landing-login-btn">
+                  ورود
+                </Link>
+                <Link to="/register?role=STUDENT" className="btn-primary landing-cta-sm">
+                  ثبت‌نام رایگان
+                </Link>
+              </div>
             )}
           </div>
         </div>
       </header>
 
       <main>
-        {/* ---------- Hero: وسط‌چین مثل کانسپت ---------- */}
+        {/* ---------- بخش هیرو (Hero Section) ---------- */}
         <section className="landing-hero">
           <div className="landing-container">
             <div className="hero-center">
               <KonkurCountdownBanner />
-              <span className="landing-kicker hero-pill-orange">
-                ویژه‌ی داوطلبان کنکور و مشاوران‌شان
-              </span>
+
+              <div className="hero-kicker-badge">
+                <span className="badge-pulse-dot" />
+                <span>سامانه‌ی هوشمند برنامه‌ریزی کنکور و همراهی مشاور</span>
+              </div>
+
               <h1 className="landing-title">
-                برنامه‌ی مطالعاتی‌ات را بگیر،
+                برنامه‌ریزی دقیق کنکور؛
                 <br />
-                هر روز پیشرفتت را ببین
+                <span className="gradient-highlight">نه در چت‌های شلوغ، در پنل اختصاصی تو</span>
               </h1>
+
               <p className="landing-subtitle">
-                مشاورت برنامه‌ی هفتگی‌ات را می‌سازد، تو در یک پنل ساده انجامش می‌دهی
-                و آمار پیشرفتت را دنبال می‌کنی.
+                مشاورت برنامه‌ی هفتگی‌ات را تا دقیقه‌اش می‌چیند، تو با چند تیک اجرایش می‌کنی،
+                در آزمون‌های زمان‌دار خودت را می‌سنجی و نمودار واقعی پیشرفتت را دنبال می‌کنی.
               </p>
-              <div className="landing-hero-actions landing-hero-actions-center">
-                <Link to="/register?role=STUDENT" className="cta-button">
-                  شروع رایگان
+
+              <div className="landing-hero-actions">
+                <Link to="/register?role=STUDENT" className="cta-button cta-student-glow">
+                  <span>شروع رایگان دانش‌آموز</span>
                   <span className="cta-arrow" aria-hidden>←</span>
                 </Link>
-                <Link to="/register?role=ADVISOR" className="btn-secondary landing-btn-lg">
-                  مشاور هستم
+                <Link to="/register?role=ADVISOR" className="btn-secondary landing-btn-advisor">
+                  <Ico e="🏫" />
+                  <span>پنل ویژه مشاوران و آموزشگاه‌ها / مدارس</span>
                 </Link>
               </div>
             </div>
 
-            {/* کارت پیش‌نمایش برنامه‌ی امروز — مثل کانسپت */}
-            <div className="hero-preview-card">
-              <div className="hero-preview-head">
-                <span className="hero-preview-title">برنامه‌ی امروز — شنبه</span>
-                <span className="hero-preview-badge">۳ از ۵ انجام‌شده</span>
-              </div>
-              <div className="hero-preview-rows">
-                <div className="hero-preview-row">
-                  <span className="hp-check" aria-hidden>✓</span>
-                  <span className="hp-done">ریاضی — فصل مشتق (۱ ساعت)</span>
-                </div>
-                <div className="hero-preview-row">
-                  <span className="hp-check" aria-hidden>✓</span>
-                  <span className="hp-done">زیست — گفتار دوم (۴۵ دقیقه)</span>
-                </div>
-                <div className="hero-preview-row">
-                  <span className="hp-circle" aria-hidden />
-                  <span>فیزیک — تست‌های دینامیک</span>
+            {/* کارت پیش‌نمایش زنده و سه‌بعدی پنل دانش‌آموز */}
+            <div className="hero-mockup-wrapper">
+              <div className="mockup-float-badge badge-top-right">
+                <span className="float-icon">🔥</span>
+                <div>
+                  <strong>۵ روز پیوسته</strong>
+                  <small>زنجیره‌ی مطالعه کیان</small>
                 </div>
               </div>
-            </div>
 
-            {/* دو دروازه‌ی ورود — بعد از کارت پیش‌نمایش */}
-            <div className="hero-gates hero-gates-below">
-                <Link
-                  to={auth ? dashboardPath : '/register?role=STUDENT'}
-                  className="gate gate-student"
-                >
-                  <span className="gate-head">
-                    <span className="gate-mark"><Logo size={30} /></span>
-                    <span className="gate-title">{BRANDS.STUDENT.name}</span>
-                  </span>
-                  <span className="gate-desc">
-                    مشاوری که برایت برنامه می‌سازد، از همین‌جا به تو وصل می‌شود.
-                  </span>
-                  <span className="gate-points">
-                    <span>برنامه‌ی هفتگی با ساعت دقیق هر درس</span>
-                    <span>ثبت دقیقه و تست با دو تیک</span>
-                    <span>آزمون واقعی با تایمر و نمره</span>
-                  </span>
-                  <span className="gate-cta student">
-                    {auth ? 'ورود به پنل دانش‌آموزی' : 'شروع به‌عنوان دانش‌آموز'}
-                    <span className="cta-arrow" aria-hidden>←</span>
-                  </span>
-                </Link>
+              <div className="mockup-float-badge badge-bottom-left">
+                <span className="float-icon">💬</span>
+                <div>
+                  <strong>یادداشت مشاور:</strong>
+                  <small>«تحلیل تست‌های مشتق عالی بود؛ خسته نباشی کیان جان»</small>
+                </div>
+              </div>
 
-                <Link
-                  to={auth ? dashboardPath : '/register?role=ADVISOR'}
-                  className="gate gate-advisor"
-                >
-                  <span className="gate-head">
-                    <span className="gate-mark gate-mark-advisor">م</span>
-                    <span className="gate-title">{BRANDS.ADVISOR.name}</span>
-                  </span>
-                  <span className="gate-desc">
-                    به‌جای ۳۰ چت واتساپ، یک پنل که همه‌ی شاگردهایت را با آمارشان نشان می‌دهد.
-                  </span>
-                  <span className="gate-points">
-                    <span>ساخت برنامه و آزمون برای کل کلاس</span>
-                    <span>دیدن لحظه‌ای پیشرفت هر شاگرد</span>
-                    <span>یادآور مستقیم داخل داشبورد او</span>
-                  </span>
-                  <span className="gate-cta advisor">
-                    {auth ? 'ورود به پنل مشاور' : 'شروع به‌عنوان مشاور'}
-                    <span className="cta-arrow" aria-hidden>←</span>
-                  </span>
-                </Link>
+              <div className="hero-preview-card">
+                <div className="mockup-window-bar">
+                  <div className="window-dots">
+                    <span className="dot dot-red" />
+                    <span className="dot dot-yellow" />
+                    <span className="dot dot-green" />
+                  </div>
+                  <div className="window-tab-title">
+                    <Ico e="📅" /> برنامه‌ی امروز کیان — شنبه
+                  </div>
+                  <div className="window-progress-pill">
+                    <span>پیشرفت روز:</span>
+                    <strong>{toFaDigits(progressPercent)}٪</strong>
+                  </div>
+                </div>
+
+                <div className="hero-preview-content">
+                  <div className="preview-tasks-header">
+                    <span className="tasks-summary-count">
+                      {toFaDigits(doneCount)} از {toFaDigits(heroTasks.length)} بازه کامل شده
+                    </span>
+                    <span className="interactive-hint">برای تست، روی بازه‌ها کلیک کن!</span>
+                  </div>
+
+                  <div className="hero-preview-rows">
+                    {heroTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className={`hero-preview-row ${task.done ? 'is-done' : ''}`}
+                        onClick={() => toggleHeroTask(task.id)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && toggleHeroTask(task.id)}
+                      >
+                        <span className={`hp-checkbox ${task.done ? 'checked' : ''}`}>
+                          {task.done ? <Ico e="✓" /> : null}
+                        </span>
+                        <div className="hp-info">
+                          <strong className="hp-subject">{task.subject}</strong>
+                          <span className="hp-topic">{task.topic}</span>
+                        </div>
+                        <div className="hp-meta">
+                          <span className="hp-time">{toFaDigits(task.time)}</span>
+                          <span className={`tag-pill tag-${task.tag === 'تمرین' ? 'indigo' : task.tag === 'تست' ? 'amber' : 'sage'}`}>
+                            {task.tag}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ---------- هفته‌ی آوا: تایم‌لاین روایی ---------- */}
-        <section id="week" className="landing-section">
+        {/* ---------- نوار ارزش‌ها و ویژگی‌های کلیدی پلتفرم ---------- */}
+        <section className="landing-metrics-bar">
+          <div className="landing-container metrics-row">
+            <div className="metric-item">
+              <span className="metric-num">&lt; {toFaDigits(5)} ثانیه</span>
+              <span className="metric-label">زمان ثبت هر پارت مطالعه و تست</span>
+            </div>
+            <div className="metric-divider" />
+            <div className="metric-item">
+              <span className="metric-num">PWA</span>
+              <span className="metric-label">نصب مستقیم روی گوشی و وب بدون اپ‌استور</span>
+            </div>
+            <div className="metric-divider" />
+            <div className="metric-item">
+              <span className="metric-num">آفلاین</span>
+              <span className="metric-label">ذخیره‌ی خودکار و کارکرد هنگام قطعی اینترنت</span>
+            </div>
+            <div className="metric-divider" />
+            <div className="metric-item">
+              <span className="metric-num">۱۰۰٪</span>
+              <span className="metric-label">محیط متمرکز، بدون تبلیغات و حاشیه‌ها</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- بخش امکانات به سبک بنتو (Bento Grid) ---------- */}
+        <section id="features" className="landing-section">
           <div className="landing-container">
-            <h2 className="landing-section-title">
-              یک هفته با <em>آوا</em> — دانش‌آموز واقعیِ همین پنل
-            </h2>
-            <p className="landing-section-sub">
-              این روایت دقیقاً همان چرخه‌ای است که هر دانش‌آموز اینجا طی می‌کند؛
-              اسکرول کن تا هفته‌ی آوا را ببینی.
-            </p>
+            <div className="section-head-center">
+              <span className="section-pill">چرا دانش‌آموزینو؟</span>
+              <h2 className="landing-section-title">
+                هر آنچه برای <em>رسیدن به رتبه دلخواهت</em> نیاز داری
+              </h2>
+              <p className="landing-section-sub">
+                ترکیب برنامه‌ریزی علمی، نظارت مستمر مشاور و ابزارهای روان برای حداکثر تمرکز کنکوری‌ها.
+              </p>
+            </div>
+
+            <div className="bento-grid">
+              {/* کارت ۱: بزرگ */}
+              <div className="bento-card bento-card-wide card-indigo">
+                <div className="bento-card-content">
+                  <span className="bento-icon"><Ico e="🗓" /></span>
+                  <h3>برنامه‌ی دقیق تا دقیقه — بدون ابهام</h3>
+                  <p>
+                    دیگر هیچ‌وقت نمی‌پرسی «الان باید چی بخونم؟». مشاور برنامه‌ی هفته را با ساعت دقیق
+                    شروع، پایان، درس، فصل و مبحث می‌چیند و همه‌چیز جلوی چشم توست.
+                  </p>
+                  <div className="bento-mock-pills">
+                    <span className="mock-pill">۸:۰۰ تا ۹:۳۰ · حسابان</span>
+                    <span className="mock-pill">۹:۴۵ تا ۱۱:۰۰ · فیزیک</span>
+                    <span className="mock-pill">۱۱:۱۵ تا ۱۲:۳۰ · شیمی</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* کارت ۲ */}
+              <div className="bento-card card-amber">
+                <div className="bento-card-content">
+                  <span className="bento-icon"><Ico e="⚡" /></span>
+                  <h3>ثبت پیشرفت در ۵ ثانیه</h3>
+                  <p>
+                    کاغذ و دفترهای شلوغ ثبت ساعات مطالعه را کنار بگذار. فقط یک تیک برای بازه و یک عدد
+                    برای تعداد تست؛ تمام!
+                  </p>
+                </div>
+              </div>
+
+              {/* کارت ۳ */}
+              <div className="bento-card card-teal">
+                <div className="bento-card-content">
+                  <span className="bento-icon"><Ico e="⏱" /></span>
+                  <h3>شبیه‌ساز آزمون زمان‌دار</h3>
+                  <p>
+                    آزمون‌های زمان‌دار کلاسی و تک‌نفره با تایمر معکوس واقعی، ثبت درصدهای تستی و ارسال
+                    برگه‌ی تشریحی به مشاور.
+                  </p>
+                </div>
+              </div>
+
+              {/* کارت ۴: عریض دوم برای پر کردن کامل ردیف ۲ */}
+              <div className="bento-card bento-card-wide card-pink">
+                <div className="bento-card-content">
+                  <span className="bento-icon"><Ico e="📊" /></span>
+                  <h3>نمودارها و آماری که دروغ نمی‌گوید</h3>
+                  <p>
+                    سهم دقیق هر درس و فصل از ساعات مطالعه‌ات را در نمودارهای تحلیلی هفتگی ببین تا
+                    نقاط قوت و ضعفت مشخص شود.
+                  </p>
+                </div>
+              </div>
+
+              {/* کارت ۵: تمام‌عرض برای بستن کامل و یکدست جدول بنتو بدون هیچ فضای خالی */}
+              <div className="bento-card bento-card-full card-purple">
+                <div className="bento-card-content">
+                  <span className="bento-icon"><Ico e="👥" /></span>
+                  <h3>ارتباط مستقیم و پیوسته با مشاور</h3>
+                  <p>
+                    مشاور بدون نیاز به پیگیری‌های خسته‌کننده، ساعت مطالعه و درصد آزمون‌های تو را آنلاین می‌بیند
+                    و مستقیماً برایت یادداشت و بازخورد ارسال می‌کند.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- تایم‌لاین روایی: یک هفته با کیان ---------- */}
+        <section id="week" className="landing-section week-narrative-section">
+          <div className="landing-container">
+            <div className="section-head-center">
+              <span className="section-pill">یک سناریوی واقعی</span>
+              <h2 className="landing-section-title">
+                یک هفته با <em>کیان</em> — دانش‌آموز واقعیِ همین پنل
+              </h2>
+              <p className="landing-section-sub">
+                ببین کیان چطور در طول یک هفته برنامه‌اش را تحویل می‌گیرد، می‌خواند و به مشاورش گزارش می‌دهد:
+              </p>
+            </div>
 
             <div className="week-timeline">
-              <div className="timeline-rail" aria-hidden />
+              <div className="timeline-rail" aria-hidden="true" />
 
-              {/* شنبه — برنامه می‌رسد */}
+              {/* شنبه */}
               <div className="timeline-item">
                 <span className="timeline-day">شنبه</span>
                 <div className="timeline-card">
                   <div className="timeline-head">
-                    <span className="timeline-emoji" aria-hidden>📥</span>
+                    <span className="timeline-emoji"><Ico e="📥" /></span>
                     <div>
-                      <h3>برنامه‌ی جدید از مشاور رسید</h3>
+                      <h3>برنامه‌ی جدید کیان از مشاور رسید</h3>
                       <p>
-                        مشاور آوا برنامه‌ی هفته را ساخت و در پنل او منتشر شد.
-                        آوا با نشان «به‌روزرسانی جدید» هم‌زمان با ورود، آن را می‌بیند —
-                        هیچ پیام جداگانه‌ای لازم نیست.
+                        مشاور کیان برنامه‌ی هفته‌ی جاری را ساخت و در پنل منتشر کرد.
+                        کیان با ورود به داشبورد، اعلان برنامه‌ی جدید را دریافت می‌کند؛ بدون نیاز به پی‌دی‌اف و پیام تلگرام.
                       </p>
                     </div>
                   </div>
                   <div className="timeline-plan">
                     <div className="plan-row"><span className="plan-time">۱۶:۰۰–۱۷:۳۰</span><span>ریاضی — انتگرال، حل تمرین</span><span className="plan-tag tag-indigo">تمرین</span></div>
-                    <div className="plan-row"><span className="plan-time">۱۸:۰۰–۱۸:۴۵</span><span>ادبیات — مرور قلمرو فکر</span><span className="plan-tag tag-sage">مرور</span></div>
+                    <div className="plan-row"><span className="plan-time">۱۸:۰۰–۱۸:۴۵</span><span>ادبیات — مرور قلمرو فکری</span><span className="plan-tag tag-sage">مرور</span></div>
                     <div className="plan-row"><span className="plan-time">۱۹:۳۰–۲۰:۳۰</span><span>شیمی — تست فصل ۱</span><span className="plan-tag tag-amber">تست</span></div>
                   </div>
                 </div>
               </div>
 
-              {/* یکشنبه — اجرا و ثبت */}
+              {/* یکشنبه */}
               <div className="timeline-item">
                 <span className="timeline-day">یکشنبه</span>
                 <div className="timeline-card">
                   <div className="timeline-head">
-                    <span className="timeline-emoji" aria-hidden>✅</span>
+                    <span className="timeline-emoji"><Ico e="✅" /></span>
                     <div>
                       <h3>اجرا کن، تیک بزن، تمام</h3>
                       <p>
-                        پایان هر بازه، آوا فقط دو کار می‌کند: تیک «انجام شد» و ثبت
-                        تعداد تست. هر چیز دیگر لازم نیست؛ همین تیک‌ها بعداً آمارش را می‌سازند.
+                        پایان هر پارت مطالعاتی، کیان فقط دو کار می‌کند: تیک «انجام شد» و ثبت تعداد تست.
+                        همین دو عدد در چند ثانیه کل آمار هفتگی‌اش را می‌سازند.
                       </p>
                     </div>
                   </div>
                   <div className="timeline-stats">
-                    <div className="stat-mini"><strong>{toFaDigits(105)}</strong><small>دقیقه مطالعه‌ی امروز</small></div>
-                    <div className="stat-mini"><strong>{toFaDigits(24)}</strong><small>تست زده‌شده</small></div>
-                    <div className="stat-mini stat-mini-done"><strong>{toFaDigits(3)}</strong><small>بازه‌ی کامل‌شده</small></div>
+                    <div className="stat-mini"><strong>{toFaDigits(120)}</strong><small>دقیقه مطالعه امروز</small></div>
+                    <div className="stat-mini"><strong>{toFaDigits(35)}</strong><small>تست زده‌شده</small></div>
+                    <div className="stat-mini stat-mini-done"><strong>{toFaDigits(4)}</strong><small>بازه‌ی کامل‌شده</small></div>
                   </div>
                 </div>
               </div>
 
-              {/* چهارشنبه — آزمون */}
+              {/* چهارشنبه */}
               <div className="timeline-item">
                 <span className="timeline-day">چهارشنبه</span>
                 <div className="timeline-card timeline-card-accent">
                   <div className="timeline-head">
-                    <span className="timeline-emoji" aria-hidden>⏱</span>
+                    <span className="timeline-emoji"><Ico e="⏱" /></span>
                     <div>
-                      <h3>آزمون زمان‌دار، مثل روز آزمون</h3>
+                      <h3>آزمون شبیه‌ساز زمان‌دار</h3>
                       <p>
-                        مشاور یک آزمون ۲۰سؤالی فعال کرده. آوا با شمارش معکوس و
-                        بدون برگشت به جزوه می‌زند؛ تستی‌ها همان لحظه نمره می‌گیرند.
+                        مشاور یک آزمون ۲۰سؤالی شیمی فعال کرده است. کیان با شمارش معکوس و در شرایط واقعی
+                        کنکور پاسخ می‌دهد و درصد سؤالات تستی همان لحظه محاسبه می‌شود.
                       </p>
                     </div>
                   </div>
                   <div className="timeline-exam">
                     <span className="exam-clock">{toFaDigits('14:32')}</span>
                     <div className="exam-bars">
-                      <div className="exam-bar-row"><span>پاسخ‌داده</span><div className="exam-bar"><span style={{ width: '60%' }} /></div><strong>{toFaDigits(12)}</strong></div>
-                      <div className="exam-bar-row"><span>بی‌پاسخ</span><div className="exam-bar"><span style={{ width: '25%' }} /></div><strong>{toFaDigits(5)}</strong></div>
-                      <div className="exam-bar-row"><span>مانده</span><div className="exam-bar"><span style={{ width: '15%' }} /></div><strong>{toFaDigits(3)}</strong></div>
+                      <div className="exam-bar-row"><span>پاسخ‌داده</span><div className="exam-bar"><span style={{ width: '70%' }} /></div><strong>{toFaDigits(14)}</strong></div>
+                      <div className="exam-bar-row"><span>بی‌پاسخ</span><div className="exam-bar"><span style={{ width: '20%' }} /></div><strong>{toFaDigits(4)}</strong></div>
+                      <div className="exam-bar-row"><span>مانده</span><div className="exam-bar"><span style={{ width: '10%' }} /></div><strong>{toFaDigits(2)}</strong></div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* جمعه — گزارش و بازخورد */}
+              {/* جمعه */}
               <div className="timeline-item">
                 <span className="timeline-day">جمعه</span>
                 <div className="timeline-card">
                   <div className="timeline-head">
-                    <span className="timeline-emoji" aria-hidden>📊</span>
+                    <span className="timeline-emoji"><Ico e="📊" /></span>
                     <div>
-                      <h3>آخر هفته: عدد واقعی، نه حس‌وحال</h3>
+                      <h3>کارنامه‌ی واقعی آخر هفته؛ بدون حدس و گمان</h3>
                       <p>
-                        آوا ۹ ساعت و ۲۰ دقیقه مطالعه و ۲۱۰ تست ثبت کرده. مشاور بدون
-                        هیچ سؤالی همین را در پنل خودش می‌بیند و برنامه‌ی هفته‌ی بعد را
-                        دقیق‌تر می‌سازد. چرخه از نو.
+                        کیان در طول هفته ۵۴ ساعت مطالعه و ۶۵۰ تست ثبت کرده است. مشاور بدون تلف کردن وقت
+                        در مکالمات طولانی، گزارش تحلیلی کیان را بررسی می‌کند و بر اساس آن برنامه‌ی هفته بعد را دقیق‌تر می‌چیند.
                       </p>
                     </div>
                   </div>
                   <div className="timeline-week-report">
-                    <div className="report-bar-col">
-                      <div className="report-bar" style={{ '--h': '55%' }} />
-                      <small>شنبه</small>
-                    </div>
-                    <div className="report-bar-col">
-                      <div className="report-bar" style={{ '--h': '80%' }} />
-                      <small>یکشنبه</small>
-                    </div>
-                    <div className="report-bar-col">
-                      <div className="report-bar" style={{ '--h': '40%' }} />
-                      <small>دوشنبه</small>
-                    </div>
-                    <div className="report-bar-col">
-                      <div className="report-bar" style={{ '--h': '95%' }} />
-                      <small>چهارشنبه</small>
-                    </div>
-                    <div className="report-bar-col">
-                      <div className="report-bar" style={{ '--h': '65%' }} />
-                      <small>پنجشنبه</small>
-                    </div>
+                    <div className="report-bar-col"><div className="report-bar" style={{ '--h': '60%' }} /><small>شنبه</small></div>
+                    <div className="report-bar-col"><div className="report-bar" style={{ '--h': '85%' }} /><small>یکشنبه</small></div>
+                    <div className="report-bar-col"><div className="report-bar" style={{ '--h': '70%' }} /><small>دوشنبه</small></div>
+                    <div className="report-bar-col"><div className="report-bar" style={{ '--h': '95%' }} /><small>سه‌شنبه</small></div>
+                    <div className="report-bar-col"><div className="report-bar" style={{ '--h': '80%' }} /><small>چهارشنبه</small></div>
+                    <div className="report-bar-col"><div className="report-bar" style={{ '--h': '90%' }} /><small>پنجشنبه</small></div>
                   </div>
                 </div>
               </div>
@@ -287,106 +427,112 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ---------- برای دانش‌آموز: برتری‌ها به زبان نتیجه ---------- */}
+        {/* ---------- بخش ویژه دانش‌آموزان ---------- */}
         <section id="students" className="landing-section landing-section-tinted">
           <div className="landing-container">
-            <h2 className="landing-section-title">
-              برای دانش‌آموز: <em>چرا اینجا؟</em>
-            </h2>
-            <p className="landing-section-sub">
-              هر بخش از پنل برای یک جواب مشخص ساخته شده است.
-            </p>
+            <div className="section-head-center">
+              <span className="section-pill">برای داوطلب کنکور</span>
+              <h2 className="landing-section-title">
+                چرا دانش‌آموزان <em>عاشق این پنل</em> می‌شوند؟
+              </h2>
+            </div>
             <div className="landing-feature-grid">
               <div className="landing-feature-card">
-                <span className="landing-feature-icon landing-ico-indigo" aria-hidden>🗓</span>
-                <h3>هیچ‌وقت نمی‌پرسی «امروز چی بخونم؟»</h3>
-                <p>برنامه‌ی هفته با ساعت شروع و پایان هر بازه، صفحه‌ی اول پنلت است — نه فایلی وسط واتساپ.</p>
+                <span className="landing-feature-icon landing-ico-indigo"><Ico e="🗓" /></span>
+                <h3>شروع هر روز بدون بلاتکلیفی</h3>
+                <p>برنامه‌ی روزانه با تفکیک دقیق ساعت و درس، اولین چیزی است که بعد از بیدار شدن می‌بینی.</p>
               </div>
               <div className="landing-feature-card">
-                <span className="landing-feature-icon landing-ico-amber" aria-hidden>⚡</span>
-                <h3>ثبت پیشرفت ۵ ثانیه‌ای</h3>
-                <p>یک تیک برای «انجام شد»، یک عدد برای تست. کاغذ و دفتر ثبت لازم نیست.</p>
+                <span className="landing-feature-icon landing-ico-amber"><Ico e="⚡" /></span>
+                <h3>ثبت سریع و لذت‌بخش مطالعه</h3>
+                <p>یک تیک برای «انجام شد» و نوشتن تعداد تست. نیازی به تایپ طولانی و یادداشت‌های کاغذی نیست.</p>
               </div>
               <div className="landing-feature-card">
-                <span className="landing-feature-icon landing-ico-teal" aria-hidden>📊</span>
-                <h3>آماری که دروغ نمی‌گوید</h3>
-                <p>سهم واقعی هر درس از وقتت را می‌بینی؛ هفته‌ی بعد برنامه بر اساس همین عددها عوض می‌شود.</p>
+                <span className="landing-feature-icon landing-ico-teal"><Ico e="📊" /></span>
+                <h3>شفافیت در عملکرد واقعی</h3>
+                <p>ساعات مطالعه‌ات به تفکیک درس و تگ (تست، تشریحی، مرور) دسته‌بندی می‌شود تا حس گم‌گشتگی نداشته باشی.</p>
               </div>
               <div className="landing-feature-card">
-                <span className="landing-feature-icon landing-ico-pink" aria-hidden>📝</span>
-                <h3>آزمون بدون برگه و تصحیح</h3>
-                <p>همین‌جا با تایمر می‌زنی، تستی‌ها خودکار نمره می‌گیرند و پاسخ‌برگ تشریحی هم مرتب جلوی مشاورت است.</p>
+                <span className="landing-feature-icon landing-ico-pink"><Ico e="📝" /></span>
+                <h3>آزمون‌های استاندارد کنکوری</h3>
+                <p>تایمر شبیه‌ساز واقعی با کارنامه‌ی فوری و نمایش پاسخ‌برگ تشریحی مشاور.</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ---------- برای مشاور ---------- */}
+        {/* ---------- بخش ویژه مشاوران ---------- */}
         <section id="advisors" className="landing-section">
           <div className="landing-container">
-            <h2 className="landing-section-title">
-              برای مشاور: <em>کلاس بزرگ‌تر، کاغذ صفر</em>
-            </h2>
-            <p className="landing-section-sub">
-              هر شاگردِ بیشتر بدون پنل یعنی پیامِ بیشتر؛ اینجا هر دو با هم جلو نمی‌روند.
-            </p>
+            <div className="section-head-center">
+              <span className="section-pill">برای مشاوران، آموزشگاه‌ها و مدارس</span>
+              <h2 className="landing-section-title">
+                مدیریت ده‌ها شاگرد؛ <em>بدون کاغذ، بدون آشفتگی</em>
+              </h2>
+            </div>
             <div className="landing-feature-grid">
               <div className="landing-feature-card">
-                <span className="landing-feature-icon landing-ico-indigo" aria-hidden>👥</span>
-                <h3>۳۰ شاگرد مثل ۳ شاگرد</h3>
-                <p>آمار هفتگی همه در یک صفحه؛ ضعیف‌ترین و قوی‌ترین شاگرد هفته را بدون چک‌کردن تک‌تک چت‌ها می‌بینی.</p>
+                <span className="landing-feature-icon landing-ico-indigo"><Ico e="👥" /></span>
+                <h3>نظارت آسان بر ۵۰ شاگرد هم‌زمان</h3>
+                <p>آمار هفتگی تمام دانش‌آموزان در یک نگاه؛ شاگردانی که کم‌کاری داشته‌اند بلافاصله مشخص می‌شوند.</p>
               </div>
               <div className="landing-feature-card">
-                <span className="landing-feature-icon landing-ico-amber" aria-hidden>✨</span>
-                <h3>یک آزمون برای همه، هرکدام نسخه‌ی خودشان</h3>
-                <p>آزمون گروهی بساز؛ هر شاگرد تایمر و پاسخ‌برگ مستقل خودش را می‌گیرد و تستی‌ها برایت نمره می‌شوند.</p>
+                <span className="landing-feature-icon landing-ico-amber"><Ico e="✨" /></span>
+                <h3>برنامه‌ساز هوشمند چندروزه</h3>
+                <p>چیدمان برنامه‌ها با تکرار الگو، قابلیت کپی بازه‌ها و درگ‌وان‌دراپ روان در کسری از دقیقه.</p>
               </div>
               <div className="landing-feature-card">
-                <span className="landing-feature-icon landing-ico-teal" aria-hidden>🔔</span>
-                <h3>یادآور همان‌جایی که می‌بینند</h3>
-                <p>یادآوری که می‌فرستی، مستقیم در داشبورد شاگرد می‌نشیند — نه گم‌شده وسط پیام‌های گوشی.</p>
+                <span className="landing-feature-icon landing-ico-teal"><Ico e="🔔" /></span>
+                <h3>ارسال یادآور و پیام درون پنل</h3>
+                <p>بازخوردهایت را مستقیماً در داشبورد دانش‌آموز قرار بده؛ بدون اینکه میان پیام‌های پیام‌رسان‌ها گم شود.</p>
               </div>
               <div className="landing-feature-card">
-                <span className="landing-feature-icon landing-ico-pink" aria-hidden>✅</span>
-                <h3>نمره‌دهی مرتب و سریع</h3>
-                <p>تشریحی‌ها با پاسخ‌برگ کنار هم؛ نوبتی نمره بده و تمام — بدون فایل و پرینت پراکنده.</p>
+                <span className="landing-feature-icon landing-ico-pink"><Ico e="✅" /></span>
+                <h3>برگزاری آزمون کلاسی</h3>
+                <p>یک آزمون برای تمام شاگردانتان فعال کنید؛ تستی‌ها خودکار تصحیح شده و کارنامه آماده می‌شود.</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ---------- شروع: دو مسیر، هر دو کوتاه ---------- */}
+        {/* ---------- دعوت به عمل پایانی (Final CTA) ---------- */}
         <section className="landing-final-cta">
           <div className="landing-container">
-            <h2>هفته‌ی بعدت از همین‌جا شروع می‌شود.</h2>
-            <p>ثبت‌نام دانش‌آموزی کمتر از یک دقیقه است؛ مشاورها بعد از تأیید فعال می‌شوند.</p>
-            <div className="landing-hero-actions landing-hero-actions-center">
-              <Link to="/register?role=STUDENT" className="cta-button">
-                شروع به‌عنوان دانش‌آموز
-                <span className="cta-arrow" aria-hidden>←</span>
-              </Link>
-              <Link to="/register?role=ADVISOR" className="btn-secondary landing-btn-lg">
-                شروع به‌عنوان مشاور
-              </Link>
+            <div className="final-cta-card">
+              <div className="cta-glow-effect" aria-hidden="true" />
+              <h2>همین امروز مسیر رتبه برتر شدن را آغاز کن</h2>
+              <p>ثبت‌نام دانش‌آموز کمتر از یک دقیقه زمان می‌برد و دسترسی رایگان است.</p>
+              <div className="landing-hero-actions landing-hero-actions-center">
+                <Link to="/register?role=STUDENT" className="cta-button cta-student-glow">
+                  <span>شروع رایگان دانش‌آموز</span>
+                  <span className="cta-arrow" aria-hidden>←</span>
+                </Link>
+                <Link to="/register?role=ADVISOR" className="btn-secondary landing-btn-advisor">
+                  <span>ثبت‌نام مشاور یا آموزشگاه</span>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
       </main>
 
-      {/* ---------- فوتر ---------- */}
+      {/* ---------- فوتر مدرن ---------- */}
       <footer className="landing-footer">
         <div className="landing-container landing-footer-row">
           <div className="brand landing-footer-brand">
-            <Logo size={34} />
-            <span>{MASTER_BRAND} · دانش‌آموزینو و مشاور دانش‌آموزینو</span>
+            <Logo size={36} />
+            <div>
+              <strong>{MASTER_BRAND}</strong>
+              <small>سامانه‌ی یکپارچه‌ی برنامه‌ریزی و هدایت داوطلبان کنکور سراسری</small>
+            </div>
           </div>
           <p className="landing-footer-copy">
-            ساخته‌شده برای دانش‌آموزان و مشاوران کنکور · {toFaDigits(1405)}
+            طراحی و توسعه‌یافته برای کنکوری‌های هدفمند و مشاوران پیشرو · {toFaDigits(1405)}
           </p>
         </div>
       </footer>
 
-      {/* بازگشت به بالا — بعد از اسکرول ظاهر می‌شود */}
+      {/* دکمه‌ی شناور بازگشت به بالای صفحه */}
       <button
         type="button"
         className={`back-to-top ${showTop ? 'visible' : ''}`}
@@ -394,7 +540,7 @@ export default function LandingPage() {
         aria-label="بازگشت به بالای صفحه"
         title="بازگشت به بالا"
       >
-        ↑
+        <i className="ti ti-arrow-up" aria-hidden="true" />
       </button>
     </div>
   );

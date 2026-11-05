@@ -16,7 +16,10 @@ import {
 } from 'recharts';
 import { DAY_NAMES } from '../utils/dayNames';
 import { toFaDigits, formatJalaliDate, toJalali } from '../utils/jalali';
+import { normalizeName, nameKey, topicLabel } from '../utils/planItem';
+import { logDayKey, plannedMinutesForDate } from '../utils/studyData';
 import Zoomable from './Zoomable';
+import Ico from './Ico';
 
 // ابزار تاریخ برای ردیف زمانی روزانه
 function addDays(d, n) {
@@ -72,7 +75,7 @@ function formatMinutes(minutes) {
 //   variant: 'student' | 'advisor' (پیش‌فرض: 'advisor')
 //     - در حالت student: بخش‌های «زمان هر درس» و «سایر کارها» به سبک دانش‌آموزی نمایش داده می‌شوند
 //     - در حالت advisor: همان سبک قبلی (با جزئیات بیشتر برای مشاور)
-export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' }) {
+export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor', entries = [] }) {
   const stats = useMemo(() => {
     const byDay = DAY_NAMES.map((name) => ({
       name,
@@ -128,10 +131,14 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
           totalTests += totalItemTests;
 
           // آمار per-subject با جزئیات per-tag
-          const subj = item.subject || 'بدون نام';
-          if (!bySubject.has(subj)) {
-            bySubject.set(subj, {
+          // گروه‌بندی فقط بر اساس «نام درس»؛ فصل و بخش در زیرمجموعه‌ی همان درس جدا بررسی می‌شوند
+          const subj = normalizeName(item.subject) || 'بدون نام';
+          const subjKey = nameKey(subj);
+          if (!bySubject.has(subjKey)) {
+            bySubject.set(subjKey, {
               name: subj,
+              // آمار جدا برای هر فصل/بخش این درس
+              byTopic: new Map(),
               studyMinutes: 0,
               plannedMinutes: 0,
               count: 0,
@@ -144,8 +151,19 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
               otherNotes: [],
             });
           }
-          const s = bySubject.get(subj);
+          const s = bySubject.get(subjKey);
           s.count++;
+          const topic = topicLabel(item);
+          if (topic) {
+            if (!s.byTopic.has(topic)) {
+              s.byTopic.set(topic, { label: topic, count: 0, done: 0, minutes: 0, tests: 0 });
+            }
+            const tp = s.byTopic.get(topic);
+            tp.count++;
+            if (item.status === 'DONE') tp.done++;
+            tp.minutes += effectiveMin;
+            tp.tests += totalItemTests;
+          }
           s.studyMinutes += effectiveMin;
           if (item.status === 'DONE') s.plannedMinutes += plannedMin;
           s.tests += totalItemTests;
@@ -193,6 +211,41 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       }
     }
 
+    // ---------- مطالعه‌ی آزاد (خارج از برنامه‌ی مشاور) ----------
+    for (const en of entries) {
+      const mins = en.minutes || 0;
+      const tests = en.testsTaken || 0;
+      totalLogMinutes += mins;
+      totalTests += tests;
+
+      const subj = normalizeName(en.subject) || 'بدون نام';
+      const subjKey = nameKey(subj);
+      if (!bySubject.has(subjKey)) {
+        bySubject.set(subjKey, {
+          name: subj, byTopic: new Map(), studyMinutes: 0, plannedMinutes: 0, count: 0, tests: 0,
+          byTag: new Map(), otherMinutes: 0, otherTests: 0, otherNotes: [],
+        });
+      }
+      const s = bySubject.get(subjKey);
+      s.studyMinutes += mins;
+      s.tests += tests;
+      if (en.tagName) {
+        if (!s.byTag.has(en.tagName)) s.byTag.set(en.tagName, { minutes: 0, tests: 0 });
+        const tg = s.byTag.get(en.tagName);
+        tg.minutes += mins;
+        tg.tests += tests;
+        if (!byTag.has(en.tagName)) byTag.set(en.tagName, { name: en.tagName, minutes: 0, tests: 0 });
+        const btg = byTag.get(en.tagName);
+        btg.minutes += mins;
+        btg.tests += tests;
+      } else {
+        s.otherMinutes += mins;
+        s.otherTests += tests;
+        s.otherNotes.push({ note: en.note || 'مطالعه‌ی آزاد', minutes: mins, tests });
+        otherEntries.push({ subject: subj, note: en.note || 'مطالعه‌ی آزاد', minutes: mins, tests });
+      }
+    }
+
     // زمان مؤثر کل — منطبق با StudentDashboard
     const effectiveTotalMinutes = totalLogMinutes > 0
       ? totalLogMinutes
@@ -204,9 +257,9 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       for (const day of plan.days || []) {
         for (const item of day.items || []) {
           for (const log of item.itemLogs || []) {
-            const t = log.createdAt ? new Date(log.createdAt) : null;
-            if (!t || Number.isNaN(t.getTime())) continue;
-            const k = dateKey(t);
+            // ساعت برای «روزِ همان بازه» حساب می‌شود (studyDay)، نه روزی که دانش‌آموز ثبت کرده
+            const k = logDayKey(log);
+            if (!k) continue;
             let e = logsByDate.get(k);
             if (!e) {
               e = { minutes: 0, tests: 0 };
@@ -217,6 +270,18 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
           }
         }
       }
+    }
+
+    // مطالعه‌ی آزاد هم در همان روزِ خودش روی نمودار می‌نشیند
+    for (const en of entries) {
+      if (!en.studyDay) continue;
+      let e = logsByDate.get(en.studyDay);
+      if (!e) {
+        e = { minutes: 0, tests: 0 };
+        logsByDate.set(en.studyDay, e);
+      }
+      e.minutes += en.minutes || 0;
+      e.tests += en.testsTaken || 0;
     }
 
     // محدوده‌ی پیمایش: از قدیمی‌ترین روزِ دارای لاگ (حداکثر ۶ هفته) تا امروز.
@@ -267,7 +332,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       rangeStart,
       totalDays,
     };
-  }, [plans, weeklyGoalMinutes]);
+  }, [plans, weeklyGoalMinutes, entries]);
 
   // داده‌های نمودار دایره‌ای هدف
   const goalData = useMemo(() => {
@@ -302,7 +367,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
 
   // پنجره‌ی هفت‌روزه‌ی مرکز-محور: روز وسط، سه روز قبل و سه روز بعد
   const daily = useMemo(() => {
-    const { rangeStart, totalDays, logsByDate, byDay } = stats;
+    const { rangeStart, totalDays, logsByDate } = stats;
     const winStart = Math.max(0, Math.min(effCenter - 3, totalDays - 7));
     const winEnd = Math.min(winStart + 7, totalDays);
     const arr = [];
@@ -310,20 +375,21 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       const d = addDays(rangeStart, i);
       const weekday = (d.getDay() + 1) % 7;
       const [, , jd] = toJalali(d);
-      const log = logsByDate.get(dateKey(d));
-      const day = byDay[weekday] || { plannedMinutes: 0 };
+      const key = dateKey(d);
+      const log = logsByDate.get(key);
       arr.push({
         d,
         label: `${SHORT_WEEKDAYS[weekday]} ${toFaDigits(jd)}`,
         isCenter: i === effCenter,
         isToday: sameDay(d, today),
-        planned: day.plannedMinutes,
+        // برنامه‌ریزی‌شده = همه‌ی بازه‌های آن تاریخ (در برنامه‌هایی که آن تاریخ در بازه‌شان است)
+        planned: plannedMinutesForDate(plans, key),
         logged: log ? log.minutes : 0,
         tests: log ? log.tests : 0,
       });
     }
     return arr;
-  }, [stats, effCenter, today]);
+  }, [stats, effCenter, today, plans]);
 
   const centerDate = useMemo(
     () => formatJalaliDate(addDays(stats.rangeStart, effCenter)),
@@ -368,28 +434,28 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       {/* کارت‌های خلاصه */}
       <div className="reports-summary">
         <div className="report-stat-card">
-          <div className="rsc-icon">⏱</div>
+          <div className="rsc-icon"><Ico e="⏱" /></div>
           <div>
             <div className="rsc-value">{formatMinutes(stats.totalActualMinutes)}</div>
             <div className="rsc-label">مجموع مطالعه</div>
           </div>
         </div>
         <div className="report-stat-card">
-          <div className="rsc-icon">✎</div>
+          <div className="rsc-icon"><Ico e="✎" /></div>
           <div>
             <div className="rsc-value">{toFaDigits(stats.totalTests)}</div>
             <div className="rsc-label">کل تست‌های زده‌شده</div>
           </div>
         </div>
         <div className="report-stat-card">
-          <div className="rsc-icon">✓</div>
+          <div className="rsc-icon"><Ico e="✓" /></div>
           <div>
             <div className="rsc-value">{toFaDigits(stats.totalDone)}/{toFaDigits(stats.totalItems)}</div>
             <div className="rsc-label">درس‌های انجام‌شده</div>
           </div>
         </div>
         <div className="report-stat-card">
-          <div className="rsc-icon">🎯</div>
+          <div className="rsc-icon"><Ico e="🎯" /></div>
           <div>
             <div className="rsc-value">{toFaDigits(stats.completionRate)}٪</div>
             <div className="rsc-label">ضریب انجام‌شدگی</div>
@@ -400,7 +466,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       {/* نمودار هدف هفتگی */}
       {stats.goalProgress !== null && (
         <div className="report-card">
-          <h3 className="report-card-title">🎯 پیشرفت نسبت به هدف هفتگی</h3>
+          <h3 className="report-card-title"><Ico e="🎯" /> پیشرفت نسبت به هدف هفتگی</h3>
           <p className="report-card-sub">
             هدف: {formatMinutes(weeklyGoalMinutes)} — انجام‌شده: {formatMinutes(stats.totalActualMinutes)}
           </p>
@@ -420,7 +486,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                 <div className="goal-center-label">
                   <div className="goal-percent">{toFaDigits(stats.goalProgress)}٪</div>
                   <div className="goal-sub">
-                    {stats.goalProgress >= 100 ? '🎉 آفرین! هدف رسیدی' : 'به هدف نزدیک می‌شی'}
+                    {stats.goalProgress >= 100 ? <><Ico e="🎉" /> آفرین! به هدف رسیدی</> : 'به هدف نزدیک می‌شی'}
                   </div>
                 </div>
               </div>
@@ -431,7 +497,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       {/* نمودار میله‌ای پویا: مقایسه‌ی زمان برنامه‌ریزی‌شده با ثبت‌شده — پنجره‌ی روز قبل/بعد */}
       <div className="report-card">
         <div className="daily-chart-head">
-          <h3 className="report-card-title">📊 مطالعه در هر روز</h3>
+          <h3 className="report-card-title"><Ico e="📊" /> مطالعه در هر روز</h3>
           <div className="day-pan">
             <button
               type="button"
@@ -529,7 +595,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       {/* نمودار میله‌ای پویا: تعداد تست‌ها — پنجره‌ی روز قبل/بعد */}
       <div className="report-card">
         <div className="daily-chart-head">
-          <h3 className="report-card-title">✎ تعداد تست‌های زده‌شده در هر روز</h3>
+          <h3 className="report-card-title"><Ico e="✎" /> تعداد تست‌های زده‌شده در هر روز</h3>
           <div className="day-pan">
             <button
               type="button"
@@ -600,7 +666,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       {/* نمودار دایره‌ای تگ‌ها — بر اساس زمان ثبت‌شده per-tag */}
       {stats.tags.length > 0 && (
         <div className="report-card">
-          <h3 className="report-card-title">🏷 زمان مطالعه بر اساس تگ</h3>
+          <h3 className="report-card-title"><Ico e="🏷" /> زمان مطالعه بر اساس تگ</h3>
           <p className="report-card-sub">
             توزیع زمان ثبت‌شده‌ی دانش‌آموز بین تگ‌های درسی
           </p>
@@ -666,7 +732,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       {stats.subjects.length > 0 && (
         <div className="report-card">
           <h3 className="report-card-title">
-            {variant === 'student' ? '📚 زمانی که برای هر درس گذاشتی' : '📚 زمان مطالعه‌ی هر درس به تفکیک تگ'}
+            <Ico e="📚" /> {variant === 'student' ? 'زمانی که برای هر درس گذاشتی' : 'زمان مطالعه‌ی هر درس به تفکیک تگ'}
           </h3>
           <p className="report-card-sub">
             {variant === 'student'
@@ -686,11 +752,11 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                 >
                   <div className="subject-detail-head">
                     <span className="subject-detail-name" style={{ borderRightColor: color }}>
-                      {variant === 'student' ? '📖' : ''} {s.name}
+                      {variant === 'student' ? <Ico e="📖" /> : ''} {s.name}
                     </span>
                     <span className="subject-detail-total">
                       {variant === 'student' ? 'مجموع: ' : ''}{formatMinutes(s.studyMinutes)}
-                      {s.tests > 0 && ` · ✎ ${toFaDigits(s.tests)} تست`}
+                      {s.tests > 0 && <> · <Ico e="✎" /> {toFaDigits(s.tests)} تست</>}
                     </span>
                   </div>
                   <div className="subject-detail-tags">
@@ -705,7 +771,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                         </span>
                         <span className="sd-tag-min">{formatMinutes(data.minutes)}</span>
                         {data.tests > 0 && (
-                          <span className="sd-tag-tests">✎ {toFaDigits(data.tests)} تست</span>
+                          <span className="sd-tag-tests"><Ico e="✎" /> {toFaDigits(data.tests)} تست</span>
                         )}
                       </div>
                     ))}
@@ -714,26 +780,44 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                       <div className={`subject-detail-tag sd-other ${variant === 'student' ? 'student-tag' : ''}`}>
                         <span className="sd-tag-name">
                           <span className="sd-tag-dot" style={{ background: '#E8643C' }} />
-                          📌 سایر کارها
+                          <Ico e="📌" /> سایر کارها
                         </span>
                         {s.otherMinutes > 0 && (
                           <span className="sd-tag-min">{formatMinutes(s.otherMinutes)}</span>
                         )}
                         {s.otherTests > 0 && (
-                          <span className="sd-tag-tests">✎ {toFaDigits(s.otherTests)} تست</span>
+                          <span className="sd-tag-tests"><Ico e="✎" /> {toFaDigits(s.otherTests)} تست</span>
                         )}
                       </div>
                     )}
                   </div>
+                  {/* فصل‌ها و بخش‌های این درس — جدا از نام درس بررسی می‌شوند */}
+                  {s.byTopic.size > 0 && (
+                    <div className="subject-topic-list">
+                      <div className="subject-topic-title">فصل‌ها و بخش‌ها</div>
+                      {Array.from(s.byTopic.values()).map((tp) => (
+                        <div key={tp.label} className="subject-topic-row">
+                          <span className="subject-topic-name">{tp.label}</span>
+                          <span className="subject-topic-meta">
+                            {toFaDigits(tp.done)}/{toFaDigits(tp.count)} بازه
+                          </span>
+                          <span className="subject-topic-meta">{formatMinutes(tp.minutes)}</span>
+                          {tp.tests > 0 && (
+                            <span className="subject-topic-meta"><Ico e="✎" /> {toFaDigits(tp.tests)} تست</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {/* توضیحات سایر کارهای این درس — در حالت student به سبک دوستانه‌تر */}
                   {s.otherNotes.length > 0 && (
                     <div className={`subject-other-notes ${variant === 'student' ? 'student-other' : ''}`}>
                       {variant === 'student' && (
-                        <div className="other-notes-title">💡 کارهای اضافه‌ای که کردی:</div>
+                        <div className="other-notes-title"><Ico e="💡" /> کارهای اضافه‌ای که کردی:</div>
                       )}
                       {s.otherNotes.map((n, nIdx) => (
                         <div key={nIdx} className="other-note-row">
-                          <span className="other-note-icon">📌</span>
+                          <span className="other-note-icon"><Ico e="📌" /></span>
                           <span className="other-note-text">{n.note}</span>
                           <span className="other-note-time">{formatMinutes(n.minutes)}</span>
                         </div>
@@ -751,7 +835,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       {stats.otherEntries.length > 0 && (
         <div className="report-card other-entries-card">
           <h3 className="report-card-title">
-            {variant === 'student' ? '📌 کارهای خارج از برنامه‌ای که کردی' : '📌 سایر کارهای دانش‌آموز'}
+            <Ico e="📌" /> {variant === 'student' ? 'کارهای خارج از برنامه‌ای که کردی' : 'سایر کارهای دانش‌آموز'}
           </h3>
           <p className="report-card-sub">
             {variant === 'student'
@@ -768,11 +852,11 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
                   <span className="other-entry-subject">{e.subject}</span>
                   <span className="other-entry-time">{formatMinutes(e.minutes)}</span>
                   {e.tests > 0 && (
-                    <span className="other-entry-tests">✎ {toFaDigits(e.tests)} تست</span>
+                    <span className="other-entry-tests"><Ico e="✎" /> {toFaDigits(e.tests)} تست</span>
                   )}
                 </div>
                 <div className="other-entry-note">
-                  {variant === 'student' ? '✏️ ' : ''}{e.note}
+                  {variant === 'student' ? <Ico e="✏️" /> : ''} {e.note}
                 </div>
               </div>
             ))}
@@ -781,7 +865,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
             {variant === 'student' ? 'مجموع کارهای اضافه: ' : 'مجموع سایر کارها: '}
             {formatMinutes(stats.otherEntries.reduce((s, e) => s + e.minutes, 0))}
             {stats.otherEntries.reduce((s, e) => s + e.tests, 0) > 0 && (
-              <> · ✎ {toFaDigits(stats.otherEntries.reduce((s, e) => s + e.tests, 0))} تست</>
+              <> · <Ico e="✎" /> {toFaDigits(stats.otherEntries.reduce((s, e) => s + e.tests, 0))} تست</>
             )}
           </div>
         </div>
@@ -790,7 +874,7 @@ export default function Reports({ plans, weeklyGoalMinutes, variant = 'advisor' 
       {/* پیام خالی */}
       {stats.totalItems === 0 && (
         <div className="empty-card">
-          <span className="empty-emoji" aria-hidden>📊</span>
+          <span className="empty-emoji" aria-hidden><Ico e="📊" /></span>
           <p>
             {variant === 'student'
               ? 'هنوز داده‌ای برای نمایش نداری. وقتی مشاورت برنامه‌ات رو بسازد و تو برای هر درس وقت بذاری، اینجا آمار کامل می‌شه.'

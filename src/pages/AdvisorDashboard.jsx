@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   fetchMyStudents,
@@ -12,127 +12,48 @@ import {
   fetchExamsForStudent,
   deleteExam,
   fetchExamSubmissions,
-  gradeSubmission,
   fetchPendingStudentRequests,
   acceptStudentRequest,
   rejectStudentRequest,
+  updatePlan,
+  fetchStudyEntriesForStudent,
+  fetchSubjectProgressForStudent,
 } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { DAY_NAMES } from '../utils/dayNames';
-import { formatJalaliShort, formatRelativeTime, formatJalaliDate, formatJalaliDateTime, toFaDigits } from '../utils/jalali';
-import PlanBuilder from '../components/PlanBuilder';
-import Reports from '../components/Reports';
+import { toFaDigits } from '../utils/jalali';
+import MockExamsCard from '../components/MockExamsCard';
+import ExamScheduleCard from '../components/student/ExamScheduleCard';
 import AdminPanel from '../components/AdminPanel';
 import ProfileModal from '../components/ProfileModal';
-import ExamBuilder from '../components/ExamBuilder';
+import RegistrationCompleteModal from '../components/RegistrationCompleteModal';
 import ConfirmModal from '../components/ConfirmModal';
-import FaNumberInput from '../components/FaNumberInput';
 import AppHeader from '../components/AppHeader';
 import StatCard from '../components/StatCard';
-import { computeProgress, TimeBadge } from '../components/PlanBits';
-import StudentListSidebar from '../components/advisor/StudentListSidebar';
-import StudentContactInfo from '../components/advisor/StudentContactInfo';
+import StudentPicker from '../components/advisor/StudentPicker';
+import AdvisorInviteCard from '../components/advisor/AdvisorInviteCard';
+import ExamRangePlanModal from '../components/advisor/ExamRangePlanModal';
 import GradingModal from '../components/advisor/GradingModal';
-import MobileNav from '../components/MobileNav';
+import usePanelSection from '../hooks/usePanelSection';
+import Ico from '../components/Ico';
+import { listDrafts } from '../utils/drafts';
 
-function StatusLabel({ status }) {
-  if (status === 'DONE') return <span className="status-pill done">انجام شده</span>;
-  if (status === 'SKIPPED') return <span className="status-pill skipped">نادیده</span>;
-  return <span className="status-pill pending">در انتظار</span>;
-}
-
-// یک روز از برنامه در نمای لیست مشاور — قابل باز/بسته شدن
-function AdvisorDayBlock({ day }) {
-  const [open, setOpen] = useState(false);
-  const itemsDone = day.items.filter((i) => i.status === 'DONE').length;
-  return (
-    <div className={`day-block ${open ? 'is-open' : ''}`}>
-      <button
-        type="button"
-        className="day-header day-header-toggle"
-        onClick={() => setOpen((o) => !o)}
-        title={open ? 'جمع‌کردن این روز' : 'بازکردن این روز'}
-      >
-        <span className="day-header-title">
-          <span className="chevron day-chevron">{open ? '▾' : '▸'}</span>
-          <h4>{DAY_NAMES[day.dayOfWeek]}</h4>
-        </span>
-        {day.items.length > 0 && (
-          <span className="day-count">
-            {toFaDigits(itemsDone)}/{toFaDigits(day.items.length)}
-          </span>
-        )}
-      </button>
-      {open && (
-        <div className="day-items-wrap">
-          {day.items.length === 0 ? (
-            <p className="muted-text">کاری برای این روز ثبت نشده.</p>
-          ) : (
-            day.items.map((item) => (
-              <div className="task-row advisor-task" key={item.id}>
-                <div className="task-content">
-                  <strong>{item.subject}</strong>
-                  {item.description && <span className="task-desc">{item.description}</span>}
-                  <div className="task-meta">
-                    <TimeBadge startTime={item.startTime} endTime={item.endTime} />
-                    <StatusLabel status={item.status} />
-                    {item.tags.map((t) => (
-                      <span className="tag-pill" key={t.tag.id}>
-                        {t.tag.name}
-                      </span>
-                    ))}
-                  </div>
-                  {/* نمایش per-tag لاگ‌های دانش‌آموز برای این درس */}
-                  {(item.itemLogs || []).length > 0 && (
-                    <div className="advisor-pertag-list">
-                      <div className="advisor-pertag-label">
-                        📝 زمانی که دانش‌آموز ثبت کرده:
-                      </div>
-                      {(item.itemLogs || []).map((log, logIdx) => (
-                        <div
-                          key={logIdx}
-                          className={`advisor-pertag-row ${log.tagId ? '' : 'is-other'}`}
-                        >
-                          <span className="advisor-pertag-name">
-                            {log.tag ? log.tag.name : '📌 سایر کارها'}
-                          </span>
-                          <span className="advisor-pertag-min">
-                            ⏱ {toFaDigits(log.minutes)} دقیقه
-                          </span>
-                          {log.testsTaken !== null && log.testsTaken !== undefined && (
-                            <span className="advisor-pertag-tests">
-                              ✎ {toFaDigits(log.testsTaken)} تست
-                            </span>
-                          )}
-                          {log.note && (
-                            <span className="advisor-pertag-note">
-                              — {log.note}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
+import AdvisorPlansSection from '../components/advisor/AdvisorPlansSection';
+import AdvisorProfileSection from '../components/advisor/AdvisorProfileSection';
+import AdvisorExamsSection from '../components/advisor/AdvisorExamsSection';
+import AdvisorPendingRequestsSection from '../components/advisor/AdvisorPendingRequestsSection';
 
 export default function AdvisorDashboard() {
   const { auth, logout } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
+  const isSuperadmin = auth.user.role === 'SUPERADMIN';
 
-  // خروج: پاک‌کردن جلسه و بازگشت به صفحه‌ی ورود (نه صفحه‌ی معرفی)
   async function handleLogout() {
     await logout();
     navigate('/login', { replace: true });
   }
+
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [plans, setPlans] = useState([]);
@@ -142,54 +63,102 @@ export default function AdvisorDashboard() {
   const [loadingStudents, setLoadingStudents] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [sending, setSending] = useState(false);
-  const [activeTab, setActiveTab] = useState('students');
   const [builderState, setBuilderState] = useState(null);
   const [openPlanId, setOpenPlanId] = useState(null);
-  const [view, setView] = useState('list'); // 'list' | 'calendar' | 'reports'
+  const [view, setView] = useState('list'); // 'list' | 'reports' | 'free'
   const [editingGoal, setEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState('');
   const [showProfile, setShowProfile] = useState(false);
   const [exams, setExams] = useState([]);
-  const [examBuilderState, setExamBuilderState] = useState(null); // null | 'create' | { exam }
-  const [gradingSubmission, setGradingSubmission] = useState(null); // null | { exam, submission }
-  const [confirmState, setConfirmState] = useState(null); // { message, onConfirm, danger }
-  // درخواست‌های دانش‌آموزان که منتظر تأیید مشاور هستند
+  const [examBuilderState, setExamBuilderState] = useState(null);
+  const [gradingSubmission, setGradingSubmission] = useState(null);
+  const [confirmState, setConfirmState] = useState(null);
   const [pendingRequests, setPendingRequests] = useState([]);
-  const toast = useToast();
-  const isSuperadmin = auth.user.role === 'SUPERADMIN';
+  const [entries, setEntries] = useState([]);
+  const [progressRows, setProgressRows] = useState([]);
+  const pendingCountRef = useRef(null);
+  const [showExamRange, setShowExamRange] = useState(false);
 
-  // آیتم‌های نوار پایین موبایل: سوپرادمین تب‌ها را عوض می‌کند، بقیه به بخش‌ها می‌پرند
-  const navItems = useMemo(() => {
-    if (isSuperadmin) {
-      return [
-        { key: 'students', label: 'دانش‌آموزها', icon: '👥', target: 'section-students' },
-        { key: 'admin', label: 'مدیریت', icon: '⚙️', target: 'section-admin' },
-      ];
-    }
+  const STUDENT_SECTIONS = ['profile', 'plans', 'exams', 'school', 'mock'];
+  const SECTION_KEYS = [
+    'students', 'requests', ...STUDENT_SECTIONS, ...(isSuperadmin ? ['admin'] : []),
+  ];
+  const [section, setSection] = usePanelSection(SECTION_KEYS, 'students');
+
+  const menuItems = useMemo(() => {
+    const need = 'اول یک دانش‌آموز انتخاب کن';
+    const forStudent = (item) => ({ ...item, disabled: !selectedStudent, hint: selectedStudent ? item.hint : need });
     return [
-      { key: 'students', label: 'دانش‌آموزها', icon: '👥', target: 'section-students' },
-      { key: 'reminders', label: 'یادآورها', icon: '✉️', target: 'section-reminders' },
-      { key: 'plans', label: 'برنامه‌ها', icon: '🗓', target: 'section-plans' },
-      { key: 'exams', label: 'آزمون‌ها', icon: '📝', target: 'section-exams' },
+      {
+        key: 'students', label: 'دانش‌آموزها', icon: '👥',
+        hint: selectedStudent ? `انتخاب‌شده: ${selectedStudent.fullName}` : 'فهرست دانش‌آموزان و لینک دعوت',
+      },
+      { key: 'requests', label: 'درخواست‌های جدید', icon: '📨', badge: pendingRequests.length, hint: 'دانش‌آموزانی که خودشان تو را انتخاب کرده‌اند' },
+      forStudent({ key: 'profile', label: 'مرور اجمالی', icon: '👤', divider: true, hint: 'خلاصه‌ی وضعیت، هدف، یادآور و یادداشت‌های خصوصی' }),
+      forStudent({ key: 'plans', label: 'برنامه‌ها', icon: '🗓', hint: 'ساخت، ویرایش و انتشار برنامه‌ی هفتگی' }),
+      forStudent({ key: 'exams', label: 'آزمون‌ها', icon: '📝', hint: 'ساخت آزمون و نمره‌دهی' }),
+      forStudent({ key: 'school', label: 'امتحان‌های مدرسه', icon: '🏫', hint: 'امتحان‌های ثبت‌شده‌ی دانش‌آموز و ساخت برنامه از آن‌ها' }),
+      forStudent({ key: 'mock', label: 'کارنامه‌ی آزمایشی', icon: '📈', hint: 'تراز و درصد آزمون‌های آزمایشی بیرونی' }),
+      ...(isSuperadmin ? [{ key: 'admin', label: 'مدیریت مشاوران', icon: '⚙️', divider: true, hint: 'تأیید مشاوران، سقف‌ها، اشتراک و آموزشگاه‌ها' }] : []),
     ];
-  }, [isSuperadmin]);
+  }, [isSuperadmin, selectedStudent, pendingRequests.length]);
 
-  function handleNavSelect(key, item) {
-    const id = item?.target || key;
-    if (key === 'admin') {
-      setActiveTab('admin');
-      return;
-    }
-    if (key === 'students' && activeTab !== 'students') {
-      setActiveTab('students');
-    }
-    // بعد از رندر، اسکرول به بخش — برای تغییر تب هم rAF دوبل کافی است
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    });
-  }
+  const inStudentSection = !!selectedStudent && STUDENT_SECTIONS.includes(section);
+  useEffect(() => {
+    if (inStudentSection) window.dispatchEvent(new CustomEvent('dz:enteredstudentsection'));
+  }, [inStudentSection]);
+
+  useEffect(() => {
+    const recheck = () => {
+      if (inStudentSection) window.dispatchEvent(new CustomEvent('dz:recheckstudentsection'));
+    };
+    window.addEventListener('dz:recheckstudentsection', recheck);
+    return () => window.removeEventListener('dz:recheckstudentsection', recheck);
+  }, [inStudentSection]);
+
+  useEffect(() => {
+    const onSection = (e) => {
+      const key = e.detail?.key;
+      if (key === '__default') {
+        setSection('students');
+        e.detail.ok = true;
+        return;
+      }
+      if (!SECTION_KEYS.includes(key)) return;
+      if (STUDENT_SECTIONS.includes(key) && !selectedStudent) return;
+      setSection(key);
+      e.detail.ok = true;
+    };
+    window.addEventListener('dz:panelsection', onSection);
+    return () => window.removeEventListener('dz:panelsection', onSection);
+  });
+
+  useEffect(() => {
+    const onTourForm = (e) => {
+      const form = e.detail?.form;
+      if (form === 'profile') {
+        setShowProfile(true);
+        e.detail.ok = true;
+      } else if (form === 'plan-builder' && selectedStudent) {
+        setShowProfile(false);
+        setSection('plans');
+        setView('list');
+        setBuilderState('create');
+        e.detail.ok = true;
+      } else if (form === 'exam-builder' && selectedStudent) {
+        setShowProfile(false);
+        setSection('exams');
+        setExamBuilderState('create');
+        e.detail.ok = true;
+      } else if (form === null) {
+        setShowProfile(false);
+        setBuilderState(null);
+        setExamBuilderState(null);
+      }
+    };
+    window.addEventListener('dz:tourform', onTourForm);
+    return () => window.removeEventListener('dz:tourform', onTourForm);
+  });
 
   useEffect(() => {
     fetchMyStudents()
@@ -198,7 +167,25 @@ export default function AdvisorDashboard() {
       .finally(() => setLoadingStudents(false));
   }, [auth?.user?.id]);
 
-  // بارگذاری درخواست‌های دانش‌آموزان (PENDING) — برای مدیریت تأیید/رد
+  const resumedRef = useRef(false);
+  useEffect(() => {
+    if (resumedRef.current || loadingStudents || students.length === 0 || !auth?.user?.id) return;
+    resumedRef.current = true;
+    const drafts = [
+      ...listDrafts(auth.user.id, 'plan:'),
+      ...listDrafts(auth.user.id, 'exam:'),
+    ].sort((a, b) => b.savedAt - a.savedAt);
+    for (const d of drafts) {
+      const [kind, studentId, id] = d.scope.split(':');
+      const st = students.find((x) => String(x.id) === studentId && x.isActive !== false);
+      if (st) {
+        selectStudent(st, { kind, id });
+        setSection(kind === 'plan' ? 'plans' : 'exams');
+        break;
+      }
+    }
+  }, [loadingStudents, students, auth?.user?.id, setSection]);
+
   function loadPendingRequests() {
     fetchPendingStudentRequests()
       .then((data) => setPendingRequests(data.requests || []))
@@ -209,14 +196,38 @@ export default function AdvisorDashboard() {
     loadPendingRequests();
   }, [auth?.user?.id]);
 
-  // قبول یک درخواست دانش‌آموز
+  useEffect(() => {
+    const check = () => {
+      if (document.visibilityState !== 'visible') return;
+      fetchPendingStudentRequests()
+        .then((data) => {
+          const list = data.requests || [];
+          if (pendingCountRef.current !== null && list.length > pendingCountRef.current) {
+            toast.info('درخواست جدیدی از یک دانش‌آموز رسید');
+          }
+          setPendingRequests(list);
+        })
+        .catch(() => {});
+    };
+    const id = setInterval(check, 60000);
+    document.addEventListener('visibilitychange', check);
+    window.addEventListener('focus', check);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', check);
+      window.removeEventListener('focus', check);
+    };
+  }, [auth?.user?.id, toast]);
+
+  useEffect(() => {
+    pendingCountRef.current = pendingRequests.length;
+  }, [pendingRequests.length]);
+
   async function handleAcceptRequest(linkId, studentName) {
     try {
       await acceptStudentRequest(linkId);
       toast.success(`دانش‌آموز «${studentName}» قبول شد`);
-      // حذف از لیست pending و اضافه به لیست فعال
       setPendingRequests((prev) => prev.filter((r) => r.id !== linkId));
-      // بارگذاری مجدد دانش‌آموزان فعال
       fetchMyStudents()
         .then((data) => setStudents(data.students))
         .catch(() => {});
@@ -225,12 +236,11 @@ export default function AdvisorDashboard() {
     }
   }
 
-  // رد یک درخواست دانش‌آموز
   async function handleRejectRequest(linkId, studentName) {
     setConfirmState({
       message: `درخواست «${studentName}» رد شود؟ دانش‌آموز می‌تواند مشاور دیگری انتخاب کند.`,
       danger: true,
-      confirmText: '✕ رد درخواست',
+      confirmText: 'رد درخواست',
       onConfirm: async () => {
         setConfirmState(null);
         try {
@@ -244,7 +254,7 @@ export default function AdvisorDashboard() {
     });
   }
 
-  async function selectStudent(student) {
+  async function selectStudent(student, resume = null) {
     setSelectedStudent(student);
     setBuilderState(null);
     setOpenPlanId(null);
@@ -255,16 +265,32 @@ export default function AdvisorDashboard() {
     setLoadingDetail(true);
     setError('');
     try {
-      const [plansData, remindersData, examsData] = await Promise.all([
+      const [plansData, remindersData, examsData, entriesData, progressData] = await Promise.all([
         fetchStudentPlans(student.id),
         fetchRemindersForStudent(student.id),
         fetchExamsForStudent(student.id).catch(() => ({ exams: [] })),
+        fetchStudyEntriesForStudent(student.id).catch(() => ({ entries: [] })),
+        fetchSubjectProgressForStudent(student.id).catch(() => ({ progress: [] })),
       ]);
-      setPlans(plansData.plans);
-      setReminders(remindersData.reminders);
+      setPlans(plansData.plans || []);
+      setEntries(entriesData.entries || []);
+      setProgressRows(progressData.progress || []);
+      setReminders(remindersData.reminders || []);
       setExams(examsData.exams || []);
-      if (plansData.plans.length > 0) setOpenPlanId(plansData.plans[0].id);
-      // تنظیم مقدار اولیه‌ی هدف هفتگی
+      if (plansData.plans?.length > 0) setOpenPlanId(plansData.plans[0].id);
+      if (resume?.kind === 'plan') {
+        if (resume.id === 'new') setBuilderState('create');
+        else {
+          const p = plansData.plans.find((x) => String(x.id) === resume.id);
+          if (p) setBuilderState({ plan: p });
+        }
+      } else if (resume?.kind === 'exam') {
+        if (resume.id === 'new') setExamBuilderState('create');
+        else {
+          const ex = (examsData.exams || []).find((x) => String(x.id) === resume.id);
+          if (ex) setExamBuilderState({ exam: ex });
+        }
+      }
       setGoalInput(student.weeklyGoalMinutes ? String(Math.round(student.weeklyGoalMinutes / 60)) : '');
     } catch (err) {
       setError(err.message);
@@ -294,6 +320,7 @@ export default function AdvisorDashboard() {
       });
       setReminders([data.reminder, ...reminders]);
       setReminderText('');
+      toast.success('یادآور ارسال شد');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -317,7 +344,7 @@ export default function AdvisorDashboard() {
     setConfirmState({
       message: 'این برنامه حذف شود؟ این کار قابل بازگشت نیست.',
       danger: true,
-      confirmText: '🗑 حذف',
+      confirmText: 'حذف',
       onConfirm: async () => {
         setConfirmState(null);
         try {
@@ -331,11 +358,30 @@ export default function AdvisorDashboard() {
     });
   }
 
+  async function handlePublishDraft(planId) {
+    try {
+      const data = await updatePlan(planId, { isDraft: false });
+      setPlans((prev) => prev.map((p) => (p.id === planId ? data.plan : p)));
+      toast.success('برنامه برای دانش‌آموز منتشر شد');
+    } catch (err) {
+      toast.error(err.message);
+    }
+  }
+
+  function handleDraftsCreated(data) {
+    setPlans((prev) => [...data.plans, ...prev]);
+    setShowExamRange(false);
+    setOpenPlanId(data.plans[0]?.id || null);
+    setView('list');
+    setSection('plans');
+    toast.success(`${toFaDigits(data.plans.length)} پیش‌نویس برنامه ساخته شد؛ ویرایش و منتشر کن`);
+  }
+
   async function handleDeleteReminder(reminderId) {
     setConfirmState({
       message: 'این یادآور حذف شود؟',
       danger: true,
-      confirmText: '🗑 حذف',
+      confirmText: 'حذف',
       onConfirm: async () => {
         setConfirmState(null);
         try {
@@ -349,7 +395,6 @@ export default function AdvisorDashboard() {
     });
   }
 
-  // ذخیره‌ی هدف هفتگی برای دانش‌آموز انتخاب‌شده
   async function handleSaveGoal() {
     const hours = parseInt(goalInput, 10);
     if (Number.isNaN(hours) || hours < 0 || hours > 168) {
@@ -364,17 +409,17 @@ export default function AdvisorDashboard() {
         prev.map((s) => (s.id === selectedStudent.id ? { ...s, weeklyGoalMinutes: minutes } : s))
       );
       setEditingGoal(false);
+      toast.success('هدف هفتگی ذخیره شد');
     } catch (err) {
       setError(err.message);
     }
   }
 
-  // حذف آزمون
   async function handleDeleteExam(examId) {
     setConfirmState({
       message: 'این آزمون حذف شود؟',
       danger: true,
-      confirmText: '🗑 حذف',
+      confirmText: 'حذف',
       onConfirm: async () => {
         setConfirmState(null);
         try {
@@ -388,7 +433,6 @@ export default function AdvisorDashboard() {
     });
   }
 
-  // ذخیره‌ی آزمون (ساخت یا ویرایش) — در حالت گروهی آرایه‌ای از آزمون‌ها برمی‌گردد
   function handleExamSaved(saved) {
     const savedList = Array.isArray(saved) ? saved : [saved];
     setExams((prev) => {
@@ -406,7 +450,6 @@ export default function AdvisorDashboard() {
     }
   }
 
-  // باز کردن مودال نمره‌دهی به یک ارسال
   async function handleOpenGrading(exam) {
     try {
       const data = await fetchExamSubmissions(exam.id);
@@ -420,8 +463,8 @@ export default function AdvisorDashboard() {
     }
   }
 
-  const totalStudents = students.length;
-  const totalPlans = plans.length;
+  const activeStudents = students.filter((st) => st.isActive !== false);
+  const totalStudents = activeStudents.length;
 
   return (
     <div className="advisor-app">
@@ -429,543 +472,233 @@ export default function AdvisorDashboard() {
         fullName={auth.user.fullName}
         greeting={auth.user.fullName}
         avatarClass="advisor-avatar"
+        menuItems={menuItems}
+        activeMenu={section}
+        onMenuSelect={(key) => setSection(key)}
+        menuTitle={isSuperadmin ? 'پنل مدیریت' : 'پنل مشاور'}
         onOpenProfile={() => setShowProfile(true)}
         onLogout={handleLogout}
       />
 
-      {/* اگر این مشاور نماینده‌ی (سردار) یک مؤسسه باشد، میان‌بر پنل مؤسسه را می‌بیند */}
       {auth.user.ledInstitute && (
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '10px 20px 0' }}>
           <button
+            type="button"
             className="btn-secondary btn-sm"
             onClick={() => navigate('/institute')}
             title="پنل مدیریت مؤسسه"
           >
-            🏫 پنل مؤسسه‌ی «{auth.user.ledInstitute.name}»
+            <Ico e="🏫" /> پنل مؤسسه‌ی «{auth.user.ledInstitute.name}»
           </button>
         </div>
       )}
 
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
 
+      {auth.user.registrationComplete === false && auth.user.role === 'ADVISOR' && (
+        <RegistrationCompleteModal role="ADVISOR" />
+      )}
+
       <main className="page-body advisor-body">
         {error && (
           <div className="alert alert-error" onClick={() => setError('')}>
-            <span>⚠</span> {error}
+            <span><Ico e="⚠" /></span> {error}
           </div>
         )}
 
-        {isSuperadmin && (
-          <div className="tab-row">
-            <button
-              className={`tab-btn ${activeTab === 'students' ? 'active' : ''}`}
-              onClick={() => setActiveTab('students')}
-            >
-              <span aria-hidden>👥</span> دانش‌آموزها
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
-              onClick={() => setActiveTab('admin')}
-            >
-              <span aria-hidden>⚙</span> مدیریت مشاوران
-            </button>
-          </div>
-        )}
-
-        {activeTab === 'admin' && isSuperadmin && (
-          <div id="section-admin">
-            <AdminPanel />
-          </div>
-        )}
-
-        {activeTab === 'students' && (
+        {/* بخش فهرست دانش‌آموزان */}
+        {section === 'students' && (
           <>
-            {/* بخش درخواست‌های دانش‌آموزان (PENDING) */}
-            {pendingRequests.length > 0 && (
-              <section id="section-requests" className="card admin-section" style={{ marginBottom: 'var(--gap-md)' }}>
-                <h3 className="card-title">
-                  <span aria-hidden>📨</span> درخواست‌های دانش‌آموزان
-                  <span className="badge-updated" style={{ marginInlineStart: 8 }}>
-                    {toFaDigits(pendingRequests.length)} جدید
-                  </span>
-                </h3>
-                <p className="muted-text" style={{ marginBottom: 12 }}>
-                  این دانش‌آموزان می‌خواهند به تو متصل شوند. بعد از تأیید، می‌توانی برایشان برنامه و آزمون بسازی.
-                </p>
-                <div className="institute-advisor-list">
-                  {pendingRequests.map((req) => (
-                    <div key={req.id} className="student-request-card">
-                      <div className="student-request-avatar">
-                        {req.student.photoUrl ? (
-                          <img
-                            src={req.student.photoUrl}
-                            alt=""
-                            className="student-request-photo"
-                          />
-                        ) : (
-                          (req.student.fullName || '؟').charAt(0)
-                        )}
-                      </div>
-                      <div className="student-request-body">
-                        <span className="student-request-name">{req.student.fullName}</span>
-                        <div className="student-request-meta">
-                          {req.student.field && (
-                            <span>
-                              {req.student.field === 'HUMANITIES' ? '📚 علوم انسانی'
-                                : req.student.field === 'MATH_PHYSICS' ? '📐 ریاضی و فیزیک'
-                                : '🧪 علوم تجربی'}
-                            </span>
-                          )}
-                          <span>🕐 {formatRelativeTime(req.createdAt)}</span>
-                          {req.student.phone && (
-                            <a href={`tel:${req.student.phone}`} dir="ltr" onClick={(e) => e.stopPropagation()}>
-                              📞 {toFaDigits(req.student.phone)}
-                            </a>
-                          )}
-                        </div>
-                        {/* ایمیل + عکس پروفایل در کارت درخواست — سواد تصمیم‌گیری مشاور */}
-                        <a
-                          href={`mailto:${req.student.email}`}
-                          className="student-request-email"
-                          dir="ltr"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          📧 {req.student.email}
-                        </a>
-                        {req.student.bio && (
-                          <p className="student-request-bio">{req.student.bio}</p>
-                        )}
-                      </div>
-                      <div className="student-request-actions">
-                        <button
-                          className="btn-primary btn-sm"
-                          onClick={() => handleAcceptRequest(req.id, req.student.fullName)}
-                        >
-                          ✓ قبول
-                        </button>
-                        <button
-                          className="btn-secondary btn-sm"
-                          onClick={() => handleRejectRequest(req.id, req.student.fullName)}
-                        >
-                          ✕ رد
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
             <section className="stats-grid">
               <StatCard icon="👥" label="دانش‌آموزها" value={toFaDigits(totalStudents)} accent="indigo" />
-              <StatCard icon="📋" label="برنامه‌های این دانش‌آموز" value={toFaDigits(totalPlans)} accent="amber" />
+              <StatCard icon="📨" label="درخواست‌های جدید" value={toFaDigits(pendingRequests.length)} accent="amber" />
+              <StatCard icon="🎯" label="بدون هدف هفتگی" value={toFaDigits(activeStudents.filter((st) => !st.weeklyGoalMinutes).length)} accent="pink" />
             </section>
 
-            <div className="two-column">
-              <StudentListSidebar
-                id="section-students"
-                students={students}
-                selectedId={selectedStudent?.id}
-                loading={loadingStudents}
-                onSelect={selectStudent}
+            {students.length === 0 && !loadingStudents && (
+              <div className="empty-card big" style={{ margin: 'var(--gap-lg) 0' }}>
+                <span className="empty-emoji" aria-hidden><Ico e="👥" /></span>
+                <p>هنوز دانش‌آموزی نداری. لینک دعوت اختصاصی‌ات را برای شاگردانت بفرست.</p>
+              </div>
+            )}
+
+            <AdvisorInviteCard />
+
+            {pendingRequests.length > 0 && (
+              <AdvisorPendingRequestsSection
+                pendingRequests={pendingRequests}
+                handleAcceptRequest={handleAcceptRequest}
+                handleRejectRequest={handleRejectRequest}
               />
+            )}
 
-              <main>
-                {!selectedStudent && (
-                  <div className="empty-card big empty-guide">
-                    <span className="empty-arrow" aria-hidden />
-                    <p>یک دانش‌آموز را از فهرست انتخاب کن.</p>
-                  </div>
-                )}
-
-                {selectedStudent && loadingDetail && (
-                  <div className="loading-state">
-                    <div className="spinner" />
-                    <p>در حال بارگذاری…</p>
-                  </div>
-                )}
-
-                {selectedStudent && !loadingDetail && (
-                  <div className="detail-stack">
-                    {/* بخش اطلاعات تماس دانش‌آموز */}
-                    <StudentContactInfo student={selectedStudent} />
-
-                    {/* بخش هدف هفتگی */}
-                    <section className="card goal-card">
-                      <h3 className="card-title">
-                        <span aria-hidden>🎯</span> هدف ساعت مطالعه‌ی هفتگی
-                      </h3>
-                      {!editingGoal ? (
-                        <div className="goal-display">
-                          <p className="goal-current">
-                            {selectedStudent.weeklyGoalMinutes
-                              ? `هدف فعلی: ${toFaDigits(Math.round(selectedStudent.weeklyGoalMinutes / 60))} ساعت در هفته`
-                              : 'هنوز هدفی تعیین نشده.'}
-                          </p>
-                          <button
-                            className="btn-secondary"
-                            onClick={() => {
-                              setGoalInput(selectedStudent.weeklyGoalMinutes ? String(Math.round(selectedStudent.weeklyGoalMinutes / 60)) : '');
-                              setEditingGoal(true);
-                            }}
-                          >
-                            ✎ ویرایش هدف
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="goal-edit">
-                          <label className="goal-input-label">
-                            ساعت مطالعه در هفته
-                            <FaNumberInput
-                              value={goalInput}
-                              onChange={(v) => setGoalInput(v)}
-                              placeholder="مثلاً ۲۰"
-                            />
-                          </label>
-                          <div className="goal-edit-actions">
-                            <button className="btn-primary" onClick={handleSaveGoal}>
-                              ذخیره
-                            </button>
-                            <button className="btn-ghost" onClick={() => setEditingGoal(false)}>
-                              انصراف
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </section>
-
-                    {/* بخش فرستادن یادآور */}
-                    <section id="section-reminders" className="card reminder-card">
-                      <h3 className="card-title">
-                        <span aria-hidden>✉</span> فرستادن یادآور به {selectedStudent.fullName}
-                      </h3>
-                      <form onSubmit={handleSendReminder} className="reminder-form">
-                        <textarea
-                          rows={3}
-                          value={reminderText}
-                          onChange={(e) => setReminderText(e.target.value)}
-                          placeholder="متن یادآور را بنویس یا از جمله‌ی انگیزشی استفاده کن…"
-                        />
-                        <div className="reminder-actions">
-                          <button type="button" className="btn-secondary" onClick={handleFillQuote}>
-                            <span aria-hidden>✨</span> جمله‌ی انگیزشی
-                          </button>
-                          <button type="submit" className="btn-primary" disabled={sending || !reminderText.trim()}>
-                            {sending ? 'در حال ارسال…' : '📤 ارسال'}
-                          </button>
-                        </div>
-                      </form>
-
-                      <div className="reminder-list">
-                        {reminders.length === 0 && (
-                          <p className="muted-text">تا الان یادآوری برای این دانش‌آموز نفرستاده‌ای.</p>
-                        )}
-                        {reminders.map((r) => (
-                          <div key={r.id} className="reminder-card-mini">
-                            <div className="reminder-avatar">💬</div>
-                            <div className="reminder-content">
-                              <p className="reminder-text">{r.message}</p>
-                              <span className="reminder-time" title={formatJalaliDate(r.createdAt)}>
-                                {formatRelativeTime(r.createdAt)}
-                              </span>
-                            </div>
-                            <button
-                              className="btn-icon-only"
-                              title="حذف یادآور"
-                              onClick={() => handleDeleteReminder(r.id)}
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-
-                    {/* بخش برنامه‌ها */}
-                    <section id="section-plans">
-                      <div className="section-head with-tabs">
-                        <h3 className="section-title">
-                          <span className="section-emoji">🗓</span>
-                          برنامه‌های {selectedStudent.fullName}
-                        </h3>
-                        {!builderState && (
-                          <button className="btn-primary" onClick={() => setBuilderState('create')}>
-                            <span aria-hidden>+</span> ساخت برنامه‌ی جدید
-                          </button>
-                        )}
-                      </div>
-
-                      {/* تب‌های نمایش برنامه‌ها */}
-                      {plans.length > 0 && !builderState && (
-                        <div className="view-tabs">
-                          <button
-                            className={`tab-btn-sm ${view === 'list' ? 'active' : ''}`}
-                            onClick={() => setView('list')}
-                          >
-                            📋 لیست
-                          </button>
-                          <button
-                            className={`tab-btn-sm ${view === 'reports' ? 'active' : ''}`}
-                            onClick={() => setView('reports')}
-                          >
-                            📊 آمار
-                          </button>
-                        </div>
-                      )}
-
-                      {builderState && (
-                        <div className="builder-wrap">
-                          <PlanBuilder
-                            studentId={selectedStudent.id}
-                            existingPlan={builderState === 'create' ? null : builderState.plan}
-                            onSaved={handlePlanSaved}
-                            onCancel={() => setBuilderState(null)}
-                          />
-                        </div>
-                      )}
-
-                      {plans.length === 0 && !builderState && (
-                        <div className="empty-card">
-                          <span className="empty-emoji" aria-hidden>📋</span>
-                          <p>هنوز برنامه‌ای برای این دانش‌آموز نساخته‌ای.</p>
-                        </div>
-                      )}
-
-                      {plans.length > 0 && !builderState && view === 'list' && (
-                        <div className="plans-list">
-                          {plans.map((plan) => {
-                            const progress = computeProgress(plan);
-                            const isOpen = openPlanId === plan.id || plans.length === 1;
-                            return (
-                              <div key={plan.id} className={`plan-card ${isOpen ? 'is-open' : ''}`}>
-                                <div className="plan-card-header">
-                                  <button
-                                    className="plan-card-toggle"
-                                    onClick={() => setOpenPlanId(isOpen ? null : plan.id)}
-                                  >
-                                    <div className="plan-card-title-wrap">
-                                      <h4 className="plan-title">{plan.title}</h4>
-                                      {plan.note && <p className="plan-note">{plan.note}</p>}
-                                      <p className="plan-dates">
-                                        <span className="date-chip">از {formatJalaliShort(plan.startsAt)}</span>
-                                        {plan.expiresAt && (
-                                          <span className="date-chip">تا {formatJalaliShort(plan.expiresAt)}</span>
-                                        )}
-                                      </p>
-                                    </div>
-                                    <div className="plan-progress-mini">
-                                      <div className="ring-progress" style={{ '--p': `${progress}%` }}>
-                                        <span>{toFaDigits(progress)}٪</span>
-                                      </div>
-                                      <span className="chevron">{isOpen ? '▾' : '▸'}</span>
-                                    </div>
-                                  </button>
-                                  <div className="plan-actions">
-                                    <button
-                                      className="btn-icon edit"
-                                      title="ویرایش"
-                                      onClick={() => setBuilderState({ plan })}
-                                      disabled={!!builderState}
-                                    >
-                                      ✎
-                                    </button>
-                                    <button
-                                      className="btn-icon danger"
-                                      title="حذف"
-                                      onClick={() => handleDeletePlan(plan.id)}
-                                      disabled={!!builderState}
-                                    >
-                                      🗑
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {isOpen && (
-                                  <div className="plan-body">
-                                    <div className="progress-block">
-                                      <div className="progress-labels">
-                                        <span className="muted-text">پیشرفت کلی</span>
-                                        <span className="muted-text">{toFaDigits(progress)}٪</span>
-                                      </div>
-                                      <div className="progress-track">
-                                        <div className="progress-fill" style={{ width: `${progress}%` }} />
-                                      </div>
-                                    </div>
-
-                                    <div className="days-stack">
-                                      {plan.days.map((day) => (
-                                        <AdvisorDayBlock key={day.id} day={day} />
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      {plans.length > 0 && !builderState && view === 'reports' && (
-                        <Reports plans={plans} weeklyGoalMinutes={selectedStudent.weeklyGoalMinutes} />
-                      )}
-                    </section>
-
-                    {/* بخش آزمون‌ها */}
-                    <section id="section-exams" className="exams-section">
-                      <div className="section-head">
-                        <h3 className="section-title">
-                          <span className="section-emoji">📝</span>
-                          آزمون‌های {selectedStudent.fullName}
-                        </h3>
-                        {!examBuilderState && (
-                          <button className="btn-primary" onClick={() => setExamBuilderState('create')}>
-                            <span aria-hidden>+</span> ساخت آزمون
-                          </button>
-                        )}
-                      </div>
-
-                      {examBuilderState && (
-                        <div className="builder-wrap">
-                          <ExamBuilder
-                            studentId={selectedStudent.id}
-                            students={students}
-                            existingExam={examBuilderState === 'create' ? null : examBuilderState.exam}
-                            onSaved={handleExamSaved}
-                            onCancel={() => setExamBuilderState(null)}
-                          />
-                        </div>
-                      )}
-
-                      {!examBuilderState && exams.length === 0 && (
-                        <div className="empty-card">
-                          <span className="empty-emoji" aria-hidden>📝</span>
-                          <p>هنوز آزمونی برای این دانش‌آموز نساخته‌ای.</p>
-                        </div>
-                      )}
-
-                      {!examBuilderState && exams.map((exam) => {
-                        // وضعیت نمره‌دهی بر اساس ارسال‌های این آزمون (تک‌دانش‌آموزی)
-                        const subs = exam.submissions || [];
-                        const graded = subs.filter((s) => s.status === 'GRADED').length;
-                        const submitted = subs.filter((s) => s.status === 'SUBMITTED').length;
-                        const hasDescriptive = (exam.questions || []).some(
-                          (q) => q.type === 'DESCRIPTIVE'
-                        );
-                        const allGraded = subs.length > 0 && graded === subs.length;
-                        return (
-                        <div key={exam.id} className="card exam-card">
-                          <div className="exam-card-head">
-                            <div>
-                              <h4 className="exam-title">{exam.title}</h4>
-                              {exam.description && <p className="muted-text">{exam.description}</p>}
-                              <div className="exam-meta">
-                                <span>⏱ {toFaDigits(exam.durationMinutes)} دقیقه</span>
-                                <span>📝 {toFaDigits(exam.questions?.length || 0)} سؤال</span>
-                                {hasDescriptive && (
-                                  <span className="exam-meta-tag desc">شامل تشریحی</span>
-                                )}
-                                <span className={`exam-visibility ${exam.visibleToStudent ? 'visible' : 'hidden'}`}>
-                                  {exam.visibleToStudent
-                                    ? '🔍 قابل مشاهده'
-                                    : exam.visibleFrom
-                                      ? `🔒 تا ${formatJalaliDate(exam.visibleFrom, { withYear: false })}`
-                                      : '🔒 تا زمان شروع'}
-                                </span>
-                              </div>
-                              <p className="muted-text">
-                                📅 {formatJalaliDateTime(exam.scheduledAt)}
-                              </p>
-                            </div>
-                            <div className="exam-actions exam-actions-col">
-                              {/* وضعیت واضح + یک اقدام اصلی */}
-                              {allGraded ? (
-                                <>
-                                  <span className="exam-status-pill graded">
-                                    ✅ نمره داده شد: {toFaDigits(subs[0]?.totalScore)} از {toFaDigits(subs[0]?.maxScore)}
-                                  </span>
-                                  <button
-                                    className="btn-secondary btn-sm"
-                                    onClick={() => handleOpenGrading(exam)}
-                                  >
-                                    👁 مشاهده پاسخ‌برگ
-                                  </button>
-                                </>
-                              ) : submitted > 0 ? (
-                                <>
-                                  <span className="exam-status-pill needs-grading">
-                                    ✍️ {toFaDigits(submitted)} ارسال در انتظار نمره‌دهی
-                                  </span>
-                                  <button
-                                    className="btn-primary"
-                                    onClick={() => handleOpenGrading(exam)}
-                                  >
-                                    {hasDescriptive ? '📝 نمره‌دهی تشریحی‌ها' : '📋 مشاهده پاسخ‌ها'}
-                                  </button>
-                                </>
-                              ) : subs.length > 0 ? (
-                                <span className="exam-status-pill progress">
-                                  ⏳ دانش‌آموز در حال آزمون دادن است
-                                </span>
-                              ) : (
-                                <span className="exam-status-pill waiting">
-                                  ⌛ هنوز شروع نشده
-                                </span>
-                              )}
-                              <div className="exam-actions-row">
-                                <button
-                                  className="btn-icon edit"
-                                  title="ویرایش"
-                                  onClick={() => setExamBuilderState({ exam })}
-                                  disabled={!!examBuilderState}
-                                >
-                                  ✎
-                                </button>
-                                <button
-                                  className="btn-icon danger"
-                                  title="حذف"
-                                  onClick={() => handleDeleteExam(exam.id)}
-                                  disabled={!!examBuilderState}
-                                >
-                                  🗑
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        );
-                      })}
-                    </section>
-
-                    {/* مودال نمره‌دهی */}
-                    {gradingSubmission && (
-                      <GradingModal
-                        data={gradingSubmission}
-                        onClose={() => setGradingSubmission(null)}
-                        onGrade={async (submissionId, payload) => {
-                          await gradeSubmission(submissionId, payload);
-                        }}
-                      />
-                    )}
-                  </div>
-                )}
-              </main>
-            </div>
+            <StudentPicker
+              students={students}
+              selectedStudent={selectedStudent}
+              onSelect={(student) => {
+                selectStudent(student);
+                setSection('profile');
+              }}
+              loading={loadingStudents}
+            />
           </>
+        )}
+
+        {/* صفحه‌های بخش‌های وابسته به دانش‌آموز: نوار دانش‌آموز انتخاب‌شده + محتوا */}
+        {STUDENT_SECTIONS.includes(section) && (
+          <>
+            {!selectedStudent && (
+              <div className="empty-card big empty-guide">
+                <span className="empty-emoji" aria-hidden><Ico e="👥" /></span>
+                <p>برای دیدن این بخش، اول یک دانش‌آموز را انتخاب کن.</p>
+                <button type="button" className="btn-primary" onClick={() => setSection('students')}>
+                  رفتن به فهرست دانش‌آموزها
+                </button>
+              </div>
+            )}
+
+            {selectedStudent && (
+              <div className="selected-student-bar">
+                <span className="selected-student-name">
+                  <Ico e="🎒" /> {selectedStudent.fullName}
+                </span>
+                <button type="button" className="btn-secondary btn-sm" onClick={() => setSection('students')}>
+                  <Ico e="🔄" /> تغییر دانش‌آموز
+                </button>
+              </div>
+            )}
+
+            {selectedStudent && loadingDetail && (
+              <div className="loading-state">
+                <div className="spinner" />
+                <p>در حال بارگذاری اطلاعات دانش‌آموز…</p>
+              </div>
+            )}
+          </>
+        )}
+
+        {selectedStudent && !loadingDetail && (
+          <div className="detail-stack">
+            {section === 'profile' && (
+              <AdvisorProfileSection
+                userId={auth.user.id}
+                selectedStudent={selectedStudent}
+                plans={plans}
+                entries={entries}
+                progressRows={progressRows}
+                editingGoal={editingGoal}
+                setEditingGoal={setEditingGoal}
+                goalInput={goalInput}
+                setGoalInput={setGoalInput}
+                handleSaveGoal={handleSaveGoal}
+                reminderText={reminderText}
+                setReminderText={setReminderText}
+                handleFillQuote={handleFillQuote}
+                handleSendReminder={handleSendReminder}
+                sending={sending}
+                reminders={reminders}
+                handleDeleteReminder={handleDeleteReminder}
+              />
+            )}
+
+            {section === 'plans' && (
+              <AdvisorPlansSection
+                userId={auth.user.id}
+                selectedStudent={selectedStudent}
+                plans={plans}
+                entries={entries}
+                progressRows={progressRows}
+                view={view}
+                setView={setView}
+                builderState={builderState}
+                setBuilderState={setBuilderState}
+                openPlanId={openPlanId}
+                setOpenPlanId={setOpenPlanId}
+                handlePlanSaved={handlePlanSaved}
+                handlePublishDraft={handlePublishDraft}
+                handleDeletePlan={handleDeletePlan}
+              />
+            )}
+
+            {section === 'exams' && (
+              <AdvisorExamsSection
+                userId={auth.user.id}
+                selectedStudent={selectedStudent}
+                students={students}
+                exams={exams}
+                examBuilderState={examBuilderState}
+                setExamBuilderState={setExamBuilderState}
+                handleExamSaved={handleExamSaved}
+                handleOpenGrading={handleOpenGrading}
+                handleDeleteExam={handleDeleteExam}
+              />
+            )}
+
+            {section === 'school' && (
+              <>
+                <div className="school-actions">
+                  <button type="button" className="btn-primary" data-tour="school-range" onClick={() => setShowExamRange(true)}>
+                    <Ico e="🗓" /> ساخت برنامه از بازه‌ی امتحان‌ها
+                  </button>
+                  <span className="muted-text">
+                    بازه‌ی روزهای امتحان را انتخاب کن تا پیش‌نویس برنامه‌ی آمادگی خودکار ساخته شود.
+                  </span>
+                </div>
+                <ExamScheduleCard studentId={selectedStudent.id} compact />
+              </>
+            )}
+
+            {section === 'mock' && (
+              <MockExamsCard studentId={selectedStudent.id} compact />
+            )}
+          </div>
+        )}
+
+        {section === 'requests' && (
+          <AdvisorPendingRequestsSection
+            pendingRequests={pendingRequests}
+            handleAcceptRequest={handleAcceptRequest}
+            handleRejectRequest={handleRejectRequest}
+          />
+        )}
+
+        {isSuperadmin && section === 'admin' && (
+          <AdminPanel />
         )}
       </main>
 
-      {/* مودال تأیید */}
+      {/* مودال ساخت برنامه از بازه‌ی امتحان‌ها */}
+      {showExamRange && selectedStudent && (
+        <ExamRangePlanModal
+          studentId={selectedStudent.id}
+          studentName={selectedStudent.fullName}
+          onClose={() => setShowExamRange(false)}
+          onDraftsCreated={handleDraftsCreated}
+        />
+      )}
+
+      {/* مودال نمره‌دهی به پاسخ‌های تشریحی */}
+      {gradingSubmission && (
+        <GradingModal
+          exam={gradingSubmission.exam}
+          submissions={gradingSubmission.submissions}
+          onClose={() => setGradingSubmission(null)}
+          onGraded={() => {
+            if (selectedStudent) selectStudent(selectedStudent);
+          }}
+        />
+      )}
+
+      {/* مودال تأیید حذف */}
       {confirmState && (
         <ConfirmModal
           message={confirmState.message}
-          danger={confirmState.danger}
           confirmText={confirmState.confirmText}
+          danger={confirmState.danger}
           onConfirm={confirmState.onConfirm}
           onCancel={() => setConfirmState(null)}
         />
       )}
-
-      <MobileNav items={navItems} onSelect={handleNavSelect} />
     </div>
   );
 }

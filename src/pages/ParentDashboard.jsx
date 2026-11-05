@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchMyChildren, fetchChildSummary, joinAsParent } from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +6,10 @@ import { useToast } from '../context/ToastContext';
 import { toFaDigits, formatJalaliDate, formatJalaliShort } from '../utils/jalali';
 import AppHeader from '../components/AppHeader';
 import StatCard from '../components/StatCard';
+import MockExamsCard from '../components/MockExamsCard';
+import ProfileModal from '../components/ProfileModal';
+import Ico from '../components/Ico';
+import usePanelSection from '../hooks/usePanelSection';
 
 // پنل والد — فقط-خواندنی: آمار تجمیعی فرزند، نمرات آزمون، وضعیت اشتراک و پرداخت.
 // والد به یادآورهای مشاور و توضیحات خصوصی دسترسی ندارد (حریم دانش‌آموز).
@@ -22,6 +26,15 @@ export default function ParentDashboard() {
   const [joinCode, setJoinCode] = useState('');
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState('');
+  const [showProfile, setShowProfile] = useState(false);
+  // بخش‌های پنل — هر کدام یک صفحه‌ی جدا از منوی همبرگری
+  const [section, setSection] = usePanelSection(['summary', 'exams', 'subscription', 'connect'], 'summary');
+  const menuItems = useMemo(() => [
+    { key: 'summary', label: 'وضعیت فرزند', icon: '📈' },
+    { key: 'exams', label: 'آزمون‌ها و نمرات', icon: '📝' },
+    { key: 'subscription', label: 'اشتراک و پرداخت', icon: '💳' },
+    { key: 'connect', label: children.length === 0 ? 'اتصال به فرزند' : 'افزودن فرزند دیگر', icon: '🔗', divider: true },
+  ], [children.length]);
 
   async function handleLogout() {
     await logout();
@@ -41,7 +54,7 @@ export default function ParentDashboard() {
   useEffect(() => {
     if (!selectedChildId) return;
     // نمایش فوری حالت لودینگ قبل از fetch — الگوی رایج پروژه (DepositPage)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setLoadingSummary(true);
     fetchChildSummary(selectedChildId)
       .then(setSummary)
@@ -80,7 +93,7 @@ export default function ParentDashboard() {
 
   const sub = summary?.subscription;
   // مقایسه‌ی زنده‌ی تاریخ با «الان» عمداً در رندر انجام می‌شود (الگوی DepositPage.SubscriptionChip)
-  // eslint-disable-next-line react-hooks/purity
+   
   const subActive = sub && sub.status !== 'EXPIRED' && new Date(sub.endsAt).getTime() > Date.now();
 
   return (
@@ -88,14 +101,20 @@ export default function ParentDashboard() {
       <AppHeader
         fullName={auth.user.fullName}
         greeting={`سلام، ${auth.user.fullName}`}
-        onOpenProfile={() => {}}
+        menuItems={menuItems}
+        activeMenu={section}
+        onMenuSelect={(key) => setSection(key)}
+        menuTitle="پنل والد"
+        onOpenProfile={() => setShowProfile(true)}
         onLogout={handleLogout}
       />
+
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
 
       <main className="page-body parent-body">
         {error && (
           <div className="alert alert-error" onClick={() => setError('')}>
-            <span>⚠</span> {error}
+            <span><Ico e="⚠" /></span> {error}
           </div>
         )}
 
@@ -107,10 +126,10 @@ export default function ParentDashboard() {
         )}
 
         {/* اتصال با کد دعوت — تا وقتی هیچ فرزندی وصل نیست برجسته نمایش داده می‌شود */}
-        {!loading && (
+        {!loading && (section === 'connect' || children.length === 0) && (
           <section className={`card parent-join-card ${children.length === 0 ? 'highlight' : ''}`}>
             <h3 className="card-title">
-              <span aria-hidden>🔗</span> {children.length === 0 ? 'اتصال به فرزند' : 'افزودن فرزند دیگر'}
+              <span aria-hidden><Ico e="🔗" /></span> {children.length === 0 ? 'اتصال به فرزند' : 'افزودن فرزند دیگر'}
             </h3>
             <p className="muted-text">
               کد ۸ حرفی دعوت را که فرزندت از پنل خودش ساخته، همین‌جا وارد کن.
@@ -158,7 +177,8 @@ export default function ParentDashboard() {
             {summary && !loadingSummary && (
               <>
                 <div className="child-head">
-                  <div>
+                  <div className="child-avatar" aria-hidden>{(summary.student?.fullName || '؟').trim().charAt(0)}</div>
+                  <div className="child-info">
                     <p className="child-name">{summary.student?.fullName}</p>
                     <p className="muted-text">
                       {summary.advisor
@@ -166,8 +186,12 @@ export default function ParentDashboard() {
                         : 'هنوز به مشاوری متصل نشده است.'}
                     </p>
                   </div>
+                  <div className="child-ring" style={{ '--p': `${donePercent}%` }} title="درصد انجام برنامه">
+                    <span>{toFaDigits(donePercent)}٪</span>
+                  </div>
                 </div>
 
+                {section === 'summary' && (<>
                 {/* آمار تجمیعی */}
                 <section className="stats-grid">
                   <StatCard
@@ -199,7 +223,7 @@ export default function ParentDashboard() {
                 {/* پیشرفت */}
                 <section className="card">
                   <h3 className="card-title">
-                    <span aria-hidden>📈</span> پیشرفت
+                    <span aria-hidden><Ico e="📈" /></span> پیشرفت
                   </h3>
                   <div className="progress-block">
                     <div className="progress-labels">
@@ -225,10 +249,16 @@ export default function ParentDashboard() {
                   )}
                 </section>
 
+                </>)}
+
+                {section === 'exams' && (<>
+                {/* نمرات آزمون‌های آزمایشی فرزند + نمودار روند پیشرفت */}
+                {selectedChildId && <MockExamsCard studentId={selectedChildId} compact />}
+
                 {/* آزمون‌ها */}
                 <section className="card">
                   <h3 className="card-title">
-                    <span aria-hidden>📝</span> آزمون‌های اخیر
+                    <span aria-hidden><Ico e="📝" /></span> آزمون‌های اخیر
                   </h3>
                   {summary.exams.length === 0 ? (
                     <p className="muted-text">هنوز آزمونی ثبت نشده.</p>
@@ -259,10 +289,13 @@ export default function ParentDashboard() {
                   )}
                 </section>
 
+                </>)}
+
                 {/* اشتراک و پرداخت — والد پرداخت‌کننده است */}
+                {section === 'subscription' && (
                 <section className="card parent-subscription-card">
                   <h3 className="card-title">
-                    <span aria-hidden>💳</span> اشتراک و پرداخت
+                    <span aria-hidden><Ico e="💳" /></span> اشتراک و پرداخت
                   </h3>
                   {sub ? (
                     <p className={subActive ? 'goal-current' : 'sub-expired-text'}>
@@ -278,9 +311,10 @@ export default function ParentDashboard() {
                     تأیید با مشاور یا مؤسسه است.
                   </p>
                   <button type="button" className="btn-primary" onClick={() => navigate('/deposit')}>
-                    💳 واریز و تمدید اشتراک فرزند
+                    <Ico e="💳" /> واریز و تمدید اشتراک فرزند
                   </button>
                 </section>
+                )}
               </>
             )}
           </>
@@ -288,7 +322,7 @@ export default function ParentDashboard() {
 
         {!loading && children.length === 0 && (
           <div className="empty-card">
-            <span className="empty-emoji" aria-hidden>👨‍👩‍👦</span>
+            <span className="empty-emoji" aria-hidden><i className="ti ti-users-group" /></span>
             <p>هنوز به هیچ دانش‌آموزی متصل نشده‌اید. با کد دعوت فرزندتان وصل شوید.</p>
           </div>
         )}

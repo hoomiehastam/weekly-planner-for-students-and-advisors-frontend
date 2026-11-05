@@ -1,6 +1,8 @@
 import { useMemo, useLayoutEffect, useRef, useState } from 'react';
 import { DAY_NAMES } from '../utils/dayNames';
 import { toFaDigits } from '../utils/jalali';
+import Ico from './Ico';
+import { fullItemTitle, topicLabel } from '../utils/planItem';
 
 // نمایش برنامه‌ی هفتگی به‌صورت تقویم (مثل Google Calendar)
 // هر بازه‌ی درسی که ساعت شروع/پایان دارد، به‌صورت یک بلوک رنگی در جای مناسب نمایش داده می‌شود.
@@ -12,9 +14,10 @@ import { toFaDigits } from '../utils/jalali';
 // یا Ctrl+چرخ‌ماوس یا دوبار-لمس، زوم را تغییر دهد.
 
 const HOUR_HEIGHT = 56; // ارتفاع هر ساعت به پیکسل
-const START_HOUR = 6; // نمایش از ساعت ۶ صبح
-const END_HOUR = 24; // تا ساعت ۲۴ شب
-const TOTAL_HOURS = END_HOUR - START_HOUR;
+const DEFAULT_START_HOUR = 6; // نمایش پیش‌فرض از ساعت ۶ صبح
+const DEFAULT_END_HOUR = 24; // تا ساعت ۲۴ شب
+// حداقل ارتفاع یک بلوک (برای خوانایی). بلوک‌های کوتاه‌تر از ~۲۰ دقیقه به همین اندازه کشیده می‌شوند.
+const MIN_BLOCK_HEIGHT = 20;
 
 // رنگ‌ها برای هر درس؛ بر اساس هش نام درس انتخاب می‌شود
 const COLORS = [
@@ -49,32 +52,30 @@ function timeToMinutes(timeStr) {
   return h * 60 + m;
 }
 
-// محاسبه‌ی موقعیت و ارتفاع یک بلوک بر اساس ساعت شروع/پایان
-function computeBlockPosition(startTime, endTime) {
+// محاسبه‌ی موقعیت و ارتفاع یک بلوک بر اساس ساعت شروع/پایان.
+// مقیاس ثابت است: هر ساعت = HOUR_HEIGHT پیکسل؛ پس «۱۶:۰۰ تا ۱۷:۳۰» دقیقاً ۱٫۵ × ۵۶ = ۸۴ پیکسل است.
+// بازه‌ی نمایش (startHour..endHour) از روی خود بازه‌ها گسترش می‌یابد تا هیچ بلوکی بریده/کوتاه‌شده رسم نشود.
+export function computeBlockPosition(startTime, endTime, startHour = DEFAULT_START_HOUR, endHour = DEFAULT_END_HOUR) {
   const startMin = timeToMinutes(startTime);
   const endMin = timeToMinutes(endTime);
   if (startMin === null || endMin === null) return null;
+  if (endMin <= startMin) return null;
 
-  const dayStartMin = START_HOUR * 60;
-  const dayEndMin = END_HOUR * 60;
-
-  // محدود کردن به محدوده‌ی نمایش
+  const dayStartMin = startHour * 60;
+  const dayEndMin = endHour * 60;
   const clampedStart = Math.max(startMin, dayStartMin);
   const clampedEnd = Math.min(endMin, dayEndMin);
-
   if (clampedEnd <= clampedStart) return null;
 
-  const topMin = clampedStart - dayStartMin;
-  const heightMin = clampedEnd - clampedStart;
-
   return {
-    top: (topMin / 60) * HOUR_HEIGHT,
-    height: Math.max((heightMin / 60) * HOUR_HEIGHT, 24),
+    top: ((clampedStart - dayStartMin) / 60) * HOUR_HEIGHT,
+    height: Math.max(((clampedEnd - clampedStart) / 60) * HOUR_HEIGHT, MIN_BLOCK_HEIGHT),
   };
 }
 
 // ستون یک روز
-function DayColumn({ dayName, items, onToggle }) {
+function DayColumn({ dayName, items, onToggle, startHour, endHour }) {
+  const totalHours = endHour - startHour;
   const timedItems = items.filter((it) => it.startTime && it.endTime);
   const untimedItems = items.filter((it) => !it.startTime || !it.endTime);
 
@@ -88,9 +89,9 @@ function DayColumn({ dayName, items, onToggle }) {
           </span>
         )}
       </div>
-      <div className="cal-day-body" style={{ height: TOTAL_HOURS * HOUR_HEIGHT }}>
+      <div className="cal-day-body" style={{ height: totalHours * HOUR_HEIGHT }}>
         {/* خطوط ساعت */}
-        {Array.from({ length: TOTAL_HOURS + 1 }, (_, i) => (
+        {Array.from({ length: totalHours + 1 }, (_, i) => (
           <div
             key={i}
             className="cal-hour-line"
@@ -100,7 +101,7 @@ function DayColumn({ dayName, items, onToggle }) {
 
         {/* بلوک‌های زمان‌دار */}
         {timedItems.map((item) => {
-          const pos = computeBlockPosition(item.startTime, item.endTime);
+          const pos = computeBlockPosition(item.startTime, item.endTime, startHour, endHour);
           if (!pos) return null;
           const color = getColorForSubject(item.subject);
           const isDone = item.status === 'DONE';
@@ -117,10 +118,11 @@ function DayColumn({ dayName, items, onToggle }) {
                 color: color.text,
               }}
               onClick={() => onToggle && onToggle(item)}
-              title={`${item.subject}${item.description ? ' — ' + item.description : ''}`}
+              title={`${fullItemTitle(item)}${item.description ? ' — ' + item.description : ''}`}
             >
               <div className="cal-event-time">{toFaDigits(item.startTime)} - {toFaDigits(item.endTime)}</div>
               <div className="cal-event-title">{item.subject}</div>
+              {topicLabel(item) && pos.height > 44 && <div className="cal-event-topic">{topicLabel(item)}</div>}
               {item.tags && item.tags.length > 0 && pos.height > 50 && (
                 <div className="cal-event-tags">
                   {item.tags.map((t) => (
@@ -130,11 +132,11 @@ function DayColumn({ dayName, items, onToggle }) {
               )}
               {isDone && pos.height > 70 && (item.actualMinutes || item.testsTaken) && (
                 <div className="cal-event-progress">
-                  {item.actualMinutes && <span>⏱ {toFaDigits(item.actualMinutes)}′</span>}
-                  {item.testsTaken && <span>✎ {toFaDigits(item.testsTaken)}</span>}
+                  {item.actualMinutes && <span><Ico e="⏱" /> {toFaDigits(item.actualMinutes)}′</span>}
+                  {item.testsTaken && <span><Ico e="✎" /> {toFaDigits(item.testsTaken)}</span>}
                 </div>
               )}
-              {isDone && <span className="cal-check">✓</span>}
+              {isDone && <span className="cal-check"><Ico e="✓" /></span>}
             </button>
           );
         })}
@@ -157,9 +159,9 @@ function DayColumn({ dayName, items, onToggle }) {
                   color: color.text,
                 }}
                 onClick={() => onToggle && onToggle(item)}
-                title={item.subject}
+                title={fullItemTitle(item)}
               >
-                {isDone && <span className="cal-check-small">✓</span>}
+                {isDone && <span className="cal-check-small"><Ico e="✓" /></span>}
                 <span className="cal-untimed-title">{item.subject}</span>
               </button>
             );
@@ -187,14 +189,31 @@ export default function WeeklyCalendarView({ plans, onToggleItem }) {
     return buckets;
   }, [plans]);
 
+  // بازه‌ی ساعتیِ نمایش: حداقل ۶ تا ۲۴؛ اگر بازه‌ای زودتر شروع یا دیرتر تمام شود، محور گسترش می‌یابد
+  const { startHour, endHour } = useMemo(() => {
+    let lo = DEFAULT_START_HOUR;
+    let hi = DEFAULT_END_HOUR;
+    for (const bucket of daysByWeekday) {
+      for (const it of bucket) {
+        const a = timeToMinutes(it.startTime);
+        const b = timeToMinutes(it.endTime);
+        if (a === null || b === null || b <= a) continue;
+        lo = Math.min(lo, Math.floor(a / 60));
+        hi = Math.max(hi, Math.min(24, Math.ceil(b / 60)));
+      }
+    }
+    return { startHour: lo, endHour: hi };
+  }, [daysByWeekday]);
+  const totalHours = endHour - startHour;
+
   // ساعت‌هایی که در محور سمت چپ نمایش می‌دهیم
   const hourLabels = useMemo(() => {
     const labels = [];
-    for (let h = START_HOUR; h <= END_HOUR; h++) {
+    for (let h = startHour; h <= endHour; h++) {
       labels.push(`${toFaDigits(String(h).padStart(2, '0'))}:۰۰`);
     }
     return labels;
-  }, []);
+  }, [startHour, endHour]);
 
   // ---------- خود‌تطبیقی: اگر ظرف باریک‌تر از ۷۲۰px باشد، تقویم کوچک می‌شود ----------
   const frameRef = useRef(null);
@@ -301,7 +320,7 @@ export default function WeeklyCalendarView({ plans, onToggleItem }) {
             {/* ستون ساعت */}
             <div className="cal-time-col">
               <div className="cal-day-header-spacer" />
-              <div className="cal-time-list" style={{ height: TOTAL_HOURS * HOUR_HEIGHT }}>
+              <div className="cal-time-list" style={{ height: totalHours * HOUR_HEIGHT }}>
                 {hourLabels.map((label, idx) => (
                   <div
                     key={idx}
@@ -321,6 +340,8 @@ export default function WeeklyCalendarView({ plans, onToggleItem }) {
                 dayName={dayName}
                 items={daysByWeekday[idx] || []}
                 onToggle={onToggleItem}
+                startHour={startHour}
+                endHour={endHour}
               />
             ))}
           </div>

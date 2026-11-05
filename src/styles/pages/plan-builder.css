@@ -1,0 +1,543 @@
+/* ===== PlanBuilder ===== */
+
+/* ============================================================
+   PlanBuilder
+   ============================================================ */
+
+.plan-builder {
+  background: var(--sheet);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.builder-head h3 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--indigo);
+}
+
+.builder-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 14px;
+}
+
+.builder-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.jalali-hint {
+  font-size: 12px;
+  color: var(--indigo);
+  background: var(--indigo-soft);
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  width: fit-content;
+  font-variant-numeric: tabular-nums;
+}
+
+.builder-tags details {
+  border: 1px dashed var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  background: var(--paper);
+}
+
+.builder-tags summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--indigo);
+  font-weight: 600;
+}
+
+.tag-create-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.days-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.builder-day {
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  background: var(--paper);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.builder-day.is-on {
+  background: var(--sheet);
+  border-color: var(--indigo);
+  border-right-width: 3px;
+  border-right-style: solid;
+}
+
+.day-toggle {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.day-toggle input[type='checkbox'] {
+  position: static;
+  opacity: 1;
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--indigo);
+  cursor: pointer;
+}
+
+.day-toggle strong {
+  color: var(--indigo-deep);
+  font-size: 14.5px;
+}
+
+.day-items {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.builder-item {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-head {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.item-head input[type='text'] {
+  flex: 1;
+}
+
+.icon-btn {
+  width: 36px;
+  padding: 0 !important;
+  font-size: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time-row label {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.time-row input[type='time'] {
+  font-variant-numeric: tabular-nums;
+}
+
+.time-arrow {
+  color: var(--ink-muted);
+  font-size: 16px;
+  margin-top: 18px;
+}
+
+.item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.tag-pill.selectable {
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  margin: 0;
+  padding: 4px 12px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.tag-pill.selectable:hover {
+  background: var(--paper);
+}
+
+.tag-pill.selectable.on {
+  background: var(--sage-soft);
+  color: #1d6d4c;
+  border-color: var(--sage);
+}
+
+.add-item-btn {
+  align-self: flex-start;
+  font-size: 13px;
+  padding: 8px 14px !important;
+}
+
+.builder-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--hairline);
+  padding-top: 14px;
+}
+
+.builder-wrap {
+  margin-bottom: 18px;
+}
+
+
+/* ============================================================
+   PlanBuilder v4 — drag-and-drop handle
+   ============================================================ */
+
+.drag-handle {
+  background: transparent;
+  border: none;
+  color: var(--ink-muted);
+  cursor: grab;
+  padding: 4px 8px;
+  font-size: 20px;
+  line-height: 1;
+  border-radius: 6px;
+  font-family: inherit;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.drag-handle:hover {
+  background: var(--paper);
+  color: var(--indigo);
+  transform: none;
+  box-shadow: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* --- بخش هدف هفتگی در پنل مشاور --- */
+.goal-card {
+  border-right: 4px solid var(--amber);
+}
+
+.goal-display,
+.goal-edit {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.goal-current {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink);
+  flex: 1;
+  min-width: 200px;
+}
+
+.goal-input-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  flex: 1;
+  min-width: 180px;
+}
+
+.goal-input-label input {
+  max-width: 200px;
+}
+
+.goal-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+
+/* ===================================================================
+   سازنده‌ی برنامه — روزها و بازه‌های تاشو
+   بعد از نوشتن، روز یا بازه بسته می‌شود و فقط کلیات نشان داده می‌شود؛ با کلیک دوباره باز می‌شود.
+   =================================================================== */
+.builder-day-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.builder-day-head .day-toggle {
+  flex: none;
+}
+.day-summary-btn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 4px 0;
+  margin: 0;
+  color: var(--ink);
+  font-family: inherit;
+  text-align: right;
+  cursor: pointer;
+}
+.day-summary-btn:hover {
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+}
+.day-summary-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.day-summary-count,
+.day-summary-time {
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-weight: 800;
+  white-space: nowrap;
+  background: var(--indigo-soft);
+  color: var(--ink);
+}
+.day-summary-names {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.builder-day.is-collapsed {
+  padding-block: 10px;
+  cursor: default;
+}
+
+.builder-item.is-collapsed {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+}
+.item-summary {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 2px 0;
+  margin: 0;
+  color: var(--ink);
+  font-family: inherit;
+  text-align: right;
+  cursor: pointer;
+}
+.item-summary:hover {
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+}
+.item-summary .task-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.item-summary .task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.item-summary-edit {
+  color: var(--ink-soft);
+  font-size: 16px;
+  flex: none;
+}
+
+.item-done-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.item-hint {
+  color: #b3261e;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-inline-end: auto;
+}
+[data-theme='dark'] .item-hint {
+  color: #ffb4ab;
+}
+.item-done-btn {
+  font-size: 13px;
+  padding: 7px 14px !important;
+}
+
+
+/* ---------- نام درس / فصل / بخش در سازنده‌ی برنامه ---------- */
+.item-head-title {
+  flex: 1;
+  font-weight: 800;
+}
+.item-topic-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.item-topic-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 0;
+}
+.item-topic-field input {
+  width: 100%;
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .item-topic-row {
+    grid-template-columns: 1fr;
+  }
+}
+.task-topic {
+  display: block;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.cal-event-topic {
+  font-size: 10px;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ---------- خلاصه‌ی بازه‌های هر درس (پایین سازنده‌ی برنامه) ---------- */
+.lesson-summary {
+  margin: var(--gap-md) 0;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px dashed var(--hairline);
+  background: var(--paper);
+}
+.lesson-summary-title {
+  margin: 0 0 10px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lesson-summary-table {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-x: auto;
+}
+.lesson-summary-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 2fr) 1fr 1.2fr 2fr;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--sheet);
+  font-size: 13.5px;
+  min-width: 460px;
+}
+.lesson-summary-row.is-head {
+  background: transparent;
+  font-weight: 800;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+.ls-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ls-name small {
+  color: var(--ink-soft);
+  font-size: 11.5px;
+}
+.ls-count {
+  font-weight: 800;
+  color: var(--amber);
+}
+.lesson-summary-total {
+  margin: 10px 0 0;
+  font-weight: 800;
+  font-size: 13.5px;
+}
+
+
+/* ---------- یادآور یادداشت‌ها هنگام ساخت برنامه ---------- */
+.notes-reminder {
+  margin-bottom: 12px; padding: 10px 14px; border-radius: var(--radius-md);
+  border: 1.5px solid var(--amber); background: var(--amber-soft);
+}
+.notes-reminder-head {
+  display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 8px;
+  background: transparent; color: var(--ink); padding: 4px 0; font-weight: 800; box-shadow: none;
+}
+.notes-reminder-list { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.notes-reminder-list p { margin: 0; white-space: pre-wrap; }
+.plan-updated-chip { margin-inline-start: 8px; font-size: 11px; }

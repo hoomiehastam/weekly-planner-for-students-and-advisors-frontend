@@ -1,3 +1,11 @@
+import Ico from './Ico';
+
+// تمیز کردن ایموجی‌های رشته‌ی دکمه و تبدیل به متن خالص
+function cleanEmojiText(text) {
+  if (typeof text !== 'string') return text;
+  return text.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF\u2300-\u23FF\u2B50\u2B55✓✕✗]|\u200D|\uFE0F|\uFE0E/g, '').trim();
+}
+
 // کامپوننت ConfirmModal — جایگزین window.confirm با UI زیبا
 // props:
 //   message: متن پیام
@@ -18,7 +26,7 @@ export default function ConfirmModal({
     <div className="modal-overlay" onClick={onCancel}>
       <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
         <div className="confirm-modal-icon">
-          {danger ? '🗑' : '❓'}
+          <Ico e={danger ? '🗑' : '❓'} />
         </div>
         <p className="confirm-modal-message">{message}</p>
         <div className="confirm-modal-actions">
@@ -26,10 +34,11 @@ export default function ConfirmModal({
             className={danger ? 'btn-danger-confirm' : 'btn-primary'}
             onClick={onConfirm}
           >
-            {confirmText}
+            {danger && <i className="ti ti-trash" aria-hidden="true" style={{ marginInlineEnd: 6 }} />}
+            {cleanEmojiText(confirmText)}
           </button>
           <button className="btn-secondary" onClick={onCancel}>
-            {cancelText}
+            {cleanEmojiText(cancelText)}
           </button>
         </div>
       </div>
