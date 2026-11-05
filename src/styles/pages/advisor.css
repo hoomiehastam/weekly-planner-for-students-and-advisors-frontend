@@ -918,10 +918,12 @@ a.contact-item-value:hover {
   cursor: default;
   display: flex;
   gap: 12px;
-  padding: 12px 14px;
-  background: var(--paper);
+  padding: 14px 16px;
+  background: var(--sheet);
   border: 1px solid var(--hairline);
   border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
 }
 
 .advisor-task .task-content {
@@ -929,25 +931,38 @@ a.contact-item-value:hover {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
+  text-align: right;
 }
 
+.task-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.task-head-row strong,
 .advisor-task .task-content strong {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 800;
   color: var(--ink);
+  line-height: 1.4;
 }
 
 .advisor-task .task-topic {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 700;
   color: var(--indigo);
-  background: color-mix(in srgb, var(--indigo) 10%, var(--sheet));
+  background: color-mix(in srgb, var(--indigo) 12%, var(--sheet));
+  border: 1px solid color-mix(in srgb, var(--indigo) 18%, transparent);
   padding: 2px 8px;
-  border-radius: 6px;
-  width: fit-content;
+  border-radius: 8px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .advisor-task .task-desc {
@@ -1454,50 +1469,95 @@ a.contact-item-value:hover {
     justify-content: center;
   }
 
-  /* کارت‌های درس و متاداده در موبایل */
+  /* کاهش حاشیه‌های تودرتو در موبایل برای باز شدن فضای عرضی درس‌ها */
+  .plan-body {
+    padding: 12px 8px;
+  }
+
+  .progress-block {
+    margin-bottom: 14px;
+    padding: 0 4px;
+  }
+
+  .day-block {
+    padding: 6px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    background: color-mix(in srgb, var(--sheet) 94%, var(--paper));
+  }
+
+  .day-header-toggle {
+    padding: 10px 10px;
+  }
+
+  .day-items-wrap {
+    padding: 6px 4px 10px;
+    gap: 8px;
+  }
+
+  /* کارت‌های درس در موبایل — باز، دلباز و بدون فشردگی */
   .advisor-task {
-    padding: 10px 12px;
+    padding: 12px 14px;
     border-radius: 12px;
+    background: var(--sheet);
+    border: 1px solid var(--hairline);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   }
 
-  .advisor-task .task-content {
-    align-items: flex-start;
-    text-align: right;
+  .task-head-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
   }
 
+  .task-head-row strong,
   .advisor-task .task-content strong {
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .advisor-task .task-topic {
-    font-size: 11.5px;
+    font-size: 11px;
     padding: 2px 7px;
     border-radius: 6px;
-    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .advisor-task .task-desc {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
   }
 
   .advisor-task .task-meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     margin-top: 6px;
     width: 100%;
   }
 
   .time-pill {
     font-size: 11px;
-    padding: 2px 7px;
+    padding: 2.5px 8px;
+    border-radius: 999px;
   }
 
   .status-pill {
     font-size: 10.5px;
-    padding: 2px 7px;
+    padding: 2px 8px;
+    border-radius: 999px;
   }
 
   .advisor-task .task-meta .tag-pill {
     font-size: 10.5px;
-    padding: 2px 7px;
+    padding: 2px 8px;
+    border-radius: 999px;
   }
 }

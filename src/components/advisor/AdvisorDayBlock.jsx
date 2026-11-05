@@ -54,8 +54,10 @@ export default function AdvisorDayBlock({ day }) {
             day.items.map((item) => (
               <div className="task-row advisor-task" key={item.id}>
                 <div className="task-content">
-                  <strong>{item.subject}</strong>
-                  {topicLabel(item) && <span className="task-topic">{topicLabel(item)}</span>}
+                  <div className="task-head-row">
+                    <strong>{item.subject}</strong>
+                    {topicLabel(item) && <span className="task-topic">{topicLabel(item)}</span>}
+                  </div>
                   {item.description && <span className="task-desc">{item.description}</span>}
                   <div className="task-meta">
                     <TimeBadge startTime={item.startTime} endTime={item.endTime} />

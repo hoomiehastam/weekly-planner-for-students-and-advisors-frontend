@@ -6,7 +6,7 @@
  *    پس هیچ داده‌ی برنامه، آزمون یا حساب کاربری‌ای در حافظه‌ی نهان نمی‌ماند.
  *  - بعد از هر انتشار، دو علامت زیر را اسکریپت scripts/stamp-sw.cjs پر می‌کند (دستی دست نزن).
  */
-const BUILD_ID = "3bc540f3077c";
+const BUILD_ID = "324cc2306cac";
 const PRECACHE_URLS = /*__PRECACHE__*/ [];
 
 const STATIC_CACHE = `static-${BUILD_ID}`;

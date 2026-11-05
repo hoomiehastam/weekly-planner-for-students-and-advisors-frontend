@@ -119,8 +119,10 @@ export default function PlanStudentCard({ plan, isOpen, onToggleOpen, onToggleIt
                       <span className="checkmark" aria-hidden><Ico e="✓" /></span>
                     </label>
                     <div className="task-content">
-                      <strong className={item.status === 'DONE' ? 'done-text' : ''}>{item.subject}</strong>
-                      {topicLabel(item) && <span className="task-topic">{topicLabel(item)}</span>}
+                      <div className="task-head-row">
+                        <strong className={item.status === 'DONE' ? 'done-text' : ''}>{item.subject}</strong>
+                        {topicLabel(item) && <span className="task-topic">{topicLabel(item)}</span>}
+                      </div>
                       {item.description && <span className="task-desc">{item.description}</span>}
                       <div className="task-meta">
                         <TimeBadge startTime={item.startTime} endTime={item.endTime} />
